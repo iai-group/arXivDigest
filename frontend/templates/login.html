@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <div id=login>
+    <fieldset>
+      <legend>Login:</legend>
+      <form action="{{ url_for('general.login',next=next) }}" method="POST">
+        <p>
+          <label>Email:</label>
+          <input id="loginEmail" type="email" name="email" placeholder="Your email.." required autofocus size="254">
+        </p>
+        <p>
+          <label>Password:</label>
+          <input id="loginPassword" type="password" name="password" placeholder="Your password.." pattern="(?=^.{9,256}$)(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+            required size="256">
+        </p>
+        <p>
+          <input id="largeLoginButton" type="submit" value="Login"> </p>
+        <br>
+        <br>
+        <br>
+        <br>
+      </form>
+    </fieldset>
+  </div>
+</div>
+{%endblock%}

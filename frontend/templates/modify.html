@@ -1,0 +1,120 @@
+{% extends "base.html" %} {% block content %}
+<script>
+    categoryList = {{ categoryList | safe }}
+    usercategories= {{user.categories | safe}}
+                                
+</script>
+<div class="container">
+
+    <fieldset>
+        <legend>Modify profile:</legend>
+
+        <form action="{{ url_for('general.modify') }}" method="POST" id="signupForm" enctype=multipart/form-data>
+            <table>
+                <tr>
+                    <td>
+                        <label for="email" class="signupLabel">Email: *</label>
+                    </td>
+                    <td>
+                        <p class="signupHint">Your email will not be distributed.</p>
+                        <input type="email" id="email" name="email" value="{{user.email}}" required onblur="inputTouched(this)" autofocus size="254"
+                            onfocus="removeTouched(this)">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="firstName">First name: *</label>
+                    </td>
+                    <td>
+                        <input type="text" id="firstName" name="firstName" value="{{user.firstName}}" required onblur="inputTouched(this)" size="60"
+                            onfocus="removeTouched(this)">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="lastName">Last name:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="lastName" name="lastName" value="{{user.lastName}}" required onblur="inputTouched(this);" size="60"
+                            onfocus="removeTouched(this)">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="websiteInput" class="signupLabel">Websites: *</label>
+                    </td>
+                    <td>
+                        <br>
+                        <p class="signupHint">Enter one or more webpages. Preferably your dblp, google profile or linkedIn</p>
+                        {%for page in user.webpages%}
+                        <input id="websiteInput" type="text" name="website" value="{{page}}" onblur="inputTouched(this);" onfocus="removeTouched(this)"
+                            required size="1024">
+                        {%endfor%}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="keywords" class="signupLabel">Keywords:</label>
+                    </td>
+                    <td>
+                        <br>
+                        <p class="signupHint">Enter your interests seperated by a comma</p>
+                        <input type="text" id="linkedin" name="keywords" value="{{user.keywords}}" size="255">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="interests" class="signupLabel">Interests:</label>
+                    </td>
+                    <td>
+                        <br>
+                        <p class="signupHint">Select categories and/or subcategories you're interested in, press enter 
+                            or add to submit currently selected category</p>
+                        <ul id="interestsList">
+                        </ul>
+                        <input type="hidden" name="categories" id="categoriesInput">
+                        <div class="flexContainer">
+                            <input id="interestsInput" class="flexinput" type="text" name="interests" placeholder="Your interests.." size="300">
+                            <button id="addCategory">Add</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="keywords" class="signupLabel">Notification interval:</label>
+                    </td>
+                    <td>
+                        <br>
+                        <p>How often would you like a notification email?</p>
+                        {%if user.notificationInterval == 7%}
+                        <input type="radio" name="digestFrequency" value="1 day" >1 day<br>
+                        <input type="radio" name="digestFrequency" value="3 days">3 days<br>
+                        <input type="radio" name="digestFrequency" value="7 days" checked>7 days
+                        {%elif user.notificationInterval == 3%}
+                        <input type="radio" name="digestFrequency" value="1 day" >1 day<br>
+                        <input type="radio" name="digestFrequency" value="3 days" checked>3 days<br>
+                        <input type="radio" name="digestFrequency" value="7 days">7 days
+                        {%else%}
+                        <input type="radio" name="digestFrequency" value="1 day" checked>1 day<br>
+                        <input type="radio" name="digestFrequency" value="3 days">3 days<br>
+                        <input type="radio" name="digestFrequency" value="7 days">7 days
+                        {%endif%}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>
+                            <br>
+                        <input type="submit" value="Update Profile"> 
+                    </td>
+
+                </tr>
+            </table>
+
+        </form>
+    </fieldset>
+
+</div>
+
+{%endblock%}

@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 col-lg-offset-3 text-center">
+            <h2>Administrate systems</h2>
+            <hr>
+            <h3 class="leftText">List of systems:</h3>
+            <div id="systemListDiv">
+                <ul id="systemList">
+                    {%for system in systems%}
+                    <li>ID
+                        <strong>{{system.id}}</strong> : {{system.name}} ( {{system.key}} )</li>
+                    {%endfor%}
+                </ul>
+            </div>
+            <hr>
+            <h3 class="leftText">Submit new system:</h3>
+            <form id="systemForm" action="{{ url_for('admin.addSystem') }}" method="POST" enctype=multipart/form-data>
+                <label for="systemName">System name:</label>
+                <input type="text" id="systenName" name="systemName" placeholder="System Name..">
+                <br>
+                <p style="color:gray;">By sumbitting system you will get a system key. Search the list of systems for your key.</p>
+                <input type="submit" value="Submit system" id="systemSubmit">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

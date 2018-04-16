@@ -1,0 +1,67 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 col-lg-offset-3 text-center">
+            <table class="table table-user-information">
+                <tbody>
+                    <h3>{{user.firstName}}&nbsp{{user.lastName}}'s profile information:</h3>
+                    <tr>
+                        <td>Name:</td>
+                        <td>
+                            {{user.firstName}} {{user.lastName}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td>
+                            <a href="mailto:{{user.email}}">{{user.email}}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Webpages:</td>
+                        <td>{% for page in user.webpages %}
+                            <a target="_blank" href=//{{page}}>{{page}}</a>
+                            <br> {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Keywords:</td>
+                        <td>
+                            {{user.keywords}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Interests:</td>
+                        <td>
+                            {% for category in user.categories %}
+                            <a href="https://arxiv.org/list/{{category[0]}}/recent" target="_blank">{{category[1]}}</a>
+                            <br> {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Notification Interval:</td>
+                        <td>{{user.notificationInterval}}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('general.passwordChange') }}">
+                                <div class="fileinput">
+                                    <h5>Change password</h5>
+                                </div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('general.modify') }}">
+                                <div class="fileinput">
+                                    <h5>Modify profile</h5>
+                                </div>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{%endblock%}
