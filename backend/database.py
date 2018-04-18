@@ -77,30 +77,21 @@ def getUsers(ids):
 
 
 def getArticleIDs(date):
-    '''Returns a list of all articleIDs added at the requested date, if date is none
-    it will return all articleIDs for the most recent date in the database.'''
+    '''Returns a list of all articleIDs added at the requested date.'''
     cur = getDb().cursor()
 
-    if date:
-        sql = 'SELECT count(*) FROM articles WHERE datestamp=%s'
-        cur.execute(sql, (date,))
-        count = cur.fetchone()[0]
-        sql = 'SELECT article_ID FROM articles WHERE datestamp=%s ORDER BY article_ID ASC '
-        cur.execute(sql, (date,))
-    else:
-        sql = 'SELECT count(*) FROM articles WHERE datestamp=(SELECT MAX(datestamp) from articles)'
-        cur.execute(sql)
-        count = cur.fetchone()[0]
-        sql = 'SELECT article_ID FROM articles WHERE datestamp=(SELECT MAX(datestamp) from articles) ORDER BY article_ID ASC '
-        cur.execute(sql)
-    articleList = cur.fetchall()
+    sql = 'SELECT count(*) FROM articles WHERE datestamp=%s'
+    cur.execute(sql, (date,))
+    count = cur.fetchone()[0]
+
+    sql = 'SELECT article_ID FROM articles WHERE datestamp=%s ORDER BY article_ID ASC'
+    cur.execute(sql, (date,))
+
     articles = {
         'num': count,
-        'article_ids': [x[0] for x in articleList]
+        'article_ids': [x[0] for x in cur.fetchall()]
     }
-
     cur.close()
-
     return articles
 
 
@@ -185,7 +176,7 @@ def getArticleData(ids):
 
 def insertRecommendations(recommendations):
     '''Takes in a list of tuples containg (userID,articleID,systemID,score,timestamp),
-    and inserts them into the system_recomendation table.'''
+    and inserts them into the system_recomendation table, replacing duplicate primary keys.'''
     conn = getDb()
     cur = conn.cursor()
 

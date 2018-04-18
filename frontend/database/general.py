@@ -68,7 +68,7 @@ def insertUser(user):
 
     password = user.password.encode('utf-8')
     user.hashedPassword = bcrypt.hashpw(password, bcrypt.gensalt())
-    curdate = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
+    curdate = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
     cur.execute(usersql, (user.email, user.hashedPassword,
                           user.firstName, user.lastName, user.keywords, user.digestfrequency, curdate))

@@ -15,7 +15,7 @@ Fields returned:
   - `num`: total number of users
   - `start`: start index of listing
   - `user_ids`: list of user IDs
-  - `error`: if somthing went wrong
+  - `error`: if something went wrong
 
 
 Example:
@@ -54,7 +54,9 @@ Fields returned for each user:
   - `homepages`: list of homepages
   - `keywords`: list of self-supplied keywords
   - `categories` : list of arXiv categories user is interested in
-  - `error`: if somthing went wrong
+
+Other fields:
+  - `error`: if something went wrong
 
 Example:
 
@@ -94,7 +96,7 @@ Example:
 
 Returns the feedback data recorded for a given user (or list of users).
 
-*TODO*
+*TODO* what to return here?
 
 
 ## Article data
@@ -103,15 +105,15 @@ Returns the feedback data recorded for a given user (or list of users).
 
 `GET /api/articles`
 
-Returns a list of articles, which are candidates for recommendation, for a given day.
+Returns a list of articles, which are candidates for recommendation, for a given day. If arXiv did not post anything at the requested date, the article_ids-field will be empty.
 
 Parameters:
-  - `date` date in YYYY-MM-DD format (default: most recent date with articles) 
+  - `date` date in YYYY-MM-DD format (default: current date) 
 Data returned:
   - `num`: total number of articles
   - `article_ids`: list of article ids:
   - `date` : date articles were added
-  - `error`: if somthing went wrong
+  - `error`: if something went wrong
 
 Example:
 
@@ -158,7 +160,9 @@ Fields returned for each article:
     - `keyname` :keyname of author (if available)
     - `affiliations`: for each author a list of their affiliations
   - `categories` : list of categories
-  - `error`: if somthing went wrong
+
+Other fields:
+  - `error`: if something went wrong
 
 Example:
 
@@ -199,17 +203,18 @@ Example:
 
 `POST /api/recommendations`
 
-Insert recommendations for articles to users, with a score describing how well it matches the users interests
+Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the schedudle *TODO* make schedule *TODO* , recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to the arXIv the same day. See the recommendation subbmission guide for more information on how to submit recommendations.  *TODO* link to guide 
 
 Header:
-- `api_key` used to identify wich system the recomendations come from
+- `api_key` used to identify which system the recomendations come from
 
 JSON:
+  - `user_id` id of the user
   - `article_id` id of the article
   - `score` score of the recommendation
 
 Data returned:
-  - `error`: if somthing went wrong
+  - `error`: if something went wrong
   - `article_ids`: list of article ids:
 
 Example:
@@ -223,7 +228,7 @@ Example:
   - JSON:
     ```
     {
-        "recommendations": {1: [
+        "recommendations": {user_id: [
             {"article_id": "1107.2529", "score": 2},
             {"article_id": "1308.1196", "score": 3},
             {"article_id": "1312.5699", "score": 2}
@@ -238,7 +243,7 @@ Example:
   - Response:
     ```
     {
-      "success": "Success"
+      "success": True
       "error" : "Some error"
     }
     ```
@@ -253,12 +258,13 @@ Parameters:
 - `user_id` User ID, or a list of up to 100 user IDs, separated by a comma
 
 Fields returned for each user:
-
   - `article_id`: id of article
   - `score`:score of article for this user
   - `date`: date this recommendation was given
-  - `system_id`: id of the system wich gave this recommendation
-  - `error`: if somthing went wrong
+  - `system_id`: id of the system which gave this recommendation
+
+Other fields:
+  - `error`: if something went wrong
 
 Example:
 

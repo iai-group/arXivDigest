@@ -59,14 +59,13 @@ def userinfo():
 @validateApiKey
 def articles():
     '''API-endpoint for requesting articleIDs, all articles added on the specified "date",
-     if "date" is not specified it will use the most recent date available in the database.'''
-    date = request.args.get('date')
-    if date:
-        try:
-            date = datetime.strptime(
-                date, "%Y-%m-%d").strftime("%Y/%m/%d")
-        except Exception:
-            return make_response(jsonify({'error': 'Invalid date format.'}, 400))
+     if "date" is not specified it will the current date.'''
+    date = request.args.get('date', datetime.now())
+    try:
+        date = datetime.strptime(
+            date, "%Y-%m-%d").strftime("%Y/%m/%d")
+    except Exception:
+        return make_response(jsonify({'error': 'Invalid date format.'}, 400))
     articles = db.getArticleIDs(date)
     return make_response(jsonify({'articles': articles}), 200)
 
@@ -103,46 +102,45 @@ def recommendation():
     if len(data) > app.config['MAX_RECOMMENDATION_USERS']:
         err = 'Requests must not contain more than %s users.' % app.config[
             'MAX_RECOMMENDATION_USERS']
-        return make_response(jsonify({'error': err}), 400)
+        return make_response(jsonify({'success': False, 'error': err}), 400)
 
     for user in data:
         if len(user) > app.config['MAX_RECOMMENDATION_ARTICLES']:
             err = 'Requests must not contain more than %s articles per user.' % app.config[
                 'MAX_RECOMMENDATION_ARTICLES']
-            return make_response(jsonify({'error': err}), 400)
+            return make_response(jsonify({'success': False, 'error': err}), 400)
 
     users = db.checkUsersExists([k for k in data])
     if len(users) > 0:
         err = 'No users with ids: %s.' % ', '.join(users)
-        return make_response(jsonify({'error': err}), 400)
+        return make_response(jsonify({'success': False, 'error': err}), 400)
 
     articleIDs = [v['article_id'] for k, v in data.items()for v in v]
     articles = db.checkArticlesExists(articleIDs)
     if len(articles) > 0:
         err = 'Could not find articles with ids: %s.' % ', '.join(articles)
-        return make_response(jsonify({'error': err}), 400)
+        return make_response(jsonify({'success': False, 'error': err}), 400)
 
-    articlesToday = db.getArticleIDs(None)['article_ids']
+    today = datetime.now().strf("%Y/%m/%d")
+    articlesToday = db.getArticleIDs(today)['article_ids']
     notToday = (set(articlesToday) & set(articleIDs) ^ set(articleIDs))
     if notToday:
-        err = 'These articles are not from previous batch: %s.' % ', '.join(
+        err = 'These articles are not from todays batch: %s.' % ', '.join(
             notToday)
-        return make_response(jsonify({'error': err}), 400)
+        return make_response(jsonify({'success': False, 'error': err}), 400)
 
     try:
-        score = [float(v['score']) for k, v in data.items()for v in v]
-        if not all(i >= 0 and i <= 10 for i in score):
-            return make_response(jsonify({'error': 'Score must be between 0 and 10'}), 400)
+        [float(v['score']) for k, v in data.items()for v in v]
     except Exception:
         err = 'Score must be a float'
-        return make_response(jsonify({'error': err}), 400)
+        return make_response(jsonify({'success': False, 'error': err}), 400)
 
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     data = [(k, v['article_id'], g.sysID, v['score'], now)
             for k, v in data.items()for v in v]
 
-    result = db.insertRecommendations(data)
-    return make_response(jsonify({'status': 'success'}), 200)
+    db.insertRecommendations(data)
+    return make_response(jsonify({'success': True}), 200)
 
 
 @app.route('/api/recommendations', methods=['GET'])

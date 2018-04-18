@@ -11,7 +11,7 @@ except ImportError:
     import xml.etree.ElementTree as ET
 from urllib.request import urlopen
 import urllib
-from time import gmtime, strftime, sleep
+from time import strftime, sleep
 import datetime
 import feedparser
 
@@ -50,8 +50,7 @@ def prepareRecord(record):
 
         authors.append(a)
     result['authors'] = authors
-    datestamp = record.find(OAI + 'header').find(OAI + 'datestamp')
-    result['datestamp'] = datestamp.text
+    result['datestamp'] = datetime.date.today()
     return result
 
 

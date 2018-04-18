@@ -23,7 +23,7 @@ def requiresLogin(f):
 def encode_auth_token(id, email):
     '''Creates authToken for user with id and email with expire time of 10 days'''
     payload = {
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=10),
+        'exp': datetime.datetime.now() + datetime.timedelta(days=10),
         'sub': id,
         'email': email
     }
