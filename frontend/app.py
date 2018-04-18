@@ -32,16 +32,14 @@ def after_request_log(response):
 def before_request():
     '''Checks authTokens before requests to check if users are logged in or not'''
     authToken = request.cookies.get("auth")
-    if authToken is not None:
-        try:
-            payload = jwt.decode(authToken, jwtKey)
-            g.user = payload['sub']
-            g.email = payload['email']
-            g.loggedIn = True
-        except Exception as e:
-            g.loggedIn = False
-            print('JWT error:', e)
-    else:
+    try:
+        payload = jwt.decode(authToken, jwtKey)
+        g.user = payload.get('sub', None)
+        g.email = payload.get('email', None)
+        g.loggedIn = True
+    except Exception:
+        g.user = None
+        g.email = None
         g.loggedIn = False
 
 
