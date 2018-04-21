@@ -4,7 +4,6 @@ GRANT SELECT,INSERT,UPDATE,DELETE,CREATE ON *.* TO 'restrictedAccess'@'%';
 drop table if exists systems;
 drop table if exists system_recommendations;
 drop table if exists user_recommendations; 		
-drop table if exists user_files;
 drop table if exists user_webpages;
 drop table if exists user_categories;
 drop table if exists users;
@@ -37,15 +36,6 @@ registered datetime not null,
 admin boolean default false,
 primary key (user_ID)		
 );
-
-/*  
-create table user_files(
-userID int,
-filename varchar(200) not null,
-filedata mediumblob not null,
-foreign key (userID) references users (userID) on delete cascade
-primary key(userID,filename)
-);*/
 
 create table user_webpages(
 user_ID int,
@@ -142,32 +132,9 @@ FOR EACH ROW
 BEGIN
   UPDATE users
     SET last_recommendation_date =curdate()
-    WHERE user_ID = NEW.user_ID;  -- The OP figured this line out for himself.
+    WHERE user_ID = NEW.user_ID;
 END;
 $$
 DELIMITER ;
 
-#create table articleList(
-#ID int auto_increment,
-#usersID varchar(100) not null,
-#listname varchar(100) not null,
-#description varchar(500),
-#primary key (ID),
-#foreign key (usersID) references users (email) on delete cascade
-#);
 
-#create table listItem(
-#listID int not null,
-#articleID int not null,
-#foreign key (listID) references articleList (ID) on delete cascade,
-#foreign key (articleID) references articles (ID) on delete cascade
-#);
-
-#should find out what indexes we need before creating them
-#CREATE INDEX firstNameIndex ON users (firstName);
-#CREATE INDEX lastNameIndex ON users (lastName);
-#CREATE INDEX interestIndex ON users (interests);
-#CREATE INDEX publicationIndex ON users (publicationlist);
-#create index tittelIndex on articles (title);
-#create index forfatternavnIndex on author (navn);
-#create index listeNavnIndex on articleList (navn);
