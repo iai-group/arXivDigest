@@ -17,11 +17,11 @@ def isAdmin(id):
 
 def getSystems():
     '''Returns list of all recommending systems'''
-    cur = getDb().cursor()
-    cur.execute('SELECT system_ID, api_key, system_name FROM systems')
+    cur = getDb().cursor(dictionary=True)
+    cur.execute('SELECT * FROM systems')
     data = cur.fetchall()
     cur.close()
-    return [{'id': x[0], 'name':x[2], 'key':x[1]} for x in data]
+    return data
 
 
 def insertSystem(name):
@@ -36,3 +36,15 @@ def insertSystem(name):
     cur.close()
     conn.commit()
     return id
+
+
+def toggleSystem(systemID, value):
+    '''Sets active to value for given system. Returns true if successful, false if unsuccessful'''
+    cur = getDb().cursor()
+    sql = 'UPDATE systems SET active=%s WHERE system_ID = %s'
+    cur.execute(sql, (value, systemID, ))
+    if cur.rowcount == 0:
+        return False
+    getDb().commit()
+    cur.close()
+    return True

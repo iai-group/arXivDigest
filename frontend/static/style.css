@@ -92,12 +92,12 @@ input~.glyphicon-ok {
   visibility: hidden;
 }
 
-#filelist, #interestsList, systemList{
+ #interestsList{
   list-style-type: none;
   list-style-position: outside;
 }
 
-#filelist li, #interestsList li, #systemList li{
+#interestsList li{
   background-color: #c0c0c0;
   color: rgb(63, 63, 63);
   border: none;
@@ -106,10 +106,14 @@ input~.glyphicon-ok {
   margin-right: 5px;
   text-align: center;
 }
-
-#systemList li{
-  width: 460px;
+.systemList{
+  overflow: scroll;
+  overflow-x: hidden;
+  height:200px;
+  max-height: 200px;
 }
+
+
 
 .signupLabel{
   position: absolute;
@@ -121,16 +125,7 @@ input~.glyphicon-ok {
   margin-bottom: 3px;
 }
 
-.fileinput {
-  color: white;
-  height: 40px;
-  background-color: #4CAF50;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  text-align: center;
-  padding-top: 1px;
-}
+
 #addCategory{
   color: white;
   background-color: #4CAF50;
@@ -152,14 +147,6 @@ input~.glyphicon-ok {
 .glyphicon.glyphicon-remove {
   margin-left: 5px;
   color: coral;
-}
-
-.fileinput:hover {
-  background-color: #45a049;
-}
-
-td input[type=file] {
-  display: none;
 }
 
 td input[type=radio]{
@@ -350,13 +337,6 @@ code {
 }
 .articleDiv h4:hover{
   color: coral;
-}
-
-#systemListDiv{
-  overflow: scroll;
-  overflow-x: hidden;
-  height:200px;
-  max-height: 200px;
 }
 
 .leftText{

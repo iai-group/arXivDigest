@@ -1,7 +1,7 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-from flask import Blueprint, render_template, request, g, make_response, abort
+from flask import Blueprint, render_template, request, g, make_response, abort, jsonify
 from database import admin as db
 from utils import requiresLogin
 import mysql
@@ -32,3 +32,13 @@ def addSystem():
     except mysql.connector.IntegrityError as identifier:
         return render_template('admin.html', systems=db.getSystems(), err="System name already in use.")
     return render_template('admin.html', systems=db.getSystems())
+
+
+@mod.route('/toggleSystem/<int:systemID>/<state>', methods=['GET'])
+@requiresLogin
+def toggleSystem(systemID, state):
+    '''Endpoint for activating and deactivating systems, sets active-value for system with <systemID> to <state>'''
+    state = True if state.lower() == "true" else False
+    if db.toggleSystem(systemID, state):
+        return jsonify(result='Success')
+    return jsonify(result='Fail')

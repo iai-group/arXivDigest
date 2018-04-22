@@ -296,6 +296,21 @@ $(document).ready(function () {
                 });
         })
     })
-
+    $(".toggleSystem").each(function () {
+        var box = $(this);
+        box.attr("title", box.data("active") ? "Deactivate this system." : "Activate this system.");
+        box.prop("checked", box.data("active"))
+        $(this).on("click", function () {
+            var isActive = box.data("active")
+            $.getJSON("/admin/toggleSystem/" + box.data("value") + "/" + !isActive, {},
+                function (data) {
+                    if (data.result == "Success") {
+                        box.attr("title", box.data("active") ? "Activate this system." : "Deactivate this system.");
+                        box.data("active", !box.data("active"))
+                    }
+                    box.prop("checked", box.data("active"))
+                });
+        })
+    })
 });
 
