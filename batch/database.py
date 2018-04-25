@@ -1,4 +1,4 @@
-'''This module implements methods wich the batchprocess uses to interface with the database'''
+'''This module implements methods which the batchprocess uses to interface with the database'''
 _author_ = "Øyvind Jekteberg and Kristian Gingstad"
 _copyright_ = "Copyright 2018, The ArXivDigest Project"
 from collections import defaultdict

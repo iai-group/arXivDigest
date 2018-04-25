@@ -14,7 +14,7 @@ from frontend.database import getDb
 def getUser(id):
     '''Return user as a dictionary. Include webpages and categories as sub dictionaries'''
     cur = getDb().cursor()
-    cur.execute('SELECT * FROM USERS WHERE user_ID = %s', (id,))
+    cur.execute('SELECT * FROM users WHERE user_ID = %s', (id,))
     userData = cur.fetchone()
     if not userData:
         return None
@@ -135,7 +135,7 @@ def userExist(email):
 
 
 def getCategoryNames():
-    '''Returns list of article categories avaiable in the database'''
+    '''Returns list of article categories available in the database'''
     cur = getDb().cursor()
     cur.execute('SELECT category_ID,category_name FROM categories')
     data = cur.fetchall()

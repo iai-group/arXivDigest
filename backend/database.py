@@ -6,7 +6,7 @@ import mysql.connector
 from flask import g
 from config import config
 from collections import defaultdict
-'''This module implements methods wich the api uses to interface with the database'''
+'''This module implements methods which the api uses to interface with the database'''
 
 
 def getDb():

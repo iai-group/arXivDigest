@@ -40,7 +40,7 @@ def insertIntoDB(metaData, conn):
             conn.commit()
             i += 1
             print('\rInserted {} elements.'.format(i), end='')
-        print('Succesfully inserted the elements.')
+        print('Successfully inserted the elements.')
     finally:
         cur.close()
         conn.close()
