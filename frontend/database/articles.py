@@ -1,5 +1,5 @@
 from mysql import connector
-from database.db import getDb
+from frontend.database import getDb
 
 
 def getLikedArticles(userid, interval, order, start, n):

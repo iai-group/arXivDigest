@@ -3,13 +3,12 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import mysql.connector
 import datetime
-from models.user import User
+from frontend.models.user import User
 from flask import g
 from mysql import connector
 from uuid import uuid4
 import bcrypt
-from config import config
-from database.db import getDb
+from frontend.database import getDb
 
 
 def getUser(id):
@@ -59,7 +58,7 @@ def insertUser(user):
     '''Insert user object, webpages and categories into database. Return error or users id'''
     conn = getDb()
     cur = conn.cursor()
-    usersql = 'INSERT INTO USERS VALUES(null,%s,%s,%s,%s,%s,%s,%s,false)'
+    usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,%s,false)'
     webpagesql = 'INSERT INTO user_webpages VALUES(%s,%s)'
     categoriesql = 'INSERT INTO user_categories VALUES(%s,%s)'
 

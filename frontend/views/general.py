@@ -3,10 +3,10 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 from flask import Blueprint, request, make_response, g, jsonify, render_template, redirect
 import bcrypt
-from models.user import User
-from models.errors import ValidationError
-from database import general as db
-from utils import encode_auth_token, requiresLogin
+from frontend.models.user import User
+from frontend.models.errors import ValidationError
+from frontend.database import general as db
+from frontend.utils import encode_auth_token, requiresLogin
 
 mod = Blueprint('general', __name__)
 

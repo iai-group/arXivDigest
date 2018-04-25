@@ -2,8 +2,8 @@ __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 from flask import Blueprint, render_template, request, g, make_response, abort, jsonify
-from database import admin as db
-from utils import requiresLogin
+from frontend.database import admin as db
+from frontend.utils import requiresLogin
 import mysql
 mod = Blueprint('admin', __name__)
 

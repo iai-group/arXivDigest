@@ -6,7 +6,7 @@ import math
 import datetime
 from functools import wraps
 from flask import g, request, make_response, redirect, url_for
-from config import config, jwtKey
+from frontend import config, jwtKey
 
 
 def requiresLogin(f):

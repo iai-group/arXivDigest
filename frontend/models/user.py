@@ -5,11 +5,12 @@ import jwt
 import datetime
 import re
 import datetime
-from models.errors import ValidationError
+from frontend.models.errors import ValidationError
 
 
 class User():
     '''User class containing most user attributes'''
+
     def __init__(self, user):
         self.email = user.get('email')
         self.password = user.get('password')
@@ -50,7 +51,8 @@ class User():
         '''Checks if firstname seems valid'''
         # ^([\p{L}'\-\.]+ )+[\p{L}'\-\.]+$|^[\p{L}'\-\.]+$ unsuported with regular python regex
         if type(firstName) is not str or not len(firstName) > 0 or len(firstName) > 60:
-            raise ValidationError('Invalid value:%s' % firstName, 'invalid firstname')
+            raise ValidationError('Invalid value:%s' %
+                                  firstName, 'invalid firstname')
         self._firstName = firstName
 
     @property

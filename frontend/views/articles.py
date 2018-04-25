@@ -3,8 +3,8 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 from flask import Blueprint, request, make_response, g, jsonify, render_template, redirect
 import math
-from database import articles as db
-from utils import requiresLogin, pageinate
+from frontend.database import articles as db
+from frontend.utils import requiresLogin, pageinate
 
 mod = Blueprint('articles', __name__)
 

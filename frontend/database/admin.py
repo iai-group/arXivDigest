@@ -3,7 +3,7 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 from mysql import connector
 from uuid import uuid4
-from database.db import getDb
+from frontend.database import getDb
 
 
 def isAdmin(id):

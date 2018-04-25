@@ -4,8 +4,8 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 from flask import Flask, render_template, request, make_response, g, redirect, logging
 from mysql import connector
 import jwt
-from views import general, admin, articles
-from config import config, jwtKey
+from frontend.views import general, admin, articles
+from frontend import config, jwtKey
 
 
 app = Flask(__name__)
