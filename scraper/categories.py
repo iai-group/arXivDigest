@@ -1,7 +1,9 @@
-'''This is a dictionary of all the categories and their names, this list was generated from: https://arxiv.org/help/api/user-manual#subject_classifications 
+'''This is a dictionary of all the categories and their names, this list was generated from: https://arxiv.org/help/api/user-manual#subject_classifications
 It will need to be updated if there are added more subcategories to Arxiv'''
+
 _author_ = "Øyvind Jekteberg and Kristian Gingstad"
 _copyright_ = "Copyright 2018, The ArXivDigest Project"
+
 subCategoryNames = {'astro-ph': 'Astrophysics', 'astro-ph.CO': 'Cosmology and Nongalactic Astrophysics', 'astro-ph.EP': 'Earth and Planetary Astrophysics',
                     'astro-ph.GA': 'Astrophysics of Galaxies', 'astro-ph.HE': 'High Energy Astrophysical Phenomena', 'astro-ph.IM': 'Instrumentation and Methods for Astrophysics',
                     'astro-ph.SR': 'Solar and Stellar Astrophysics', 'cond-mat.dis-nn': 'Disordered Systems and Neural Networks', 'cond-mat.mes-hall': 'Mesoscale and Nanoscale Physics',

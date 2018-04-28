@@ -1,12 +1,15 @@
+'''This module implements the methods used for storing the scraped metadata into the mySQL database.
+InsertIntoDB() will insert all the articles in the supplied data, if an article already exists in the database
+it will be overwriten.'''
+
+_author_ = "Øyvind Jekteberg and Kristian Gingstad"
+_copyright_ = "Copyright 2018, The ArXivDigest Project"
+
 from scrapeMetadata import getCategories, harvestMetadataRss
 from categories import subCategoryNames
 from mysql import connector
 import json
-'''This module implements the methods used for storing the scraped metadata into the mySQL database.
-InsertIntoDB() will insert all the articles in the supplied data, if an article already exists in the database
-it will be overwriten.'''
-_author_ = "Øyvind Jekteberg and Kristian Gingstad"
-_copyright_ = "Copyright 2018, The ArXivDigest Project"
+
 with open('../config.json', 'r') as f:
     config = json.load(f)
 
