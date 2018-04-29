@@ -333,6 +333,47 @@ $(document).ready(function () {
                 }
             });
     });
+    $("ul.nav a[href ='#general']").bind("show.bs.tab", function () {
+        $.getJSON("/admin/general", {},
+            function (data) {
+                if (data.success == true) {
+                    plotcontainer = $("#userPlotContainer");
+                    $("#userPlot").remove();
+                    plotcontainer.append("<canvas id='userPlot'></canvas>");
+                    var ctx = $("#userPlot")[0].getContext('2d');
+                    var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.users.dates,
+                            datasets: [{
+                                label: 'User registration past two weeks',
+                                data: data.users.users,
+                                backgroundColor: 'rgba(100, 159, 64, 0.2)'
+                            }]
+                        },
+                    });
+                    plotcontainer = $("#articlePlotContainer");
+                    $("#articlePlot").remove();
+                    plotcontainer.append("<canvas id='articlePlot'></canvas>");
+                    var ctx = $("#articlePlot")[0].getContext('2d');
+                    var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.articles.dates,
+                            datasets: [{
+                                label: 'User registration past two weeks',
+                                data: data.articles.articles,
+                                backgroundColor: 'rgba(100, 159, 64, 0.2)'
+                            }]
+                        },
+                    });
+
+                    $("#statistics").text("Total users: " + data.users.total + "\n Total articles:" + data.articles.total)
+                }
+
+            });
+    });
+
     $(".nav-tabs a").click(function () {
         $(this).tab("show");
     });

@@ -10,7 +10,7 @@ mod = Blueprint('admin', __name__)
 
 @mod.before_request
 def before_request():
-    if not db.isAdmin(g.user):
+    if not g.loggedIn or not db.isAdmin(g.user):
         return abort(404)
     return None
 
@@ -19,7 +19,7 @@ def before_request():
 @requiresLogin
 def admin():
     '''Returns the adminpage'''
-    return render_template('admin.html', systems=db.getSystems())
+    return render_template('admin.html')
 
 
 @mod.route('/systems/get', methods=['GET'])
@@ -49,3 +49,13 @@ def toggleSystem(systemID, state):
     if db.toggleSystem(systemID, state):
         return jsonify({'success': True})
     return jsonify({'success': False})
+
+
+@mod.route('/general', methods=['GET'])
+@requiresLogin
+def general():
+    '''This endpoint returns general stats for the project'''
+    return jsonify({'success': True,
+                    'users': db.getUserStatistics(),
+                    'articles': db.getArticleStatistics()
+                    })
