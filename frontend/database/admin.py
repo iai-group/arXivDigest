@@ -26,12 +26,15 @@ def getSystems():
 
 def insertSystem(name):
     '''Inserts a new system into the database, name will be used as Name for the system,
-    and using uuid a random API-key is generated. Returns the id of the system if successfull and an error if not.'''
+    and using uuid a random API-key is generated. Returns the id of the system if successful and False if not.'''
     conn = getDb()
     cur = conn.cursor()
     sql = 'INSERT INTO systems VALUES(null,%s,%s,True)'
     key = str(uuid4())
-    cur.execute(sql, (key, name))
+    try:
+        cur.execute(sql, (key, name))
+    except connector.errors.IntegrityError:
+        return False
     id = cur.lastrowid
     cur.close()
     conn.commit()

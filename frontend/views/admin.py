@@ -1,5 +1,5 @@
-__author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
 from flask import Blueprint, render_template, request, g, make_response, abort, jsonify
 from frontend.database import admin as db
@@ -22,23 +22,30 @@ def admin():
     return render_template('admin.html', systems=db.getSystems())
 
 
-@mod.route('/addSystem', methods=['POST'])
+@mod.route('/systems/get', methods=['GET'])
 @requiresLogin
-def addSystem():
+def getSystems():
+    '''Returns list of systems from db'''
+    return jsonify({'success': True, 'systems': db.getSystems()})
+
+
+@mod.route('/systems/add/<name>', methods=['GET'])
+@requiresLogin
+def addSystem(name):
     '''Endpoint for inserting new systems, takes the system name from the form and passes it to the database function.'''
-    name = request.form['systemName']
-    try:
-        db.insertSystem(name)
-    except mysql.connector.IntegrityError as identifier:
-        return render_template('admin.html', systems=db.getSystems(), err="System name already in use.")
-    return render_template('admin.html', systems=db.getSystems())
+    if len(name) > 255:
+        return jsonify({'success': False, 'error': 'Name too long'})
+    id = db.insertSystem(name)
+    if id is False:
+        return jsonify({'success': False, 'error': 'Name taken'})
+    return jsonify({'success': True, 'systems': db.getSystems()})
 
 
-@mod.route('/toggleSystem/<int:systemID>/<state>', methods=['GET'])
+@mod.route('/systems/toggleActive/<int:systemID>/<state>', methods=['GET'])
 @requiresLogin
 def toggleSystem(systemID, state):
     '''Endpoint for activating and deactivating systems, sets active-value for system with <systemID> to <state>'''
-    state = True if state.lower() == "true" else False
+    state = True if state.lower() == 'true' else False
     if db.toggleSystem(systemID, state):
-        return jsonify(result='Success')
-    return jsonify(result='Fail')
+        return jsonify({'success': True})
+    return jsonify({'success': False})

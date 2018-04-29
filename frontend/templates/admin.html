@@ -1,42 +1,71 @@
 {% extends "base.html" %} {% block content %}
 <div class="container">
-    <div class="row">
-        <div>
-            <h2>Administrate systems</h2>
-            <hr>
-            <h3 class="leftText">List of systems:</h3>
-            <table class="systemList table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>API-key</th>
-                        <th>Active</th>
-                    </tr>
-                </thead>
-                <tbody> {%for system in systems%}
-                    <tr>
-                        <td>{{system.system_ID}}</td>
-                        <td>{{system.system_name}}</td>
-                        <td>{{system.api_key}}</td>
-                        <td>
-                            <input class="toggleSystem" type="checkbox" data-value={{system.system_ID}} data-active={{system.active}}>
-                        </td>
-                    </tr>
-                    {% endfor %}</tbody>
+  
+        <ul class="nav nav-tabs">
+            <li>
+                <a href="#general">General</a>
+            </li>
+            <li>
+                <a href="#systems">Manage systems</a>
+            </li>
+            <li>
+                <a href="#admins">Admins</a>
+            </li>
+            <li>
+                <a href="#menu3">Menu 3</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div id="general" class="tab-pane">
+                <h3>HOME</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                    magna aliqua.
+                </p>
+            </div>
+            <div id="systems" class="tab-pane .flex-container">
 
-            </table>
+                <div class="systemList">
+                    <h3 class="leftText">List of systems:</h3>
+                    <div><table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>API-key</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody> </tbody>
+
+                    </table>
+                </div></div>
+                <div class="infobox">
+                   <hr>  
+                    <h3 class="leftText">Submit new system:</h3>
+                
+                    <label for="systemName">System name:</label>
+                    <input type="text" id="systemName" name="systemName" placeholder="System Name..">
+                    <br>
+                    <p style="color:gray;">By submitting system you will get a system key. Search the list of systems for your key.</p>
+                    <input type="submit" value="Submit system" id="submitSystem">
+
+                </div>
+               
+               
+               
+            </div>
+
+            <div id="admins" class="tab-pane">
+                <h3>Menu 2</h3>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem
+                    aperiam.
+                </p>
+            </div>
+            <div id="menu3" class="tab-pane">
+                <h3>Menu 3</h3>
+                <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            </div>
         </div>
-        <hr>
-        <h3 class="leftText">Submit new system:</h3>
-        <form id="systemForm" action="{{ url_for('admin.addSystem') }}" method="POST" enctype=multipart/form-data>
-            <label for="systemName">System name:</label>
-            <input type="text" id="systenName" name="systemName" placeholder="System Name..">
-            <br>
-            <p style="color:gray;">By sumbitting system you will get a system key. Search the list of systems for your key.</p>
-            <input type="submit" value="Submit system" id="systemSubmit">
-        </form>
-    </div>
-</div>
+    
 </div>
 {% endblock %}

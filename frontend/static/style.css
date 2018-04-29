@@ -107,10 +107,20 @@ input~.glyphicon-ok {
   text-align: center;
 }
 .systemList{
-  overflow: scroll;
-  overflow-x: hidden;
-  height:200px;
-  max-height: 200px;
+  max-width: 500px;
+  margin: 10px;
+}
+.systemList div{
+    overflow: auto;
+    max-height: 300px;
+
+}
+.infobox{
+  width:auto;
+  height: auto;
+}
+.infobox input{
+width:200px;
 }
 
 

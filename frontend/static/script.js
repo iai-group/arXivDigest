@@ -296,21 +296,68 @@ $(document).ready(function () {
                 });
         })
     })
-    $(".toggleSystem").each(function () {
+
+    $(".systemList tbody").on("click", ".toggleSystem", function () {
         var box = $(this);
-        box.attr("title", box.data("active") ? "Deactivate this system." : "Activate this system.");
-        box.prop("checked", box.data("active"))
-        $(this).on("click", function () {
-            var isActive = box.data("active")
-            $.getJSON("/admin/toggleSystem/" + box.data("value") + "/" + !isActive, {},
-                function (data) {
-                    if (data.result == "Success") {
-                        box.attr("title", box.data("active") ? "Activate this system." : "Deactivate this system.");
-                        box.data("active", !box.data("active"))
-                    }
-                    box.prop("checked", box.data("active"))
-                });
-        })
+        var isActive = !box.prop("checked")
+        $.getJSON("/admin/systems/toggleActive/" + box.data("value") + "/" + !isActive, {},
+            function (data) {
+                if (data.success == true) {
+                    box.prop("title", isActive ? "Activate this system." : "Deactivate this system.");
+                    box.data("checked", !isActive)
+                }
+            });
     })
+    $("#submitSystem").on("click", function () {
+        var button = $(this);
+        if ($("#systemName").val() == "") {
+            alert("Name can't be empty.")
+            return
+        }
+        $.getJSON("/admin/systems/add/" + $("#systemName").val(), {},
+            function (data) {
+                if (data.success == true) {
+                    generateSystemTableHtml(data.systems);
+                } else if (data.error == "Name too long") {
+                    alert("Name must be shorter than 255 characters.");
+                } else if (data.error == "Name taken") {
+                    alert("Another system already uses this name");
+                }
+            });
+    })
+    $("ul.nav a[href ='#systems']").bind("show.bs.tab", function () {
+        $.getJSON("/admin/systems/get", {},
+            function (data) {
+                if (data.success == true) {
+                    generateSystemTableHtml(data.systems)
+                }
+            });
+    });
+    $(".nav-tabs a").click(function () {
+        $(this).tab("show");
+    });
+
+    if (location.hash) {
+        $("ul.nav a[href='" + location.hash + "']").tab("show");
+    } else {
+        $(".nav li:first-child a").tab("show");
+    }
+
+
 });
 
+function generateSystemTableHtml(systems) {
+    html = "<tr>";
+    for (const system of systems) {
+        html += "<td>" + system.system_ID + "</td>";
+        html += "<td>" + system.system_name + "</td>";
+        html += "<td>" + system.api_key + "</td>";
+        html += "<td><input class='toggleSystem' type='checkbox' data-value=" + system.system_ID
+        if (system.active) {
+            html += " checked"
+        }
+        html += system.active ? " title='Deactivate this system.'" : " title='Activate this system.'"
+        html += "></td></tr>";
+    }
+    $(".systemList tbody").html(html)
+}
