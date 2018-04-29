@@ -41,12 +41,12 @@ This evaluation framework consists of a front-end for *users* (researchers), a b
 
 Experimental recommender systems need to follow the following steps for submitting recommendations.
 
-  1. Call [`GET /api/users`](/api/README.md#List%20of%20users) to get a list of user IDs.
-  1. Call [`GET /api/userinfo?ids`](/api/README.md#User%20information) with user IDs as a parameter to get information about the users.
-  1. Call [`GET /api/articles`](/api/README.md#List%20of%20articles) to get the list of article IDs that are may be returned as recommendation.
-  1. Call [`GET /api/articledata?ids`](/api/README.md#Article%20data) with article IDs as a parameter to get information about the articles.
+  1. Call [`GET /api/users`](/api#list-of-users) to get a list of user IDs.
+  1. Call [`GET /api/userinfo?ids`](/api#user-information) with user IDs as a parameter to get information about the users.
+  1. Call [`GET /api/articles`](/api#list-of-articles) to get the list of article IDs that are may be returned as recommendation.
+  1. Call [`GET /api/articledata?ids`](/api#article-data) with article IDs as a parameter to get information about the articles.
   1. Use the gathered information to generate personalized recommendations for users.
-  1. Submit the generated recommendations to [`POST /api/recommendations`](/backend/README.md#Insert%20recommendations) in batches of maximum 100 users and 10 recommendations per user. Recommendations sent outside of the [recommendation period](#Arxiv%20schedule) will be ignored.
+  1. Submit the generated recommendations to [`POST /api/recommendations`](/api#insert-recommendations) in batches of maximum 100 users and 10 recommendations per user. Recommendations sent outside of the [recommendation period](#daily-submission-periods) will be ignored.
 
 ### Daily submission periods
 

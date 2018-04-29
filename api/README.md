@@ -220,7 +220,7 @@ Example:
 
 `POST /api/recommendations`
 
-Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](../README.md#ArXiv%20schedule), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to the arXIv the same day. See the  [recommendation submission guide](../README.md#Submitting%20recommendations) for more information on how to submit recommendations.   
+Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](/../../#daily-submission-periods), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to the arXIv the same day. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
 Header:
 - `api_key` used to identify which system the recomendations come from

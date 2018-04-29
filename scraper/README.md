@@ -42,7 +42,7 @@ This script will interact with the following tables in the database.
 
 Before running the script make sure to install the dependencies and configure the database connection in config.json.
 
- This script should be scheduled to run shortly after arXiv releases a new batch of articles, more about the arXiv schedule can be found [here](../README.md#ArXiv%20schedule). This can be archived by running the script with a cronjob.
+ This script should be scheduled to run shortly after arXiv releases a new batch of articles, more about the arXiv schedule can be found [here](/../../#arxiv-schedule). This can be archived by running the script with a cronjob.
 
  The script can be run directly with the python command:
 ```

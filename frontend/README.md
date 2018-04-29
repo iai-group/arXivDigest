@@ -100,10 +100,11 @@ Routes available:
 
 ## Setup
 
-How to deploy a flask application can be found [here](../README.md#Deploying%20a%20flask%20application)
+How to deploy a flask application can be found [here](http://flask.pocoo.org/docs/0.12/deploying/)
 
 ## Dependencies
 
 - [Mysql connector for python](https://dev.mysql.com/doc/connector-python/en/)
 - [Json Web Tokens](https://jwt.io/)
 - [Flask](http://flask.pocoo.org/)
+- [BCrypt](https://github.com/pyca/bcrypt/)
