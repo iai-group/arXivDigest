@@ -1,4 +1,19 @@
-# API endpoints
+# ArXivDigest API
+
+The ArXivDigest API provides a set of endpoints for experimental recommender systems to get access to articles and user profiles, and to upload personalized recommendations for online evaluation.
+
+Systems must have an active API key to access the endpoints.
+
+* [User data](#user-data)
+  + [List of users](#list-of-users)
+  + [User information](#user-information)
+  + [User feedback](#user-feedback)
+* [Article data](#article-data)
+  + [List of articles](#list-of-articles)
+  + [Article data](#article-data-1)
+* [Recommendations](#recommendations)
+  + [Insert recommendations](#insert-recommendations)
+  + [Recommendation data](#recommendation-data)
 
 ## User data
 
@@ -96,7 +111,7 @@ Example:
 
 Returns the feedback data recorded for a given user (or list of users).
 
-*TODO* what to return here?
+*TODO*
 
 
 ## Article data
@@ -108,7 +123,7 @@ Returns the feedback data recorded for a given user (or list of users).
 Returns a list of articles, which are candidates for recommendation, for a given day. If arXiv did not post anything at the requested date, the article_ids-field will be empty.
 
 Parameters:
-  - `date` date in YYYY-MM-DD format (default: current date) 
+  - `date` date in YYYY-MM-DD format (default: current date)
 Data returned:
   - `num`: total number of articles
   - `article_ids`: list of article ids:
@@ -197,13 +212,15 @@ Example:
       }
     }
     ```
+
+
 ## Recommendations
 
 ### Insert recommendations
 
 `POST /api/recommendations`
 
-Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the schedudle *TODO* make schedule *TODO* , recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to the arXIv the same day. See the recommendation subbmission guide for more information on how to submit recommendations.  *TODO* link to guide 
+Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](../README.md#ArXiv%20schedule), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to the arXIv the same day. See the  [recommendation submission guide](../README.md#Submitting%20recommendations) for more information on how to submit recommendations.   
 
 Header:
 - `api_key` used to identify which system the recomendations come from
@@ -232,7 +249,7 @@ Example:
             {"article_id": "1107.2529", "score": 2},
             {"article_id": "1308.1196", "score": 3},
             {"article_id": "1312.5699", "score": 2}
-        ], 
+        ],
         2: [
             {"article_id": "1308.1196", "score": 10},
             {"article_id": "1506.07383", "score": 6}
@@ -258,10 +275,11 @@ Parameters:
 - `user_id` User ID, or a list of up to 100 user IDs, separated by a comma
 
 Fields returned for each user:
-  - `article_id`: id of article
-  - `score`:score of article for this user
-  - `date`: date this recommendation was given
-  - `system_id`: id of the system which gave this recommendation
+
+- `article_id`: id of article
+- `score`:score of article for this user
+- `date`: date this recommendation was given
+- `system_id`: id of the system which gave this recommendation
 
 Other fields:
   - `error`: if something went wrong

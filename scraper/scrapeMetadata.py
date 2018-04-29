@@ -1,10 +1,11 @@
 '''This module contains the the methods related to scraping articles from arXiv.
 To only scrape the metadata from the aricles in the rss-stream use the harvestMetaDataRss method.
-It's also possible to scrape articles from any date until today, to accomplish this use the 
+It's also possible to scrape articles from any date until today, to accomplish this use the
 getRecordsFromLastnDays method.'''
 
 _author_ = "Øyvind Jekteberg and Kristian Gingstad"
 _copyright_ = "Copyright 2018, The ArXivDigest Project"
+
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
