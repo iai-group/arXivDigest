@@ -36,10 +36,12 @@ def before_request():
         payload = jwt.decode(authToken, jwtKey)
         g.user = payload.get('sub', None)
         g.email = payload.get('email', None)
+        g.admin = payload.get('admin', False)
         g.loggedIn = True
     except Exception:
         g.user = None
         g.email = None
+        g.admin = False
         g.loggedIn = False
 
 

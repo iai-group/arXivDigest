@@ -4,6 +4,7 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 import jwt
 import math
 import datetime
+import frontend.database.admin as admin
 from functools import wraps
 from flask import g, request, make_response, redirect, url_for
 from frontend import config, jwtKey
@@ -25,6 +26,7 @@ def encode_auth_token(id, email):
     payload = {
         'exp': datetime.datetime.now() + datetime.timedelta(days=10),
         'sub': id,
+        'admin': admin.isAdmin(id),
         'email': email
     }
     return jwt.encode(payload, jwtKey, algorithm='HS256').decode()

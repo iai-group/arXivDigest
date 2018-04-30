@@ -48,10 +48,11 @@
                     <li>
                         <a href="{{ url_for('articles.likedArticles') }}">Your liked articles</a>
                     </li>
+                    {% if g.admin %}
                     <li>
                         <a href="{{ url_for('admin.admin') }}">Administrate</a>
                     </li>
-                    {% endif %}
+                    {% endif %} {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if g.loggedIn%}
