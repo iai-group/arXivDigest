@@ -57,7 +57,7 @@ def toggleSystem(systemID, value):
 def getUserStatistics():
     '''Returns statistics about  the users'''
     cur = getDb().cursor()
-    sql = 'select count(*), DATE(registered) from users group by DATE(registered) order by registered desc limit 14'
+    sql = 'select count(*), DATE(registered) from users group by DATE(registered) order by registered desc limit 30'
     cur.execute(sql)
     usersByDate = cur.fetchall()
     cur.execute('SELECT count(*) from users')
@@ -65,7 +65,7 @@ def getUserStatistics():
 
     today = datetime.datetime.today()
     dateList = [(today - datetime.timedelta(days=x)).strftime("%Y-%m-%d")
-                for x in range(0, 14)]
+                for x in range(0, 30)]
     i = 0
     users = []
     for x in dateList:
@@ -87,7 +87,7 @@ def getUserStatistics():
 def getArticleStatistics():
     '''Returns statistics about the articles '''
     cur = getDb().cursor()
-    sql = 'select count(*), datestamp from articles group by datestamp order by datestamp desc limit 14'
+    sql = 'select count(*), datestamp from articles group by datestamp order by datestamp desc limit 30'
     cur.execute(sql)
     articlesByDate = cur.fetchall()
     cur.execute('SELECT count(*) from articles')
@@ -95,11 +95,11 @@ def getArticleStatistics():
 
     today = datetime.datetime.today()
     dateList = [(today - datetime.timedelta(days=x)).strftime("%Y-%m-%d")
-                for x in range(0, 14)]
+                for x in range(0, 30)]
     i = 0
     articles = []
     for x in dateList:
-        if str(articlesByDate[i][1]) == x:
+        if i < len(articlesByDate) and str(articlesByDate[i][1]) == x:
             articles.append(articlesByDate[i][0])
             i += 1
         else:
@@ -107,7 +107,7 @@ def getArticleStatistics():
 
     articles.reverse(),
     dateList.reverse(),
-    result = {'users': articles,
+    result = {'articles': articles,
               'dates': dateList,
               'total': total}
     cur.close()
