@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 '''This module implements methods which the batchprocess uses to interface with the database'''
-_author_ = "Øyvind Jekteberg and Kristian Gingstad"
-_copyright_ = "Copyright 2018, The ArXivDigest Project"
+__author__ = "Øyvind Jekteberg and Kristian Gingstad"
+__copyright__ = "Copyright 2018, The ArXivDigest Project"
 from collections import defaultdict
 
 

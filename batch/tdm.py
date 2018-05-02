@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+__author__ = "Øyvind Jekteberg and Kristian Gingstad"
+__copyright__ = "Copyright 2018, The ArXivDigest Project"
+''''''
 from os.path import commonprefix
 from random import choice
 from collections import defaultdict

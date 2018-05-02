@@ -1,5 +1,7 @@
-_author_ = "Øyvind Jekteberg and Kristian Gingstad"
-_copyright_ = "Copyright 2018, The ArXivDigest Project"
+# -*- coding: utf-8 -*-
+''''''
+__author__ = "Øyvind Jekteberg and Kristian Gingstad"
+__copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 from mail import mailServer
 from os.path import commonprefix

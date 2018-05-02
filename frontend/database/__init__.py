@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import g
 from mysql import connector
 from frontend import config
