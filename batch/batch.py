@@ -4,10 +4,9 @@
 '''
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
-
+import sys
+sys.path.append("..")
 from mail import mailServer
-from os.path import commonprefix
-
 from mysql import connector
 import database as db
 from tdm import multiLeaver
@@ -60,17 +59,17 @@ if __name__ == '__main__':
             break
         i += batchsize
 
-        recommendatons = []
+        recommendations = []
         emailBatch = {user: [] for user in systemRecs}
 
         for id, lists in systemRecs.items():
             recs, systems = ml.TDM(lists, )
             for i in range(0, len(recs)):
                 r = (id, recs[i], systems[i], len(recs)-i, now)
-                recommendatons.append(r)
+                recommendations.append(r)
                 if i < 3:
                     emailBatch[id].append(recs[i])
-        db.insertUserRecommendations(conn, recommendatons)
+        db.insertUserRecommendations(conn, recommendations)
         sendMail(server, conn, articleData, users, emailBatch)
     conn.close()
     server.close()
