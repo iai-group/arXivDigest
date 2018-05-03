@@ -6,10 +6,11 @@ from flask import Flask, render_template, request, make_response, g, redirect, l
 from mysql import connector
 import jwt
 from frontend.views import general, admin, articles
-from frontend import config, jwtKey
+from frontend import config, jwtKey, secret_key
 
 
 app = Flask(__name__)
+app.secret_key = secret_key
 app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')

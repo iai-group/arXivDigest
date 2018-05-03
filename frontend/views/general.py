@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-__author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
-from flask import Blueprint, request, make_response, g, jsonify, render_template, redirect
+from flask import Blueprint, request, make_response, g, jsonify, render_template, redirect, flash, url_for
 import bcrypt
 from frontend.models.user import User
 from frontend.models.system import System
@@ -19,16 +19,19 @@ def login():
     '''Logs in user based on username and password from form. Returns proper error message on template if 
     anything is wrong. Else returns index page and authToken'''
     if g.loggedIn:
-        return make_response(jsonify({'err': 'You can\'t register an account while you\'re already logged in.'})), 400
+        flash('You can\'t register an account while you\'re already logged in.', 'danger')
+        return redirect(url_for('articles.index'))
     data = request.form
 
     user = db.validatePassword(data.get('email'), data.get('password'))
     if user is None:
-        return render_template('login.html', err='User doesn\'t exist.')
+        flash('User doesn\'t exist.', 'danger')
+        return render_template('login.html')
     if user is False:
-        return render_template('login.html', err='Invalid password.')
-    next = request.args.get("next", "")
-    if next is not "":
+        flash('Invalid password.', 'danger')
+        return render_template('login.html', )
+    next = request.args.get('next', '')
+    if next is not '':
         return makeAuthTokenResponse(user, data.get('email'), next)
     return makeAuthTokenResponse(user, data.get('email'), '/')
 
@@ -38,10 +41,11 @@ def loginPage():
     '''Returns login page or index page if already logged in'''
     if g.loggedIn:
         return redirect('/')
-    next = request.args.get("next")
+    next = request.args.get('next')
     if next:
         err = 'You must be logged in to access this endpoint'
-        return render_template('login.html', err=err, next=next)
+        flash(err, 'danger')
+        return render_template('login.html', next=next)
     return render_template('login.html')
 
 
@@ -67,9 +71,11 @@ def signup():
     try:
         user = User(data)
     except ValidationError as e:
-        return render_template('signup.html', err=e.message)
+        flash(e.message, 'danger')
+        return render_template('signup.html', )
     if db.userExist(user.email):
-        return render_template('signup.html', err='Email already used by another account.')
+        flash('Email already used by another account.', 'danger')
+        return render_template('signup.html')
 
     id = db.insertUser(user)
 
@@ -91,11 +97,14 @@ def passwordChange():
     or profile page on success'''
     data = request.form
     if not data['password'] == data['confirmPassword']:
-        return render_template('passwordChange.html', err='Passwords must match.')
+        flash('Passwords must match.', 'danger')
+        return render_template('passwordChange.html')
     if not validPassword(data['password']):
-        return render_template('passwordChange.html', err='New password is invalid')
+        flash('New password is invalid', 'danger')
+        return render_template('passwordChange.html')
     if not db.validatePassword(g.email, data['oldPassword']):
-        return render_template('passwordChange.html', err='Old password is wrong.')
+        flash('Old password is wrong.', 'danger')
+        return render_template('passwordChange.html')
     db.updatePassword(g.user, data['password'])
     return render_template('profile.html', user=db.getUser(g.user))
 
@@ -120,7 +129,8 @@ def modify():
     try:
         user = User(data)
     except ValidationError as e:
-        return render_template('modify.html', user=db.getUser(g.user), err=e.message)
+        flash(e.message, 'danger')
+        return render_template('modify.html', user=db.getUser(g.user))
     db.updateUser(g.user, user)
     return render_template('profile.html', user=db.getUser(g.user))
 
@@ -148,12 +158,14 @@ def registerSystem():
     try:
         system = System(form)
     except ValidationError as e:
-        return render_template('registerSystem.html', err=e.message)
+        flash(e.message, 'danger')
+        return render_template('registerSystem.html')
     err = db.insertSystem(system)
     if err:
-        return render_template('registerSystem.html', err=err)
-
-    return render_template('registerSystem.html', success="Successfully sent the system registration.")
+        flash(err, 'danger')
+        return render_template('registerSystem.html')
+    flash('Successfully sent the system registration.', 'success')
+    return render_template('registerSystem.html')
 
 
 @mod.route('/system/register', methods=['GET'])

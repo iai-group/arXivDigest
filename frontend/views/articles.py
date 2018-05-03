@@ -2,7 +2,7 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-from flask import Blueprint, request, make_response, g, jsonify, render_template, redirect
+from flask import Blueprint, request, make_response, g, jsonify, render_template, redirect, url_for, flash
 import math
 from frontend.database import articles as db
 from frontend.utils import requiresLogin, pageinate
@@ -79,7 +79,14 @@ def like(articleID, state):
 def likeEmail(articleID, userID, trace):
     '''Endpoint for liking an article directly from from email. 
     Uses a combination of 3 values to make randomly guessing and bruteforcing almost impossible.'''
-    return db.likeArticleEmail(articleID, userID, str(trace))
+    success = db.likeArticleEmail(articleID, userID, str(trace))
+    if not success:
+        return "Some error occurred."
+    if g.loggedIn:
+        flash("Liked article %s" % articleID, "success")
+        return redirect(url_for("articles.index"))
+    flash("Liked article %s" % articleID, "success")
+    return redirect(url_for("general.loginPage"))
 
 
 @mod.route('/mail/read/<int:userID>/<string:articleID>/<uuid:trace>', methods=['GET'])

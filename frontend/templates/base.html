@@ -76,13 +76,13 @@
                 </ul>
             </div>
         </div>
-    </header> {% if err is defined %}
-    <div class="alert alert-danger">
-        {{ err }}
-    </div>{% endif %} {% if success is defined %}
-    <div class="alert alert-success">
-        {{ success }}
-    </div>{% endif %}
+    </header> {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages
+    %}
+    <div class="alert alert-{{ category }}">
+        {{ message }}
+    </div>
+    {% endfor %} {% endif %} {% endwith %}
+
     <br> {% block content %} {% endblock %}
     <br>
 
