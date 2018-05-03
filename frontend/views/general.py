@@ -5,6 +5,8 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 from flask import Blueprint, request, make_response, g, jsonify, render_template, redirect
 import bcrypt
 from frontend.models.user import User
+from frontend.models.system import System
+from frontend.models.validate import validPassword
 from frontend.models.errors import ValidationError
 from frontend.database import general as db
 from frontend.utils import encode_auth_token, requiresLogin
@@ -90,7 +92,7 @@ def passwordChange():
     data = request.form
     if not data['password'] == data['confirmPassword']:
         return render_template('passwordChange.html', err='Passwords must match.')
-    if not User.validPassword(data['password']):
+    if not validPassword(data['password']):
         return render_template('passwordChange.html', err='New password is invalid')
     if not db.validatePassword(g.email, data['oldPassword']):
         return render_template('passwordChange.html', err='Old password is wrong.')
@@ -137,6 +139,27 @@ def profile():
     '''Returns user profile page with user info'''
     user = db.getUser(g.user)
     return render_template('profile.html', user=user)
+
+
+@mod.route('/system/register', methods=['POST'])
+def registerSystem():
+    '''Registers a system or returns an error if something went wrong.'''
+    form = request.form.to_dict()
+    try:
+        system = System(form)
+    except ValidationError as e:
+        return render_template('registerSystem.html', err=e.message)
+    err = db.insertSystem(system)
+    if err:
+        return render_template('registerSystem.html', err=err)
+
+    return render_template('registerSystem.html', success="Successfully sent the system registration.")
+
+
+@mod.route('/system/register', methods=['GET'])
+def registerSystemPage():
+    '''Returns page for registering a new system'''
+    return render_template('registerSystem.html')
 
 
 def makeAuthTokenResponse(id, email, next):

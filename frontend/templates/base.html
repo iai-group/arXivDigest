@@ -48,6 +48,9 @@
                     <li>
                         <a href="{{ url_for('articles.likedArticles') }}">Your liked articles</a>
                     </li>
+                    <li>
+                        <a href="{{ url_for('general.registerSystemPage') }}">Register new system</a>
+                    </li>
                     {% if g.admin %}
                     <li>
                         <a href="{{ url_for('admin.admin') }}">Administrate</a>
@@ -76,6 +79,9 @@
     </header> {% if err is defined %}
     <div class="alert alert-danger">
         {{ err }}
+    </div>{% endif %} {% if success is defined %}
+    <div class="alert alert-success">
+        {{ success }}
     </div>{% endif %}
     <br> {% block content %} {% endblock %}
     <br>

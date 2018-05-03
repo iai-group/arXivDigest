@@ -89,7 +89,10 @@ primary key (author_ID,affiliation)
 create table systems(
 system_ID int auto_increment,
 api_key char(36) not null unique,
-system_name varchar(400) not null unique,
+system_name varchar(255) not null unique,
+contact_name varchar(255) not null,
+organization_name varchar(255) not null,
+email varchar(254) unique not null,
 active boolean default true,
 primary key(system_ID)
 );

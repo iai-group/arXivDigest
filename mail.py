@@ -25,15 +25,13 @@ def assembleMail(message, toadd, fromadd, subject):
 
 class mailServer():
 
-    def __init__(self, fromadd, password, host, port):
+    def __init__(self, fromadd, password, host, port, templates):
         '''Starts and logs into mail server'''
         self.fromadd = fromadd
         self.server = smtplib.SMTP(host, port)
         self.server.starttls()
         self.server.login(self.fromadd, password)
-        path = FileSystemLoader(os.path.join(
-            os.path.dirname(__file__), 'mailTemplates'))
-        self.env = Environment(loader=path)
+        self.env = Environment(loader=FileSystemLoader(templates))
 
     def close(self):
         self.server.quit()

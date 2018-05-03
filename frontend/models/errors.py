@@ -4,6 +4,5 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 
 class ValidationError(Exception):
-    def __init__(self, message, code):
-        self.code = code
+    def __init__(self, message):
         self.message = message

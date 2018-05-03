@@ -6,6 +6,7 @@ import jwt
 import datetime
 import re
 import datetime
+from frontend.models.validate import validPassword, validEmail, validString
 from frontend.models.errors import ValidationError
 
 
@@ -29,8 +30,8 @@ class User():
     @email.setter
     def email(self, email):
         '''Checks if email is valid email format'''
-        if re.match('^[a-zA-Z0-9.!#$%&’*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$', email) is None:
-            raise ValidationError('Invalid value:%s' % email, 'invalid email')
+        if not validEmail(email):
+            raise ValidationError('Invalid email.')
         self._email = email
 
     @property
@@ -39,8 +40,8 @@ class User():
 
     @password.setter
     def password(self, password):
-        if not self.validPassword(password):
-            raise ValidationError('Invalid value:Password', 'invalid password')
+        if not validPassword(password):
+            raise ValidationError('Invalid password format.')
         self._password = password
 
     @property
@@ -50,10 +51,8 @@ class User():
     @firstName.setter
     def firstName(self, firstName):
         '''Checks if firstname seems valid'''
-        # ^([\p{L}'\-\.]+ )+[\p{L}'\-\.]+$|^[\p{L}'\-\.]+$ unsuported with regular python regex
-        if type(firstName) is not str or not len(firstName) > 0 or len(firstName) > 60:
-            raise ValidationError('Invalid value:%s' %
-                                  firstName, 'invalid firstname')
+        if not validString(firstName, 1, 255):
+            raise ValidationError('Invalid firstname format.')
         self._firstName = firstName
 
     @property
@@ -63,9 +62,8 @@ class User():
     @lastName.setter
     def lastName(self, lastName):
         '''Checks if lastname seems valid'''
-        if type(lastName) is not str or not len(lastName) > 0 or len(lastName) > 60:
-            raise ValidationError('Invalid value:%s' %
-                                  lastName, 'invalid lastname')
+        if not validString(lastName, 1, 255):
+            raise ValidationError('Invalid  lastname fromat.')
         self._lastName = lastName
 
     @property
@@ -77,8 +75,7 @@ class User():
         webpages = [
             page for page in webpages if page is not '' and page is not None]
         if len(webpages) < 1:
-            raise ValidationError(
-                'You must provide atleast one webpage', 'invalid webpage')
+            raise ValidationError('You must provide at least one webpage')
         self._webpages = webpages
 
     @property
@@ -105,13 +102,5 @@ class User():
         elif digestfrequency == '3 days':
             digestfrequency = 3
         if digestfrequency not in [1, 3, 7]:
-            raise ValidationError(
-                'Invalid value:Digest Frequency', 'invalid digest frequency')
+            raise ValidationError('Invalid value:Digest Frequency')
         self._digestfrequency = digestfrequency
-
-    @staticmethod
-    def validPassword(password):
-        '''Checks if password is complicated enough'''
-        if re.match('(?=^.{9,256}$)(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$', password) is None:
-            return False
-        return True

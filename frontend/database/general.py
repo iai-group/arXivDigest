@@ -84,6 +84,27 @@ def insertUser(user):
     return id
 
 
+def insertSystem(system):
+    '''Inserts a new system into the database, name will be used as Name for the system,
+    and using uuid a random API-key is generated. Returns None if successfull and an error if not.'''
+    conn = getDb()
+    cur = conn.cursor()
+    sql = 'INSERT INTO systems VALUES(null,%s,%s,%s,%s,%s,False)'
+    key = str(uuid4())
+    try:
+        cur.execute(sql, (key, system.name, system.contact,
+                          system.organization, system.email))
+    except connector.errors.IntegrityError as e:
+        col = str(e).split("key ", 1)[1]
+        if col == "'system_name_UNIQUE'":
+            return "System name already in use by another system."
+        elif col == "'email_UNIQUE'":
+            return "Email already in use by another system."
+
+    conn.commit()
+    return None
+
+
 def updateUser(userid, user):
     '''Update user with userid. User object contains new info for this user. Returns True on Success'''
     conn = getDb()

@@ -5,6 +5,8 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 from flask import Blueprint, render_template, request, g, make_response, abort, jsonify
 from frontend.database import admin as db
 from frontend.utils import requiresLogin
+from frontend import mailServer
+
 import mysql
 mod = Blueprint('admin', __name__)
 
@@ -23,23 +25,20 @@ def admin():
     return render_template('admin.html', systems=db.getSystems())
 
 
-@mod.route('/addSystem', methods=['POST'])
-@requiresLogin
-def addSystem():
-    '''Endpoint for inserting new systems, takes the system name from the form and passes it to the database function.'''
-    name = request.form['systemName']
-    try:
-        db.insertSystem(name)
-    except mysql.connector.IntegrityError as identifier:
-        return render_template('admin.html', systems=db.getSystems(), err="System name already in use.")
-    return render_template('admin.html', systems=db.getSystems())
-
-
 @mod.route('/toggleSystem/<int:systemID>/<state>', methods=['GET'])
 @requiresLogin
 def toggleSystem(systemID, state):
     '''Endpoint for activating and deactivating systems, sets active-value for system with <systemID> to <state>'''
     state = True if state.lower() == "true" else False
-    if db.toggleSystem(systemID, state):
-        return jsonify(result='Success')
-    return jsonify(result='Fail')
+    if not db.toggleSystem(systemID, state):
+        return jsonify(result='Fail')
+    if state == True:
+        sys = db.getSystem(systemID)
+        mail = {'toadd': sys['email'],
+                'subject': 'System Activation',
+                'template': 'systemActivation',
+                'data': {'name': sys['contact_name'],
+                         'key': sys['api_key']}}
+
+        mailServer.sendMail(**mail)
+    return jsonify(result='Success')

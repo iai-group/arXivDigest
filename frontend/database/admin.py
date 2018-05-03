@@ -25,18 +25,13 @@ def getSystems():
     return data
 
 
-def insertSystem(name):
-    '''Inserts a new system into the database, name will be used as Name for the system,
-    and using uuid a random API-key is generated. Returns the id of the system if successfull and an error if not.'''
-    conn = getDb()
-    cur = conn.cursor()
-    sql = 'INSERT INTO systems VALUES(null,%s,%s,True)'
-    key = str(uuid4())
-    cur.execute(sql, (key, name))
-    id = cur.lastrowid
+def getSystem(ID):
+    '''Returns requested system.'''
+    cur = getDb().cursor(dictionary=True)
+    cur.execute('SELECT * FROM systems where system_ID = %s', (ID,))
+    data = cur.fetchone()
     cur.close()
-    conn.commit()
-    return id
+    return data
 
 
 def toggleSystem(systemID, value):

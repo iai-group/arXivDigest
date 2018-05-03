@@ -48,7 +48,8 @@ if __name__ == '__main__':
     ml = multiLeaver(config.get('recommendations_per_user'),
                      config.get('systems_interleaved_per_user'))
     articleData = db.getArticleData(conn)
-    server = mailServer(**config.get('email_configuration'))
+    path = path = os.path.join(os.path.dirname(__file__), 'templates')
+    server = mailServer(**config.get('email_configuration'),templates=path)
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     batchsize = config.get('users_per_batch')
     i = 0

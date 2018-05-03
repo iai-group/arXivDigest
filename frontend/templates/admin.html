@@ -27,15 +27,6 @@
 
             </table>
         </div>
-        <hr>
-        <h3 class="leftText">Submit new system:</h3>
-        <form id="systemForm" action="{{ url_for('admin.addSystem') }}" method="POST" enctype=multipart/form-data>
-            <label for="systemName">System name:</label>
-            <input type="text" id="systenName" name="systemName" placeholder="System Name..">
-            <br>
-            <p style="color:gray;">By sumbitting system you will get a system key. Search the list of systems for your key.</p>
-            <input type="submit" value="Submit system" id="systemSubmit">
-        </form>
     </div>
 </div>
 </div>

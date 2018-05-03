@@ -302,6 +302,14 @@ $(document).ready(function () {
         box.prop("checked", box.data("active"))
         $(this).on("click", function () {
             var isActive = box.data("active")
+            if (!isActive) {
+                var conf = confirm("Activate system: " + box.data("value") + "?")
+                if (!conf) {
+                    box.prop("checked", false)
+                    return 0
+                }
+            }
+
             $.getJSON("/admin/toggleSystem/" + box.data("value") + "/" + !isActive, {},
                 function (data) {
                     if (data.result == "Success") {
