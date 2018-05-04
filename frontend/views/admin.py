@@ -18,8 +18,9 @@ def before_request():
 @mod.route('/', methods=['GET'])
 @requiresLogin
 def admin():
-    '''Returns the adminpage'''
-    return render_template('admin.html')
+    '''Returns the adminpage with list of current administrators'''
+    print(db.getAdmins())
+    return render_template('admin.html', admins=db.getAdmins())
 
 
 @mod.route('/systems/get', methods=['GET'])
