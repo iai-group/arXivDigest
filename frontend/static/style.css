@@ -107,8 +107,12 @@ input~.glyphicon-ok {
   text-align: center;
 }
 .systemList{
-  max-width: 500px;
-  margin: 10px;
+  width: 500px;
+  margin: 0 auto;
+  margin-top: 10px;
+  max-height: 1500px;
+  overflow-y: scroll;
+  overflow-x: hidden; 
 }
 .systemList div{
     overflow: auto;
@@ -512,4 +516,28 @@ code {
 .moreButton{
   margin-left:40px;
   z-index: 999;
+}
+
+#admins .table{
+ width: 500px;
+ margin: 0 auto;
+}
+
+#userPlotContainer, #articlePlotContainer{
+  width:600px;
+  margin: 0 auto;
+  margin-top: 10px;
+  border: 3px solid rgb(199, 199, 199);
+  border-radius:10px;
+}
+
+#statistics{
+  margin: 0 auto;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 1.3em;
+  width:600px;
+  border: 3px solid rgb(199, 199, 199);
+  border-radius:10px;
+  padding:3px;
 }

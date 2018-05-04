@@ -368,7 +368,7 @@ $(document).ready(function () {
                         },
                     });
 
-                    $("#statistics").text("Total users: " + data.users.total + "\n Total articles:" + data.articles.total)
+                    $("#statistics").html("Total users: <strong>" + data.users.total + "\n</strong> Total articles:<strong>" + data.articles.total +"</strong>")
                 }
 
             });

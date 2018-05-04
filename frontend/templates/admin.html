@@ -14,9 +14,9 @@
         </ul>
         <div class="tab-content">
             <div id="general" class="tab-pane">
+                <div id="statistics"></div>
                 <div id="userPlotContainer"></div>
                 <div id="articlePlotContainer"></div>
-                <div id="statistics"></div>
             </div>
             <div id="systems" class="tab-pane .flex-container">
 
@@ -35,26 +35,33 @@
 
                     </table>
                 </div></div>
-                <div class="infobox">
-                   <hr>  
-                    <h3 class="leftText">Submit new system:</h3>
-                
-                    <label for="systemName">System name:</label>
-                    <input type="text" id="systemName" name="systemName" placeholder="System Name..">
-                    <br>
-                    <p style="color:gray;">By submitting system you will get a system key. Search the list of systems for your key.</p>
-                    <input type="submit" value="Submit system" id="submitSystem">
-
-                </div>
-               
                
                
             </div>
-
+                
             <div id="admins" class="tab-pane">
-        admin
+                <div>
+                    <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Email</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {%for admin in admins%}  
+                    <tr>
+                        <td>{{admin[0]}}</td>
+                        <td>{{admin[1]}}</td>
+                        <td>{{admin[2]}} {{admin[3]}}</td>
+                    </tr>  
+                    {%endfor%}
+                    </tbody>
+
+                </table>
             </div>
         </div>
-    
+    </div>
 </div>
 {% endblock %}
