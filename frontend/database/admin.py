@@ -115,8 +115,8 @@ def getArticleStatistics():
 
 def getAdmins():
     '''Returns admin users id, email and names'''
-    cur = getDb().cursor()
-    sql = 'select user_id, email, firstname, lastname from users where admin=1'
+    cur = getDb().cursor(dictionary=True)
+    sql = 'select user_ID, email, firstname, lastname from users where admin=1'
     cur.execute(sql)
     admindata = cur.fetchall()
     cur.close()

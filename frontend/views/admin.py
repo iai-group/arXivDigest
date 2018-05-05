@@ -18,9 +18,8 @@ def before_request():
 @mod.route('/', methods=['GET'])
 @requiresLogin
 def admin():
-    '''Returns the adminpage with list of current administrators'''
-    print(db.getAdmins())
-    return render_template('admin.html', admins=db.getAdmins())
+    '''Returns the adminpage'''
+    return render_template('admin.html')
 
 
 @mod.route('/systems/get', methods=['GET'])
@@ -28,6 +27,12 @@ def admin():
 def getSystems():
     '''Returns list of systems from db'''
     return jsonify({'success': True, 'systems': db.getSystems()})
+
+@mod.route('/admins/get', methods=['GET'])
+@requiresLogin
+def getAdmins():
+    '''Returns list of admins from db'''
+    return jsonify({'success': True, 'admins': db.getAdmins()})
 
 
 @mod.route('/systems/add/<name>', methods=['GET'])

@@ -333,6 +333,14 @@ $(document).ready(function () {
                 }
             });
     });
+    $("ul.nav a[href ='#admins']").bind("show.bs.tab", function () {
+        $.getJSON("/admin/admins/get", {},
+            function (data) {
+                if (data.success == true) {
+                    generateAdminsTableHtml(data.admins)
+                }
+            });
+    });
     $("ul.nav a[href ='#general']").bind("show.bs.tab", function () {
         $.getJSON("/admin/general", {},
             function (data) {
@@ -401,4 +409,15 @@ function generateSystemTableHtml(systems) {
         html += "></td></tr>";
     }
     $(".systemList tbody").html(html)
+}
+
+function generateAdminsTableHtml(admins) {
+    html = "<tr>";
+    for (const admin of admins) {
+        html += "<td>" + admin.user_ID + "</td>";
+        html += "<td>" + admin.email + "</td>";
+        html += "<td>" + admin.firstname +" "+ admin.lastname + "</td>";
+        html += "></td></tr>";
+    }
+    $("#admins tbody").html(html)
 }
