@@ -13,6 +13,7 @@ app = Flask(__name__)
 app.config['DEBUG'] = True  # TODO remove this
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 app.config.update(**config.get('api_config'))
+print(app.config)
 
 
 @app.route('/api/users', methods=['GET'])
@@ -61,10 +62,10 @@ def userinfo():
 def articles():
     '''API-endpoint for requesting articleIDs, all articles added on the specified "date",
      if "date" is not specified it will the current date.'''
-    date = request.args.get('date', datetime.now())
+    date = request.args.get('date', datetime.now().strftime("%Y-%m-%d"))
     try:
         date = datetime.strptime(
-            date, "%Y-%m-%d").strftime("%Y/%m/%d")
+            date, "%Y-%m-%d").strftime("%Y-%m-%d")
     except Exception:
         return make_response(jsonify({'error': 'Invalid date format.'}, 400))
     articles = db.getArticleIDs(date)
@@ -99,6 +100,8 @@ def articledata():
 def recommendation():
     '''API-endpoint for inserting recommendations'''
     data = request.get_json().get('recommendations')
+    if not data:
+        return make_response(jsonify({'success': False, 'error': 'No elements to insert'}), 400)
 
     if len(data) > app.config['MAX_RECOMMENDATION_USERS']:
         err = 'Requests must not contain more than %s users.' % app.config[
@@ -122,7 +125,7 @@ def recommendation():
         err = 'Could not find articles with ids: %s.' % ', '.join(articles)
         return make_response(jsonify({'success': False, 'error': err}), 400)
 
-    today = datetime.now().strf("%Y/%m/%d")
+    today = datetime.now().strftime("%Y/%m/%d")
     articlesToday = db.getArticleIDs(today)['article_ids']
     notToday = (set(articlesToday) & set(articleIDs) ^ set(articleIDs))
     if notToday:

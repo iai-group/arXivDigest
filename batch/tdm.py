@@ -56,7 +56,10 @@ class multiLeaver():
         self.impressions = defaultdict(int)
 
     def TDM(self, rankings):
-        '''Teamdraft multileaving. Creates one list of recommendations from lists of recommendations from different systems'''
+        '''Teamdraft multileaving. Creates one list of recommendations from lists of recommendations from different systems
+        input:{sysid:[articleids]}
+        output:[articleIDs],[systemIDs]
+        '''
         lists = {}
         # generate list of systems that can be selected from
         systems = {k: self.impressions[k] for k in rankings.keys()}

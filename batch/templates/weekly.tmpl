@@ -40,11 +40,15 @@
     <div class="centerDiv">
         <div class="text">
             <h2>Hi {{name}}</h2>
-            <p>Here are personalised suggestions for articles to read based on your ARX profile:</p>
+            <p>Here are personalized suggestions for articles to read based on your ARX profile:</p>
         </div>
         <hr>
         <div class="content text">
-            {%for article in articles%}
+
+            {% for day in articles %}
+            <h2>{{ day[0] }}</h2>
+            {%for article in day[1] %}
+
             <a href="{{article.readlink}}">
                 <h3>{{article.title}}</h3>
             </a>
@@ -52,14 +56,15 @@
             <a href={{article.likelink}}>
                 <p>Like</p>
             </a>
-            <br> {%endfor%}
+            <br> {%endfor%} {% endfor %}
+
         </div>
         <hr>
         <div class="text">
-            <p>You are receiving this email because you have registered with ARX litterature reccomender</p>
+            <p>You are receiving this email because you have registered with ARX literature recommender</p>
             <p>Go to our webpage for more:</p>
             <a href="#">
-                <p>ARX reccomender</p>
+                <p>ARX recommender</p>
             </a>
         </div>
     </div>
