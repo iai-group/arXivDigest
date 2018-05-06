@@ -245,6 +245,20 @@ input[type=submit] {
   float: left;
 }
 
+.profileButton{
+  background-color: #4CAF50;
+  color: white;
+  padding: 6px 0px;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.profileButton:hover{
+  background-color: #45a049;
+}
+
 #largeLoginButton {
   width: 300px;
 }
