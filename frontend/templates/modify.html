@@ -1,8 +1,8 @@
 {% extends "base.html" %} {% block content %}
 <script>
     categoryList = {{ categoryList | safe }}
-    usercategories= {{user.categories | safe}}
-                                
+    usercategories = {{ user.categories | safe }}
+
 </script>
 <div class="container">
 
@@ -48,8 +48,7 @@
                         <p class="signupHint">Enter one or more webpages. Preferably your dblp, google profile or linkedIn</p>
                         {%for page in user.webpages%}
                         <input id="websiteInput" type="text" name="website" value="{{page}}" onblur="inputTouched(this);" onfocus="removeTouched(this)"
-                            required size="1024">
-                        {%endfor%}
+                            required size="1024"> {%endfor%}
                     </td>
                 </tr>
                 <tr>
@@ -68,8 +67,8 @@
                     </td>
                     <td>
                         <br>
-                        <p class="signupHint">Select categories and/or subcategories you're interested in, press enter 
-                            or add to submit currently selected category</p>
+                        <p class="signupHint">Select categories and/or subcategories you're interested in, press enter or add to submit currently
+                            selected category</p>
                         <ul id="interestsList">
                         </ul>
                         <input type="hidden" name="categories" id="categoriesInput">
@@ -87,26 +86,20 @@
                         <br>
                         <p>How often would you like a notification email?</p>
                         {%if user.notificationInterval == 7%}
-                        <input type="radio" name="digestFrequency" value="1 day" >1 day<br>
-                        <input type="radio" name="digestFrequency" value="3 days">3 days<br>
-                        <input type="radio" name="digestFrequency" value="7 days" checked>7 days
-                        {%elif user.notificationInterval == 3%}
-                        <input type="radio" name="digestFrequency" value="1 day" >1 day<br>
-                        <input type="radio" name="digestFrequency" value="3 days" checked>3 days<br>
-                        <input type="radio" name="digestFrequency" value="7 days">7 days
-                        {%else%}
-                        <input type="radio" name="digestFrequency" value="1 day" checked>1 day<br>
-                        <input type="radio" name="digestFrequency" value="3 days">3 days<br>
-                        <input type="radio" name="digestFrequency" value="7 days">7 days
-                        {%endif%}
+                        <input type="radio" name="digestFrequency" value="1 day">1 day
+                        <br>
+                        <input type="radio" name="digestFrequency" value="7 days" checked>7 days {%else%}
+                        <input type="radio" name="digestFrequency" value="1 day" checked>1 day
+                        <br>
+                        <input type="radio" name="digestFrequency" value="7 days">7 days {%endif%}
                     </td>
                 </tr>
 
                 <tr>
                     <td></td>
                     <td>
-                            <br>
-                        <input type="submit" value="Update Profile"> 
+                        <br>
+                        <input type="submit" value="Update Profile">
                     </td>
 
                 </tr>

@@ -99,8 +99,6 @@ class User():
             digestfrequency = 7
         elif digestfrequency == '1 day':
             digestfrequency = 1
-        elif digestfrequency == '3 days':
-            digestfrequency = 3
-        if digestfrequency not in [1, 3, 7]:
+        if digestfrequency not in [1, 7]:
             raise ValidationError('Invalid value:Digest Frequency')
         self._digestfrequency = digestfrequency
