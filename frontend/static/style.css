@@ -111,7 +111,7 @@ input~.glyphicon-ok {
   margin: 0 auto;
   margin-top: 10px;
   max-height: 1500px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden; 
 }
 .systemList div{
