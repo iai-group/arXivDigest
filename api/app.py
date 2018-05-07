@@ -13,7 +13,6 @@ app = Flask(__name__)
 app.config['DEBUG'] = True  # TODO remove this
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 app.config.update(**config.get('api_config'))
-print(app.config)
 
 
 @app.route('/api/users', methods=['GET'])

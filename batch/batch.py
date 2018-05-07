@@ -72,7 +72,7 @@ def sendMail():
                 date = datetime.today().date()
                 recs = userRecommendations[userID][date]
                 topArticles[date.weekday()] = topN(recs, 3)
-            elif datetime.today().weekday() == 6:
+            elif datetime.today().weekday() == 4:
                 for day, articles in userRecommendations[userID].items():
                     topArticles[day.weekday()] = topN(articles, 3)
             if not any(topArticles.values()):  # skip user if there user has no recommendations
@@ -118,7 +118,7 @@ if __name__ == '__main__':
         systemRecs = db.getSystemRecommendations(conn, i, batchsize)
         if systemRecs:
             userRecommendations = multiLeaveRecommendations(systemRecs)
-            #db.insertUserRecommendations(conn, userRecommendations)
+            db.insertUserRecommendations(conn, userRecommendations)
 
     sendMail()
     conn.close()
