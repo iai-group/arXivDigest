@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block content %}
 <script>
-    categoryList = {{ categoryList | safe }}
+    categoryList = {{ categoryList | tojson | safe }};
 </script>
 <div class="container">
 
@@ -89,7 +89,7 @@
                     <td>
                         <br>
                         <p class="signupHint">Select categories and/or subcategories you're interested in, press enter or add to submit currently
-                            selected category
+                            selected category, you can select both categories and subcategories.
                         </p>
                         <ul id="interestsList"></ul>
                         <input type="hidden" name="categories" id="categoriesInput">

@@ -172,8 +172,18 @@ function autoComplete(input) {
             inputData = "";
         var choices = [];
         for (const c in categories) {
+            var submitted = false
             var cat = categories[c][1].split(".");
-            if (c.length > 1 && cat[cat.length - 1].toLowerCase() != inputData)
+            if (cat.length == 2) {
+                for (const element of input.submitted) {
+                    if (cat[1] == element[1].split(".")[1]) {
+                        submitted = true;
+                        break;
+                    }
+                }
+            }
+
+            if (c.length > 1 && cat[cat.length - 1].toLowerCase() != inputData && !submitted)
                 choices.push(cat[cat.length - 1]);
         }
         var search = inputData.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
@@ -252,7 +262,7 @@ function autoComplete(input) {
 var intinput = $("#interestsInput")
 if (intinput.length) {
     autoComplete(intinput);
-    if (usercategories.length) {
+    if (typeof usercategories !== 'undefined') {
         for (let i = 0; i < usercategories.length; i++) {
             intinput.submit(usercategories[i][1].toLowerCase().split("."));
         }
