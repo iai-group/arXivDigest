@@ -107,4 +107,4 @@ How to deploy a flask application can be found [here](http://flask.pocoo.org/doc
 - [Mysql connector for python](https://dev.mysql.com/doc/connector-python/en/)
 - [Json Web Tokens](https://github.com/jpadilla/pyjwt) 
 - [Flask](http://flask.pocoo.org/)
-- [BCrypt](https://github.com/pyca/bcrypt/)
+- [Passlib](https://passlib.readthedocs.io/en/stable/index.html)

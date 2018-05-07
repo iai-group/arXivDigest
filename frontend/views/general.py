@@ -71,10 +71,10 @@ def signup():
         user = User(data)
     except ValidationError as e:
         flash(e.message, 'danger')
-        return render_template('signup.html', )
+        return render_template('signup.html', categoryList=db.getCategoryNames())
     if db.userExist(user.email):
         flash('Email already used by another account.', 'danger')
-        return render_template('signup.html')
+        return render_template('signup.html', categoryList=db.getCategoryNames())
 
     id = db.insertUser(user)
 

@@ -8,7 +8,7 @@ from frontend.models.user import User
 from flask import g
 from mysql import connector
 from uuid import uuid4
-from passlib.hash import bcrypt
+from passlib.hash import pbkdf2_sha256
 from frontend.database.db import getDb
 
 
@@ -48,7 +48,7 @@ def updatePassword(id, password):
     cur = conn.cursor()
     passwordsql = 'UPDATE users SET salted_hash = %s WHERE user_ID = %s'
     password = password.encode('utf-8')
-    hashedPassword = bcrypt.hash(password)
+    hashedPassword = pbkdf2_sha256.hash(password)
     cur.execute(passwordsql, (hashedPassword, id,))
     cur.close()
     conn.commit()
@@ -67,9 +67,8 @@ def insertUser(user):
     userWebpages = [(user.email, x) for x in user.webpages]
 
     password = user.password.encode('utf-8')
-    user.hashedPassword = bcrypt.hash(password)
+    user.hashedPassword = pbkdf2_sha256.hash(password)
     curdate = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-
     cur.execute(usersql, (user.email, user.hashedPassword,
                           user.firstName, user.lastName, user.keywords, user.digestfrequency, curdate))
     id = cur.lastrowid
@@ -141,7 +140,7 @@ def validatePassword(email, password):
 
     if not user:
         return None
-    if bcrypt.verify(password.encode('utf-8'), user[1].encode('utf-8')):
+    if pbkdf2_sha256.verify(password.encode('utf-8'), user[1].encode('utf-8')):
         return user[0]
     return False
 
