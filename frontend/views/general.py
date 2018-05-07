@@ -3,7 +3,6 @@ __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
 from flask import Blueprint, request, make_response, g, jsonify, render_template, redirect, flash, url_for
-import bcrypt
 from frontend.models.user import User
 from frontend.models.system import System
 from frontend.models.validate import validPassword

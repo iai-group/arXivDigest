@@ -107,10 +107,24 @@ input~.glyphicon-ok {
   text-align: center;
 }
 .systemList{
-  overflow: scroll;
-  overflow-x: hidden;
-  height:200px;
-  max-height: 200px;
+  width: 500px;
+  margin: 0 auto;
+  margin-top: 10px;
+  max-height: 1500px;
+  overflow-y: auto;
+  overflow-x: hidden; 
+}
+.systemList div{
+    overflow: auto;
+    max-height: 300px;
+
+}
+.infobox{
+  width:auto;
+  height: auto;
+}
+.infobox input{
+width:200px;
 }
 
 
@@ -229,6 +243,20 @@ input[type=submit] {
   border-radius: 4px;
   cursor: pointer;
   float: left;
+}
+
+.profileButton{
+  background-color: #4CAF50;
+  color: white;
+  padding: 6px 0px;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.profileButton:hover{
+  background-color: #45a049;
 }
 
 #largeLoginButton {
@@ -502,4 +530,28 @@ code {
 .moreButton{
   margin-left:40px;
   z-index: 999;
+}
+
+#admins .table{
+ width: 500px;
+ margin: 0 auto;
+}
+
+#userPlotContainer, #articlePlotContainer{
+  width:600px;
+  margin: 0 auto;
+  margin-top: 10px;
+  border: 3px solid rgb(199, 199, 199);
+  border-radius:10px;
+}
+
+#statistics{
+  margin: 0 auto;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 1.3em;
+  width:600px;
+  border: 3px solid rgb(199, 199, 199);
+  border-radius:10px;
+  padding:3px;
 }
