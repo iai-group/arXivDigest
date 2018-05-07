@@ -4,7 +4,7 @@ __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
 from mysql import connector
 from uuid import uuid4
-from frontend.database import getDb
+from frontend.database.db import getDb
 import datetime
 
 

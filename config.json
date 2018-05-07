@@ -27,36 +27,5 @@
     "frontend_config": {
         "jwt_key": "mn643745hb6436l,75687kj37hb26vg3wazsefewms5474.,m4nb4q23vqcxwazsmw46n3bvqcawzwab3241vcawqz,6lk4mj3hbavesww",
         "secret_key": "xPGHuUyNAQaFrlIxtupgu8bnGiSLBpMo4v2w4jcoQ8PCb32Y46WWJhMsSbM2iGzsKravX9l92waqp2qjq7BALke443jbB3uVs7WP08v4JCyrORwvufRY4jKB"
-    },
-    "logging-config": {
-        "version": 1,
-        "formatters": {
-            "simple": {
-                "format": "%(asctime)s - %(levelname)s - %(message)s"
-            }
-        },
-        "handlers": {
-            "file": {
-                "class": "logging.FileHandler",
-                "level": "INFO",
-                "formatter": "simple",
-                "filename": "user.log"
-            }
-        },
-        "loggers": {
-            "file": {
-                "level": "INFO",
-                "handlers": [
-                    "file"
-                ],
-                "propagate": "no"
-            },
-            "root": {
-                "level": "INFO",
-                "handlers": [
-                    "file"
-                ]
-            }
-        }
     }
 }

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from mysql import connector
-from frontend.database import getDb
+from frontend.database.db import getDb
 
 
 def getLikedArticles(userid, interval, order, start, n):

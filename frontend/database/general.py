@@ -8,8 +8,8 @@ from frontend.models.user import User
 from flask import g
 from mysql import connector
 from uuid import uuid4
-import bcrypt
-from frontend.database import getDb
+from passlib.hash import bcrypt
+from frontend.database.db import getDb
 
 
 def getUser(id):
@@ -48,7 +48,7 @@ def updatePassword(id, password):
     cur = conn.cursor()
     passwordsql = 'UPDATE users SET salted_hash = %s WHERE user_ID = %s'
     password = password.encode('utf-8')
-    hashedPassword = bcrypt.hashpw(password, bcrypt.gensalt())
+    hashedPassword = bcrypt.hash(password)
     cur.execute(passwordsql, (hashedPassword, id,))
     cur.close()
     conn.commit()
@@ -67,7 +67,7 @@ def insertUser(user):
     userWebpages = [(user.email, x) for x in user.webpages]
 
     password = user.password.encode('utf-8')
-    user.hashedPassword = bcrypt.hashpw(password, bcrypt.gensalt())
+    user.hashedPassword = bcrypt.hash(password)
     curdate = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
     cur.execute(usersql, (user.email, user.hashedPassword,
@@ -141,7 +141,7 @@ def validatePassword(email, password):
 
     if not user:
         return None
-    if bcrypt.checkpw(password.encode('utf-8'), user[1].encode('utf-8')):
+    if bcrypt.verify(password.encode('utf-8'), user[1].encode('utf-8')):
         return user[0]
     return False
 

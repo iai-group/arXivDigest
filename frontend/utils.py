@@ -8,7 +8,7 @@ import datetime
 import frontend.database.admin as admin
 from functools import wraps
 from flask import g, request, make_response, redirect, url_for
-from frontend import config, jwtKey
+from frontend.config import config, jwtKey
 
 
 def requiresLogin(f):

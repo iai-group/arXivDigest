@@ -5,8 +5,8 @@ __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 from flask import Blueprint, render_template, request, g, make_response, abort, jsonify
 from frontend.database import admin as db
 from frontend.utils import requiresLogin
-from frontend import mailServer
-
+from frontend.config import config
+from mail import mailServer
 import mysql
 mod = Blueprint('admin', __name__)
 
@@ -53,10 +53,14 @@ def toggleSystem(systemID, state):
                 'template': 'systemActivation',
                 'data': {'name': sys['contact_name'],
                          'key': sys['api_key']}}
+
+        Server = mailServer(**config.get('email_configuration'))
         try:
-            mailServer.sendMail(**mail)
-        except Exception:
+            Server.sendMail(**mail)
+        except Exception as e:
             return jsonify(result='Success', err='Email error')
+        finally:
+            Server.close()
     return jsonify(result='Success')
 
 

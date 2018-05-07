@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, make_response, g, redirect, l
 from mysql import connector
 import jwt
 from frontend.views import general, admin, articles
-from frontend import config, jwtKey, secret_key
+from frontend.config import config, jwtKey, secret_key
 
 
 app = Flask(__name__)
@@ -16,18 +16,6 @@ app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 app.config['DEBUG'] = True  # remove this
-
-from logging.config import dictConfig
-import logging
-logging.config.dictConfig(config.get("logging-config"))
-logfile = logging.getLogger('file')
-
-
-@app.after_request
-def after_request_log(response):
-    '''Logs the request to a file'''
-    logfile.info("userID: %s - path: %s " % (g.user, request.full_path))
-    return response
 
 
 @app.before_request
