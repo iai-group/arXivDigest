@@ -52,7 +52,8 @@ def prepareRecord(record):
 
         authors.append(a)
     result['authors'] = authors
-    result['datestamp'] = datetime.date.today()
+    datestamp = record.find(OAI + 'header').find(OAI + 'datestamp')
+    result['datestamp'] = datestamp.text
     return result
 
 

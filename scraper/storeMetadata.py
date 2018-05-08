@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 '''This module implements the methods used for storing the scraped metadata into the mySQL database.
 InsertIntoDB() will insert all the articles in the supplied data, if an article already exists in the database
-it will be overwriten.'''
+it will be ignored.'''
 
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-from scrapeMetadata import getCategories, harvestMetadataRss
+from scrapeMetadata import getCategories, harvestMetadataRss, getRecordsFromLastnDays
 from categories import subCategoryNames
 from mysql import connector
 import json
@@ -16,7 +16,7 @@ with open('../config.json', 'r') as f:
 
 
 def insertIntoDB(metaData, conn):
-    '''Inserts the supplied articles into the database.'''
+    '''Inserts the supplied articles into the database. Duplicate articles are ignored.'''
     print('Trying to insert %d elements into the database.' % len(metaData))
 
     try:
@@ -24,7 +24,7 @@ def insertIntoDB(metaData, conn):
         i = 0
         insertCategories(metaData, cur)
         # if article already exists in the database it will be overwritten with the new version
-        articlestmt = 'replace into articles values(%s,%s,%s,%s,%s,%s,%s,%s)'
+        articlestmt = 'insert ignore into articles values(%s,%s,%s,%s,%s,%s,%s,%s)'
         articlecategorystmt = 'insert into article_categories values(%s,%s)'
         authorstmt = 'insert into article_authors values(null,%s,%s,%s)'
         affiliationstmt = 'insert into author_affiliations values(%s,%s)'
@@ -33,6 +33,8 @@ def insertIntoDB(metaData, conn):
             data = [id, value['title'], value['description'], value['doi'],
                     value['comments'], value['license'], value['journal'], value['datestamp']]
             cur.execute(articlestmt, data)
+            if cur.rowcount == 0:  # if article already in database ignore article
+                continue
             for category in value['categories']:
                 cur.execute(articlecategorystmt, (id, category))
             for author in value['authors']:
@@ -57,10 +59,22 @@ def insertCategories(metaData, cursor):
     for value in metaData.values():
         for category in value['categories']:
             c = category.split('.')
-            categoryName = categoryNames[c[0]]['name']
+
+            try:
+                categoryName = categoryNames[c[0]]['name']
+            except KeyError:
+                categoryName = c[0]
+                print(
+                    'Update category name manually: could not find name for %s' % c[0])
             # generate natural name for category
+            try:
+                subcategoryName = subCategoryNames[category]
+            except KeyError:
+                subcategoryName = category
+                print(
+                    'Update subcategorynames: could not find name for %s' % category)
             name = categoryName
-            name += '.' + subCategoryNames[category] if len(c) > 1 else ''
+            name += '.' + subcategoryName if len(c) > 1 else ''
             # add both main category and sub category to database
             categories.add((category, c[0], (c[1:] + [None])[0], name))
             categories.add((c[0], c[0], None, categoryName))

@@ -1,6 +1,3 @@
-CREATE USER 'restrictedAccess'@'%' IDENTIFIED BY 'pw12@er';
-GRANT SELECT,INSERT,UPDATE,DELETE,CREATE ON *.* TO 'restrictedAccess'@'%';
-#todo  make constraints better: constraints are somtimes too limiting
 drop table if exists systems;
 drop table if exists system_recommendations;
 drop table if exists user_recommendations; 		
@@ -13,7 +10,7 @@ drop table  if exists article_categories;
 drop table  if exists article_authors;
 drop table if exists  authors;
 drop table  if exists categories;
-drop tables  if exists articles;
+drop table  if exists articles;
 
 create table categories(
 category_ID varchar(50) not null,
@@ -26,7 +23,7 @@ primary key (category_ID)
 create table users(
 user_ID int auto_increment,
 email varchar(255) not null unique,
-salted_hash char(60) not null,
+salted_hash char(87) not null,
 firstname varchar(255) not null,
 lastname varchar(255) not null,
 keywords text,
@@ -58,7 +55,7 @@ abstract text not null,
 doi varchar(200),
 comments text,
 license varchar(400),
-journal varchar(400),
+journal varchar(1000),
 datestamp date not null,
 primary key (article_ID)
 );
@@ -74,8 +71,8 @@ primary key(article_ID,category_ID)
 create table article_authors(
 author_ID int auto_increment,
 article_ID varchar(50) not null,
-firstname varchar(200),#not all authors were mentioned with a firstname
-lastname varchar(200) not null,
+firstname varchar(300),#not all authors were mentioned with a firstname
+lastname varchar(300) not null,
 foreign key (article_ID) references articles(article_ID) on delete cascade,
 primary key (author_ID) 
 );
@@ -104,7 +101,7 @@ system_ID int,
 score float not null,
 recommendation_date datetime not null,
 foreign key (system_ID) references systems(system_ID) on delete cascade,
-foreign key (article_ID) references articles(article_ID) on delete cascade,
+foreign key (article_ID) references articles(article_ID),
 foreign key (user_ID) references users (user_ID) on delete cascade,
 primary key(user_ID,article_ID,system_ID)
 );
@@ -123,7 +120,7 @@ liked boolean default false,
 trace_like_email char(36),
 trace_click_email char(36),
 foreign key (system_ID) references systems(system_ID) on delete cascade,
-foreign key (article_ID) references articles(article_ID) on delete cascade,
+foreign key (article_ID) references articles(article_ID),
 foreign key (user_ID) references users (user_ID) on delete cascade,
 primary key(user_ID,article_ID)
 );
