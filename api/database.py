@@ -47,16 +47,16 @@ def getUsers(ids):
     of data about the users requested.'''
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
-    sql = 'SELECT * FROM users WHERE user_ID in (%s)' % format_strings
+    sql = 'SELECT user_ID, firstname, lastname, keywords, registered FROM users WHERE user_ID in (%s)' % format_strings
     cur.execute(sql, ids)
     userList = cur.fetchall()
     users = {}
     for userData in userList:
         users[userData[0]] = {
-            'first_name': userData[3],
-            'last_name': userData[4],
-            'keywords': [x.strip() for x in userData[5].split(",")] if userData[5] else [],
-            'registered': userData[7],
+            'first_name': userData[1],
+            'last_name': userData[2],
+            'keywords': [x.strip() for x in userData[3].split(",")] if userData[3] else [],
+            'registered': userData[4],
             'homepages': [],
             'categories': [],
         }

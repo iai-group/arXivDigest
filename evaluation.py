@@ -38,7 +38,7 @@ parser.add_argument('-s',
 parser.add_argument('-e',
                     '--enddate',
                     help='The End Date - format YYYY-MM-DD, if not supplied, the  current date will be used. ',
-                    default=datetime.today().strftime('%Y-%m-%d'),
+                    default=datetime.utcnow().strftime('%Y-%m-%d'),
                     type=valid_date)
 
 args = parser.parse_args()

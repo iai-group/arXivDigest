@@ -15,7 +15,10 @@ from frontend.database.db import getDb
 def getUser(id):
     '''Return user as a dictionary. Include webpages and categories as sub dictionaries'''
     cur = getDb().cursor()
-    cur.execute('SELECT * FROM users WHERE user_ID = %s', (id,))
+    sql = '''SELECT user_ID, email, salted_hash, firstname, lastname, keywords, 
+    notification_interval, registered
+    FROM users WHERE user_ID = %s'''
+    cur.execute(sql, (id,))
     userData = cur.fetchone()
     if not userData:
         return None
@@ -28,7 +31,7 @@ def getUser(id):
         'lastName': userData[4],
         'keywords': userData[5],
         'notificationInterval': userData[6],
-        'registered': userData[7],
+        'registered': userData[9],
     }
 
     cur.execute('SELECT url FROM user_webpages WHERE user_ID = %s',
@@ -59,7 +62,7 @@ def insertUser(user):
     '''Insert user object, webpages and categories into database. Return error or users id'''
     conn = getDb()
     cur = conn.cursor()
-    usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,%s,false)'
+    usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,DEFAULT,%s,false)'
     webpagesql = 'INSERT INTO user_webpages VALUES(%s,%s)'
     categoriesql = 'INSERT INTO user_categories VALUES(%s,%s)'
 
@@ -68,7 +71,7 @@ def insertUser(user):
 
     password = user.password.encode('utf-8')
     user.hashedPassword = pbkdf2_sha256.hash(password)
-    curdate = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    curdate = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
     cur.execute(usersql, (user.email, user.hashedPassword,
                           user.firstName, user.lastName, user.keywords, user.digestfrequency, curdate))
     id = cur.lastrowid

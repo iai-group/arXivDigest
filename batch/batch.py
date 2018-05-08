@@ -61,7 +61,8 @@ def sendMail():
         seenMail = []
         users = db.getUsers(conn, i, batchsize)
         userRecommendations = db.getUserRecommendations(conn, i, batchsize)
-
+        if not userRecommendations:
+            continue
         for userID, user in users.items():
             mail = {'toadd': user['email'],
                     'subject': 'ArXiv Digest',
@@ -70,10 +71,10 @@ def sendMail():
             # find the top articles for each user
             topArticles = {}
             if user['notification_interval'] == 1:
-                date = datetime.today().date()
+                date = datetime.utcnow().date()
                 recs = userRecommendations[userID][date]
                 topArticles[date.weekday()] = topN(recs, 3)
-            elif datetime.today().weekday() == 4:
+            elif datetime.utcnow().weekday() == 4:
                 for day, articles in userRecommendations[userID].items():
                     topArticles[day.weekday()] = topN(articles, 3)
             if not any(topArticles.values()):  # skip user if there user has no recommendations
@@ -100,6 +101,9 @@ def sendMail():
             mail['data']['articles'] = mailData
             # add mail to send mail queue
             mails.append(mail)
+
+        if not mails:
+            continue  # skip sending mail if none of the users should receive any mail
         # mark all articles as seen in database and send all mails
         db.setSeenEmail(conn, seenMail)
         for mail in mails:
@@ -111,7 +115,7 @@ def sendMail():
 if __name__ == '__main__':
     '''Multileaves system recommendations and inserts the new lists into the database, then sends notification email to user.'''
     conn = connector.connect(**config.get('sql_config'))
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     ml = multiLeaver(recommendationsPerUser, systemsPerUser)
     maxUserID = db.getHighestUserID(conn)
     # range-stop is bigger than maxUserID to ensure all users are found

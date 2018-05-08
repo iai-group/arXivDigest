@@ -11,8 +11,8 @@ def getSystemRecommendations(db, startUserID, n):
     '''
     cur = db.cursor()
     sql = '''SELECT user_ID,System_ID, article_ID FROM system_recommendations NATURAL JOIN users WHERE user_ID between %s AND %s
-    AND DATE(recommendation_date) = CURDATE()
-    AND last_recommendation_date < CURDATE() ORDER BY score DESC'''
+    AND DATE(recommendation_date) = UTC_DATE()
+    AND last_recommendation_date < UTC_DATE() ORDER BY score DESC'''
     cur.execute(sql, (startUserID, startUserID+n-1))
     result = defaultdict(lambda: defaultdict(list))
     for r in cur.fetchall():
@@ -26,6 +26,14 @@ def insertUserRecommendations(db, recommendations):
     cur = db.cursor()
     sql = 'INSERT INTO user_recommendations VALUES(%s,%s,%s,%s,%s,0,0,0,0,0,0,0)'
     cur.executemany(sql, recommendations)
+    users = {str(x[0]) for x in recommendations}
+    users = ','.join(users)
+    sql = 'UPDATE users SET last_recommendation_date=UTC_DATE() WHERE user_ID in (%s)' % users
+    try:
+        cur.execute(sql)
+    except Exception:
+        print(cur.statement)
+        raise
     db.commit()
     cur.close()
 
@@ -37,7 +45,8 @@ def getUserRecommendations(db, startUserID, n):
     cur = db.cursor()
     sql = '''SELECT user_ID, DATE(recommendation_date), article_ID,  score FROM user_recommendations NATURAL JOIN users 
     WHERE user_ID between %s AND %s
-    AND DATE(recommendation_date) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) '''
+    AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY) 
+    AND last_email_date < UTC_DATE()'''
     cur.execute(sql, (startUserID, startUserID+n-1))
     result = defaultdict(lambda: defaultdict(dict))
     for r in cur.fetchall():
@@ -81,7 +90,7 @@ def getArticleData(db):
     '''Returns article data with authors in a dictionary'''
     cur = db.cursor()
     sql = '''SELECT article_ID,title, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') FROM article_authors natural join articles
-    WHERE datestamp >=DATE_SUB(CURDATE(),INTERVAL 8 DAY) GROUP BY article_ID'''
+    WHERE datestamp >=DATE_SUB(UTC_DATE(),INTERVAL 8 DAY) GROUP BY article_ID'''
     cur.execute(sql)
     articles = {x[0]: {'title': x[1], 'authors': x[2]} for x in cur.fetchall()}
     cur.close()
@@ -93,5 +102,10 @@ def setSeenEmail(db, articles):
     cur = db.cursor()
     sql = 'UPDATE user_recommendations SET seen_email=true,trace_click_email=%s, trace_like_email=%s WHERE user_ID=%s and article_ID=%s'
     cur.executemany(sql, articles)
+    
+    users = {str(x[2]) for x in articles}
+    users = ','.join(users)
+    sql = 'UPDATE users SET last_email_date=UTC_DATE() WHERE user_ID in (%s)' % users
+    cur.execute(sql)
     cur.close()
     db.commit()

@@ -29,6 +29,7 @@ lastname varchar(255) not null,
 keywords text,
 notification_interval int,
 last_recommendation_date date default '0-0-0',
+last_email_date date default '0-0-0',
 registered datetime not null,
 admin boolean default false,
 primary key (user_ID)		
@@ -124,17 +125,4 @@ foreign key (article_ID) references articles(article_ID),
 foreign key (user_ID) references users (user_ID) on delete cascade,
 primary key(user_ID,article_ID)
 );
-
-DELIMITER $$
-CREATE TRIGGER update_last_recommendation_date
-AFTER INSERT ON user_recommendations
-FOR EACH ROW
-BEGIN
-  UPDATE users
-    SET last_recommendation_date =curdate()
-    WHERE user_ID = NEW.user_ID;
-END;
-$$
-DELIMITER ;
-
 

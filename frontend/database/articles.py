@@ -16,7 +16,7 @@ def getLikedArticles(userid, interval, order, start, n):
     sql = '''SELECT SQL_CALC_FOUND_ROWS article_ID,liked,title,abstract, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') as authors
     FROM user_recommendations
     NATURAL JOIN articles NATURAL JOIN article_authors
-    WHERE user_ID = %s AND liked=true AND DATE(recommendation_date) >= DATE_SUB(CURDATE(), INTERVAL %s DAY)
+    WHERE user_ID = %s AND liked=true AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL %s DAY)
     group by article_ID ORDER BY {} LIMIT %s,%s'''.format(order)
     cur.execute(sql, (userid, interval, start, n,))
     articles = cur.fetchall()
@@ -40,7 +40,7 @@ def getUserRecommendations(userid, interval, order, start, n):
     sql = '''SELECT SQL_CALC_FOUND_ROWS article_ID,liked,title,abstract, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ", ") as authors
     FROM user_recommendations
     NATURAL JOIN articles NATURAL JOIN article_authors
-    WHERE user_ID = %s AND DATE(recommendation_date) >= DATE_SUB(CURDATE(), INTERVAL %s DAY)
+    WHERE user_ID = %s AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL %s DAY)
     group by article_ID ORDER BY {} LIMIT %s,%s'''.format(order)
     cur.execute(sql, (userid, interval, start, n,))
 

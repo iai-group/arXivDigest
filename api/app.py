@@ -10,7 +10,6 @@ from utils import validateApiKey
 from config import config
 app = Flask(__name__)
 
-app.config['DEBUG'] = True  # TODO remove this
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 app.config.update(**config.get('api_config'))
 
@@ -61,7 +60,7 @@ def userinfo():
 def articles():
     '''API-endpoint for requesting articleIDs, all articles added on the specified "date",
      if "date" is not specified it will the current date.'''
-    date = request.args.get('date', datetime.now().strftime("%Y-%m-%d"))
+    date = request.args.get('date', datetime.utcnow().strftime("%Y-%m-%d"))
     try:
         date = datetime.strptime(
             date, "%Y-%m-%d").strftime("%Y-%m-%d")
@@ -124,7 +123,7 @@ def recommendation():
         err = 'Could not find articles with ids: %s.' % ', '.join(articles)
         return make_response(jsonify({'success': False, 'error': err}), 400)
 
-    today = datetime.now().strftime("%Y/%m/%d")
+    today = datetime.utcnow().strftime("%Y/%m/%d")
     articlesToday = db.getArticleIDs(today)['article_ids']
     notToday = (set(articlesToday) & set(articleIDs) ^ set(articleIDs))
     if notToday:
@@ -138,7 +137,7 @@ def recommendation():
         err = 'Score must be a float'
         return make_response(jsonify({'success': False, 'error': err}), 400)
 
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     data = [(k, v['article_id'], g.sysID, v['score'], now)
             for k, v in data.items()for v in v]
 
@@ -179,4 +178,5 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
+    app.config['DEBUG'] = True
     app.run(port=5001)
