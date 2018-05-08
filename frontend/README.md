@@ -74,9 +74,29 @@ Routes available:
 
 >Return admin page and dictionary of systems in database.
 
-``/addSystem [POST] @requiresLogin``
+``/systems/get [GET] @requiresLogin``
 
->Sends new systems name from web form to database function. Returns admin page or "System name already in use" error.
+>Returns list of systems from db.
+
+``/admins/get [GET] @requiresLogin``
+
+>Returns list of admins from db.
+
+``/systems/toggleActive/<int:systemID>/<state> [GET] @requiresLogin``
+
+>Activate/deactivate system with systemID depending on state.
+
+``/general [GET] @requiresLogin``
+
+>Returns number of users and articles.
+
+``/system/register [POST]``
+
+>Sends new systems data from web form to database function. Returns register system page or error.
+
+``/system/register [GET]``
+
+>Returns page for system registration.
 
 ``@requiresLogin``
 
