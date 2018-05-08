@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+'''This script compares how users have interacted with the recommendations for the differnet systems over a configurable period.
+The script has two optional parameters: --startdate and --enddate which controls the period, if no parameters are given the result
+will be calculated with all recommendations in the database. 
+The script prints the result in a table when its done calculating.
+'''
+
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2018, The ArXivDigest Project'
+
 from mysql import connector
 import json
 from collections import defaultdict
@@ -107,43 +117,3 @@ for i, d in enumerate(data):
     print(line)
     if i == 0:
         print('-' * len(line))
-
-
-'''
-when will this script run  on a timer/on demand
-with what inputs and variables, settings
-
-Pseudo code
-
-
-user_recs = get all user interactions and recomendations for given period
-systemscores ={}
-for each user for each date in user_recs : 
-    score = give the systems a score based on user interaction withe the system's recommendations 
-    systemscores[date][user][system]=score
-systemResults={}
-for each user for each date in systemscores:
-    result=if one system had higher score than all other give system win
-    result=if one system had lower score than all other give system a loss
-    result=give all other systems tie
-    systemResults[system]= result
-outcome={}
-for each system in systemResults:
-     outcome[system] = score['win']/(score['win']+score['loss'])
-
-what to do with outcome?
-how to store it
-what keys and other data should  be stored with the outcome
-'''
-
-
-'''
-
-
-in: timeperiod default whole period
-out:
-table: 
-systemid impressions(total number of times the system has been interleaved) wins, ties,loss outcome  order by outcome 
-
-meeting friday 11:30-12
-'''

@@ -4,8 +4,8 @@ To only scrape the metadata from the aricles in the rss-stream use the harvestMe
 It's also possible to scrape articles from any date until today, to accomplish this use the
 getRecordsFromLastnDays method.'''
 
-__author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
 try:
     import xml.etree.cElementTree as ET
