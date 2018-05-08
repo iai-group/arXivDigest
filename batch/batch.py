@@ -2,10 +2,10 @@
 '''This script that combines the recommendations from the experimental recommender systems and inserts the combined ranking, for each user, into the database.
  It also sends out the digest emails to users.
 '''
-__author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2018, The ArXivDigest Project'
 import sys
-sys.path.append("..")
+sys.path.append('..')
 from mail import mailServer
 from mysql import connector
 import database as db
@@ -26,6 +26,7 @@ with open('../config.json', 'r') as f:
 
 
 def multiLeaveRecommendations(systemRecommendations):
+    '''Multileaves the given systemRecommendations and returns a list of userRecommendations. '''
     userRecommendations = []
     for userID, lists in systemRecommendations.items():
         # mulileave system recommendations
@@ -85,8 +86,8 @@ def sendMail():
                     article = articleData.get(articleID)
                     clickTrace = str(uuid4())
                     likeTrace = str(uuid4())
-                    articleInfo.append({'title': article.get("title"),
-                                        'authors': article.get("authors"),
+                    articleInfo.append({'title': article.get('title'),
+                                        'authors': article.get('authors'),
                                         'readlink': '%smail/read/%s/%s/%s' % (link, user, articleID, clickTrace),
                                         'likelink': '%smail/like/%s/%s/%s' % (link, user, articleID, likeTrace)
                                         })

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 '''This module implements methods which the batchprocess uses to interface with the database'''
-__author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2018, The ArXivDigest Project'
 from collections import defaultdict
 
 
@@ -10,9 +10,9 @@ def getSystemRecommendations(db, startUserID, n):
     {user_ID:{system_ID:[article_IDs]}}.
     '''
     cur = db.cursor()
-    sql = """SELECT user_ID,System_ID, article_ID FROM system_recommendations NATURAL JOIN users WHERE user_ID between %s AND %s
+    sql = '''SELECT user_ID,System_ID, article_ID FROM system_recommendations NATURAL JOIN users WHERE user_ID between %s AND %s
     AND DATE(recommendation_date) = CURDATE()
-    AND last_recommendation_date < CURDATE() ORDER BY score DESC"""
+    AND last_recommendation_date < CURDATE() ORDER BY score DESC'''
     cur.execute(sql, (startUserID, startUserID+n-1))
     result = defaultdict(lambda: defaultdict(list))
     for r in cur.fetchall():
@@ -35,9 +35,9 @@ def getUserRecommendations(db, startUserID, n):
     {user_ID:{date:{article_IDs:score}}.
     '''
     cur = db.cursor()
-    sql = """SELECT user_ID, DATE(recommendation_date), article_ID,  score FROM user_recommendations NATURAL JOIN users 
+    sql = '''SELECT user_ID, DATE(recommendation_date), article_ID,  score FROM user_recommendations NATURAL JOIN users 
     WHERE user_ID between %s AND %s
-    AND DATE(recommendation_date) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) """
+    AND DATE(recommendation_date) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) '''
     cur.execute(sql, (startUserID, startUserID+n-1))
     result = defaultdict(lambda: defaultdict(dict))
     for r in cur.fetchall():
@@ -68,7 +68,7 @@ def getNumberOfUsers(db):
 
 
 def getHighestUserID(db):
-    '''This method returns the number of users in the database.'''
+    '''This method returns the highest userID in the database.'''
     cur = db.cursor()
     sql = 'SELECT max(user_id) FROM users'
     cur.execute(sql)
@@ -80,8 +80,8 @@ def getHighestUserID(db):
 def getArticleData(db):
     '''Returns article data with authors in a dictionary'''
     cur = db.cursor()
-    sql = """SELECT article_ID,title, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') FROM article_authors natural join articles
-    WHERE datestamp >=DATE_SUB(CURDATE(),INTERVAL 8 DAY) GROUP BY article_ID"""
+    sql = '''SELECT article_ID,title, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') FROM article_authors natural join articles
+    WHERE datestamp >=DATE_SUB(CURDATE(),INTERVAL 8 DAY) GROUP BY article_ID'''
     cur.execute(sql)
     articles = {x[0]: {'title': x[1], 'authors': x[2]} for x in cur.fetchall()}
     cur.close()
