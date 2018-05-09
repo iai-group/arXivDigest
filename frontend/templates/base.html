@@ -48,14 +48,14 @@
                     <li>
                         <a href="{{ url_for('articles.likedArticles') }}">Your liked articles</a>
                     </li>
-                    <li>
-                        <a href="{{ url_for('general.registerSystemPage') }}">Register new system</a>
-                    </li>
                     {% if g.admin %}
                     <li>
                         <a href="{{ url_for('admin.admin') }}">Administrate</a>
                     </li>
                     {% endif %} {% endif %}
+                    <li>
+                        <a href="{{ url_for('general.registerSystemPage') }}">Register new system</a>
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if g.loggedIn%}
