@@ -31,7 +31,7 @@ def getUser(id):
         'lastName': userData[4],
         'keywords': userData[5],
         'notificationInterval': userData[6],
-        'registered': userData[9],
+        'registered': userData[7],
     }
 
     cur.execute('SELECT url FROM user_webpages WHERE user_ID = %s',
