@@ -49,7 +49,7 @@ conn = connector.connect(**config.get('sql_config'))
 cur = conn.cursor(dictionary=True)
 sql = '''SELECT user_ID, system_ID, DATE(recommendation_date) as date,clicked_email,clicked_web,liked
          FROM user_recommendations WHERE  DATE(recommendation_date) >= %s AND
-         DATE(recommendation_date) <= %s'''
+         DATE(recommendation_date) <= %s AND system_ID is not null'''
 cur.execute(sql, (args.startdate, args.enddate))
 
 data = cur.fetchall()
