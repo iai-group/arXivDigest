@@ -1,32 +1,36 @@
 {% extends "base.html" %} {% block content %}
 <div class="container">
-  
-        <ul class="nav nav-tabs">
-            <li>
-                <a href="#general">General</a>
-            </li>
-            <li>
-                <a href="#systems">Manage systems</a>
-            </li>
-            <li>
-                <a href="#admins">Admins</a>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div id="general" class="tab-pane">
-                <div id="statistics"></div>
-                <div id="userPlotContainer"></div>
-                <div id="articlePlotContainer"></div>
-            </div>
-            <div id="systems" class="tab-pane .flex-container">
 
-                <div class="systemList">
-                    <h3 class="leftText">List of systems:</h3>
-                    <div><table class="table">
+    <ul class="nav nav-tabs">
+        <li>
+            <a href="#general">General</a>
+        </li>
+        <li>
+            <a href="#systems">Manage systems</a>
+        </li>
+        <li>
+            <a href="#admins">Admins</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div id="general" class="tab-pane">
+            <div id="statistics"></div>
+            <div id="userPlotContainer"></div>
+            <div id="articlePlotContainer"></div>
+        </div>
+        <div id="systems" class="tab-pane .flex-container">
+
+            <div class="systemList">
+                <h3 class="leftText">List of systems:</h3>
+                <div>
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
+                                <th>Contact name</th>
+                                <th>Organization name</th>
+                                <th>Email</th>
                                 <th>API-key</th>
                                 <th>Active</th>
                             </tr>
@@ -34,14 +38,14 @@
                         <tbody> </tbody>
 
                     </table>
-                </div></div>
-               
-               
+                </div>
             </div>
-                
-            <div id="admins" class="tab-pane">
-                <div>
-                    <table class="table">
+
+        </div>
+
+        <div id="admins" class="tab-pane">
+            <div>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>User ID</th>

@@ -409,6 +409,9 @@ function generateSystemTableHtml(systems) {
     for (const system of systems) {
         html += "<td>" + system.system_ID + "</td>";
         html += "<td>" + system.system_name + "</td>";
+        html += "<td>" + system.contact_name + "</td>";
+        html += "<td>" + system.organization_name + "</td>";
+        html += "<td>" + system.email + "</td>";
         html += "<td>" + system.api_key + "</td>";
         html += "<td><input class='toggleSystem' type='checkbox' data-value=" + system.system_ID
         if (system.active) {
