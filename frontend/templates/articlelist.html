@@ -1,3 +1,4 @@
+<div style="min-width: 520px; float:left; margin-bottom:10px;">
 <div class="btn-group" class="sortDiv" style="margin-left:20px;">
     <button type="button" id="leftSort" class="btn btn-secondary sortbutton">
         Showing articles from{% for v in timeDropDown %} {%if interval==v[0] %} {{ v[1].lower() }} {%endif%} {% endfor %}
@@ -37,6 +38,7 @@
         </li>
         {% endfor %}
     </ul>
+</div>
 </div>
 
 {%if articles%} {%for article in articles%}
