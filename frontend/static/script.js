@@ -363,7 +363,7 @@ $(document).ready(function () {
                         data: {
                             labels: data.users.dates,
                             datasets: [{
-                                label: 'User registration past month',
+                                label: 'User registration over time',
                                 data: data.users.users,
                                 backgroundColor: 'rgba(100, 159, 64, 0.2)'
                             }]
@@ -378,7 +378,7 @@ $(document).ready(function () {
                         data: {
                             labels: data.articles.dates,
                             datasets: [{
-                                label: 'Articles scraped past month',
+                                label: 'Articles scraped over time',
                                 data: data.articles.articles,
                                 backgroundColor: 'rgba(100, 159, 64, 0.2)'
                             }]
