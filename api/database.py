@@ -5,7 +5,7 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import mysql.connector
 from flask import g
-from config import config
+from api.config import config
 from collections import defaultdict
 '''This module implements methods which the api uses to interface with the database'''
 

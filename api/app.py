@@ -5,9 +5,9 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 import mysql.connector
 from flask import Flask, g, jsonify, request, make_response
 from datetime import datetime
-import database as db
-from utils import validateApiKey, getUserlist
-from config import config
+import api.database as db
+from api.utils import validateApiKey, getUserlist
+from api.config import config
 app = Flask(__name__)
 
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024

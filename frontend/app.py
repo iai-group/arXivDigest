@@ -15,7 +15,6 @@ app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
-app.config['DEBUG'] = True 
 
 
 @app.before_request
@@ -44,4 +43,5 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
+    app.config['DEBUG'] = True
     app.run()
