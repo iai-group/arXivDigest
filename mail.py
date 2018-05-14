@@ -8,12 +8,6 @@ from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment, FileSystemLoader
 
 
-def mailrender(data, template, env):
-    '''Puts data into mail template'''
-    template = env.get_template(template + '.tmpl')
-    return template.render(data)
-
-
 def assembleMail(message, toadd, fromadd, subject):
     '''Adds to and from address and subject to mail'''
     message = MIMEText(message, 'html')
@@ -38,6 +32,7 @@ class mailServer():
 
     def sendMail(self, toadd, subject, data, template):
         '''Creates mail and sends it'''
-        content = mailrender(data, template, self.env)
+        template = self.env.get_template(template + '.tmpl')
+        content = template.render(data)
         mail = assembleMail(content, self.fromadd, toadd, subject)
         return self.server.sendmail(self.fromadd, toadd, mail)
