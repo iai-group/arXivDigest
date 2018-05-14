@@ -52,7 +52,8 @@ def toggleSystem(systemID, state):
                 'subject': 'System Activation',
                 'template': 'systemActivation',
                 'data': {'name': sys['contact_name'],
-                         'key': sys['api_key']}}
+                         'key': sys['api_key'],
+                         'link': request.url_root}}
 
         Server = mailServer(**config.get('email_configuration'))
         try:

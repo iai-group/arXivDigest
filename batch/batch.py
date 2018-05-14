@@ -66,7 +66,7 @@ def sendMail():
         for userID, user in users.items():
             mail = {'toadd': user['email'],
                     'subject': 'ArXiv Digest',
-                    'data':  {'name': user['name'], 'articles': []},
+                    'data':  {'name': user['name'], 'articles': [], 'link': link},
                     'template': 'weekly'}
             # find the top articles for each user
             topArticles = {}
