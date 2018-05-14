@@ -43,7 +43,7 @@ def getUserIDs(fromID, max):
 
 
 def getUsers(ids):
-    '''Takes in a list of userIDs and returns a nested dictionary 
+    '''Takes in a list of userIDs and returns a nested dictionary
     of data about the users requested.'''
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
@@ -126,7 +126,7 @@ def checkUsersExists(ids):
 
 
 def getArticleData(ids):
-    '''Takes in a list of articleIDs and returns a nested dictionary 
+    '''Takes in a list of articleIDs and returns a nested dictionary
     of data about the articles requested.'''
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
@@ -217,3 +217,30 @@ def getUserRecommendations(ids):
 
     cur.close()
     return users
+
+
+def getUserFeedback(ids):
+    '''Returns feedbackdata for the requested userIDs in this format: {userid:date[{articleID:feedback}}
+    where articleIDs are sorted by score and feedback is a binary number composite of
+    seen_email-bit 0,seen_web-bit 1,clicked_email-bit 2,clicked_web-bit 3, liked-bit 4,
+    where each of these booleans represent one bit in the same order as the list.
+    '''
+    cur = getDb().cursor(dictionary=True)
+    format_strings = ','.join(['%s'] * len(ids))
+
+    sql = '''SELECT user_ID,article_ID,DATE(recommendation_date)as date,
+    seen_email,seen_web,clicked_email,clicked_web,liked      ,score
+    FROM user_recommendations WHERE user_ID in (%s) order by score desc''' % format_strings
+    cur.execute(sql, ids)
+    result = defaultdict(lambda: defaultdict(list))
+    for feedback in cur.fetchall():
+        user = feedback['user_ID']
+        date = str(feedback['date'])
+        article = feedback['article_ID']
+        feedbackNum = feedback['seen_email']*1
+        feedbackNum += feedback['seen_web']*2
+        feedbackNum += feedback['clicked_email']*4
+        feedbackNum += feedback['clicked_web']*8
+        feedbackNum += feedback['liked']*16
+        result[user][date].append({article: feedbackNum})
+    return result

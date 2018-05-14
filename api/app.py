@@ -6,12 +6,20 @@ import mysql.connector
 from flask import Flask, g, jsonify, request, make_response
 from datetime import datetime
 import database as db
-from utils import validateApiKey
+from utils import validateApiKey, getUserlist
 from config import config
 app = Flask(__name__)
 
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 app.config.update(**config.get('api_config'))
+
+
+@app.route('/api/userfeedback', methods=['GET'])
+@validateApiKey
+@getUserlist
+def userfeedback(users):
+    '''API-endpoint for requesting userfeedback, 'user_id' must be one or more ids seperated by comma.'''
+    return jsonify(db.getUserFeedback(users))
 
 
 @app.route('/api/users', methods=['GET'])
@@ -33,26 +41,10 @@ def users():
 
 @app.route('/api/userinfo', methods=['GET'])
 @validateApiKey
-def userinfo():
+@getUserlist
+def userinfo(users):
     '''API-endpoint for requesting userdata, 'user_id' must be one or more ids seperated by comma.'''
-    try:
-        ids = request.args.get('user_id').split(',')
-    except:
-        return make_response(jsonify({'error': 'No IDs supplied.'}, 400))
-    if(not all([x.isdigit() and int(x) > 0 for x in ids])):  # checks that all ids are valid
-        return make_response(jsonify({'error': 'Invalid ids.'}), 400)
-    if(len(ids) > app.config['MAX_USERINFO_REQUEST']):
-        err = 'You cannot request more than %s users at a time.' % app.config[
-            'MAX_USERINFO_REQUEST']
-        return make_response(jsonify({'error': err}), 400)
-
-    users = db.checkUsersExists(ids)
-    if len(users) > 0:
-        err = 'No users with ids: %s.' % ', '.join(users)
-        return make_response(jsonify({'error': err}), 400)
-
-    users = db.getUsers(ids)
-    return make_response(jsonify({'userinfo': users}), 200)
+    return make_response(jsonify({'userinfo': db.getUsers(users)}), 200)
 
 
 @app.route('/api/articles', methods=['GET'])
@@ -147,26 +139,11 @@ def recommendation():
 
 @app.route('/api/recommendations', methods=['GET'])
 @validateApiKey
-def recommendations():
+@getUserlist
+def recommendations(users):
     '''API-endpoint for requesting user-recommendations,
      "user_id" must be one or more ids seperated by comma.'''
-    try:
-        ids = request.args.get('user_id').split(',')
-    except:
-        return make_response(jsonify({'error': 'No IDs supplied.'}, 400))
-    if(not all([x.isdigit() and int(x) > 0 for x in ids])):  # checks that all ids are valid
-        return make_response(jsonify({'error': 'Invalid ids.'}), 400)
-    if(len(ids) > app.config['MAX_USERINFO_REQUEST']):
-        err = 'You cannot request more than %s users at a time.' % app.config[
-            'MAX_USERINFO_REQUEST']
-        return make_response(jsonify({'error': err}), 400)
-
-    users = db.checkUsersExists(ids)
-    if len(users) > 0:
-        err = 'No users with ids: %s.' % ', '.join(users)
-        return make_response(jsonify({'error': err}), 400)
-
-    users = db.getUserRecommendations(ids)
+    users = db.getUserRecommendations(users)
     return make_response(jsonify({'users': users}), 200)
 
 

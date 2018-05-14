@@ -6,6 +6,8 @@ from functools import wraps
 from flask import render_template, g, request, make_response, jsonify
 from database import getSystem
 from uuid import UUID
+from config import APIconfig
+import database as db
 
 
 def validateApiKey(f):
@@ -26,5 +28,29 @@ def validateApiKey(f):
         g.apiKey = system['api_key']
         g.sysName = system['system_name']
         g.sysID = system['system_ID']
+        return f(*args, **kwargs)
+    return wrapper
+
+
+def getUserlist(f):
+    '''Decorator for getting user IDs from url, and validating them'''
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            ids = request.args.get('user_id').split(',')
+        except:
+            return make_response(jsonify({'error': 'No IDs supplied.'}, 400))
+        if(not all([x.isdigit() and int(x) > 0 for x in ids])):  # checks that all ids are valid
+            return make_response(jsonify({'error': 'Invalid ids.'}), 400)
+        if(len(ids) > APIconfig['MAX_USERINFO_REQUEST']):
+            err = 'You cannot request more than %s users at a time.' % APIconfig[
+                'MAX_USERINFO_REQUEST']
+            return make_response(jsonify({'error': err}), 400)
+
+        users = db.checkUsersExists(ids)
+        if len(users) > 0:
+            err = 'No users with ids: %s.' % ', '.join(users)
+            return make_response(jsonify({'error': err}), 400)
+        kwargs['users'] = ids
         return f(*args, **kwargs)
     return wrapper

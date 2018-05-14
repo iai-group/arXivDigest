@@ -111,7 +111,79 @@ Example:
 
 Returns the feedback data recorded for a given user (or list of users).
 
-*TODO*
+Parameters:
+  - `user_id` user ID, or a list of up to 100 user IDs, separated by a comma
+
+Fields are returned in a JSON in the format, the article IDs are sorted descending by score:
+```
+    {
+      "userfeedback": {
+        user_id: {
+           date: [
+            {article_id: feedback},
+            {article_id: feedback},
+           ]
+        }
+      }
+    }
+```
+Fields returned for each user:
+  - `user_id`: ID of the user
+  - `date`: Date the recommendation was originally given to the user
+  - `article_id`: ID of the article
+  - `feedback`: is the feedback stored in binary in a five bit number
+    -  "seen_email":   bit 0
+    -  "seen_web":     bit 1
+    -  "clicked_email":bit 2
+    -  "clicked_web":  bit 2
+    -  "liked":        bit 4
+
+
+Other fields:
+  - `error`: if something went wrong
+
+Example feedback:
+
+```
+  "seen_email": 0,
+  "seen_web": 1,
+  "clicked_email": 0,
+  "clicked_web": 1,
+  "liked": 0
+  feedback=b'01010'=10
+         
+  "seen_email": 1,
+  "seen_web": 0,
+  "clicked_email": 0,
+  "clicked_web": 0,
+  "liked": 0
+  feedback=b'00001'=1
+````
+
+Example request:
+
+  - Request: `GET /api/userfeedback?user_id=1,7`
+  - Header:
+    ```
+    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    ```
+  - Response:
+    ```
+    {
+      "userfeedback": {
+        "1": {
+          "2018-05-10": [
+          {"article-123": 12},
+          {"article-012": 1},
+          ...
+           ]
+        }
+        "7": {
+          ...
+        }
+      }
+    }
+    ```
 
 
 ## Article data
