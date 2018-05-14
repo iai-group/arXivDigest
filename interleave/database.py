@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''This module implements methods which the batchprocess uses to interface with the database'''
+'''This module implements methods which the interleave process uses to interface with the database'''
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 from collections import defaultdict
@@ -102,7 +102,7 @@ def setSeenEmail(db, articles):
     cur = db.cursor()
     sql = 'UPDATE user_recommendations SET seen_email=true,trace_click_email=%s, trace_like_email=%s WHERE user_ID=%s and article_ID=%s'
     cur.executemany(sql, articles)
-    
+
     users = {str(x[2]) for x in articles}
     users = ','.join(users)
     sql = 'UPDATE users SET last_email_date=UTC_DATE() WHERE user_ID in (%s)' % users

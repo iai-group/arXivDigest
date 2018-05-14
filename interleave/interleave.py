@@ -19,10 +19,10 @@ import os
 
 with open('../config.json', 'r') as f:
     config = json.load(f)
-    batchConfig = config.get('batch_config')
-    recommendationsPerUser = batchConfig.get('recommendations_per_user')
-    systemsPerUser = batchConfig.get('systems_multileaved_per_user')
-    batchsize = batchConfig.get('users_per_batch')
+    interleaveConfig = config.get('interleave_config')
+    recommendationsPerUser = interleaveConfig.get('recommendations_per_user')
+    systemsPerUser = interleaveConfig.get('systems_multileaved_per_user')
+    batchsize = interleaveConfig.get('users_per_batch')
 
 
 def multiLeaveRecommendations(systemRecommendations):
@@ -54,7 +54,7 @@ def sendMail():
     articleData = db.getArticleData(conn)
     path = os.path.join(os.path.dirname(__file__), 'templates')
     server = mailServer(**config.get('email_configuration'), templates=path)
-    link = batchConfig.get('webaddress')
+    link = interleaveConfig.get('webaddress')
 
     for i in range(0, maxUserID+batchsize, batchsize):
         mails = []

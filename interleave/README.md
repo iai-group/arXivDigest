@@ -1,6 +1,6 @@
-# Batch processes
+# Interleave processes
 
-There is a daily batch process that combines the recommendations from the experimental recommender systems and inserts the combined ranking, for each user, into the database. It also sends out the digest emails to users.
+There is a daily interleaving process that combines the recommendations from the experimental recommender systems and inserts the combined ranking, for each user, into the database. It also sends out the digest emails to users.
 
 ## Overview
 
@@ -34,7 +34,7 @@ This script should be scheduled to run with a delay after MetaHarvest. This is t
 
 The script can be run directly with the python command:
 ```
-python batch.py
+python interleave.py
 ```
 
 Settings can be configured in config.json

@@ -18,7 +18,7 @@
         "MAX_RECOMMENDATION_USERS": 100,
         "MAX_RECOMMENDATION_ARTICLES": 10
     },
-    "batch_config": {
+    "interleave_config": {
         "systems_multileaved_per_user": 3,
         "recommendations_per_user": 30,
         "users_per_batch": 100,
