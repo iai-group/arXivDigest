@@ -4,10 +4,9 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 from functools import wraps
 from flask import render_template, g, request, make_response, jsonify
-from database import getSystem
 from uuid import UUID
-from config import APIconfig
-import database as db
+from api.config import APIconfig
+import api.database as db
 
 
 def validateApiKey(f):
@@ -20,7 +19,7 @@ def validateApiKey(f):
             UUID(key, version=4)
         except ValueError:
             return make_response(jsonify({'error': 'Malformed api-key.'}), 401)
-        system = getSystem(key)
+        system = db.getSystem(key)
         if system is None:
             return make_response(jsonify({'error': 'Invalid api-key.'}), 401)
         if not system['active']:
