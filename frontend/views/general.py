@@ -105,7 +105,7 @@ def passwordChange():
         flash('Old password is wrong.', 'danger')
         return render_template('passwordChange.html')
     db.updatePassword(g.user, data['password'])
-    return render_template('profile.html', user=db.getUser(g.user))
+    return redirect(url_for('general.profile'))
 
 
 @mod.route('/passwordChange', methods=['GET'])
@@ -131,7 +131,7 @@ def modify():
         flash(e.message, 'danger')
         return render_template('modify.html', user=db.getUser(g.user))
     db.updateUser(g.user, user)
-    return render_template('profile.html', user=db.getUser(g.user))
+    return redirect(url_for('general.profile'))
 
 
 @mod.route('/modify', methods=['GET'])
