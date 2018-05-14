@@ -25,7 +25,7 @@ This evaluation framework consists of a front-end for *users* (researchers), a b
     - For experimental recommender systems to upload personalized recommendations.
   * [Scraper](scraper/)
     - It continuously monitors the arXiv RSS feed for new articles, and downloads their metadata (authors, title, abstract, etc.)
-  * [Batch processes](batch/)
+  * [Interleave processes](Interleave/)
     - It includes the interleaving mechanism for combining the recommendations of multiple experimental recommender systems. It also send the personalized recommendations to users in the form of daily digest emails.
   * [MySQL database](mysql/)
     - All data is stored in a MySQL database.
