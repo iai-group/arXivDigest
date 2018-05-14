@@ -1,5 +1,4 @@
 function inputTouched(input) {
-    //only if element is not empty
     if (input.value == "" || input.value == null) {
         input.classList.remove("touched");
     } else {
@@ -113,7 +112,6 @@ function autoComplete(input) {
     });
 
     input.on("keydown", function (e) {
-        // up (38), down (40)
         if ((e.which == 38 || e.which == 40) && input.sl.html()) {
             var next, selected = $(".autocomplete-suggestion.selected", input.sl);
             if (!selected.length) {
@@ -135,12 +133,10 @@ function autoComplete(input) {
             input.updatesuggestionbox(next);
             return false;
         }
-        // esc
         else if (e.which == 27) {
             input.sl.hide();
             input.val(input.lastVal)
         }
-        // enter (13) , tab (9)
         else if (e.which == 13 || e.which == 9) {
             var selected = $(".autocomplete-suggestion.selected");
             e.preventDefault();

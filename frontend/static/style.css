@@ -1,13 +1,9 @@
-/* Sticky footer styles
--------------------------------------------------- */
-
 html {
   position: relative;
   min-height: 100%;
 }
 
 html body {
-  /* Margin bottom by footer height */
   margin-top: 50px;
   margin-bottom: 60px;
 }
@@ -20,7 +16,6 @@ footer {
   position: absolute;
   bottom: 0;
   width: 100%;
-  /* Set the fixed height of the footer here */
   height: 60px;
   background-color: #f5f5f5;
   border-top: 1px solid #b7b7b7;
@@ -184,7 +179,6 @@ td input[type=radio]{
   border-top: 0;
   background: #fff;
   box-shadow: -1px 1px 3px rgba(0, 0, 0, .1);
-  /* core styles should not be changed */
   position: absolute;
   display: none;
   z-index: 9999;
@@ -297,8 +291,6 @@ code {
   font-size: 80%;
 }
 
-/* FLEX CONTAINER */
-
 .flex-container {
   display: flex;
   flex-wrap: wrap;
@@ -380,22 +372,19 @@ code {
   width:200px;
   margin: 5px;
 }
-/* width */
+
 ::-webkit-scrollbar {
   width: 10px;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
   background: #f1f1f1; 
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
   background: #888; 
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555; 
 }
@@ -418,9 +407,6 @@ code {
   padding-right: 40px;
   margin:0px;
   max-width: 800;
- 
-  
-
 }
 .articleIcons{
   position: absolute;
