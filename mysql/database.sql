@@ -1,9 +1,9 @@
-drop table if exists systems;
 drop table if exists system_recommendations;
 drop table if exists user_recommendations; 		
 drop table if exists user_webpages;
 drop table if exists user_categories;
 drop table if exists users;
+drop table if exists systems;
 
 drop table if exists author_affiliations;
 drop table  if exists article_categories;
@@ -11,6 +11,7 @@ drop table  if exists article_authors;
 drop table if exists  authors;
 drop table  if exists categories;
 drop table  if exists articles;
+
 
 create table categories(
 category_ID varchar(50) not null,
@@ -37,7 +38,7 @@ primary key (user_ID)
 
 create table user_webpages(
 user_ID int,
-url varchar(1000),
+url varchar(767),
 foreign key (user_ID) references users (user_ID) on delete cascade,
 primary key(user_ID,url)
 );
@@ -56,7 +57,7 @@ abstract text not null,
 doi varchar(200),
 comments text,
 license varchar(400),
-journal varchar(1000),
+journal varchar(767),
 datestamp date not null,
 primary key (article_ID)
 );
