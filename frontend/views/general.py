@@ -18,7 +18,7 @@ def login():
     '''Logs in user based on username and password from form. Returns proper error message on template if 
     anything is wrong. Else returns index page and authToken'''
     if g.loggedIn:
-        flash('You can\'t register an account while you\'re already logged in.', 'danger')
+        flash('You can\'t login while you\'re already logged in.', 'danger')
         return redirect(url_for('articles.index'))
     data = request.form
 
@@ -32,14 +32,14 @@ def login():
     next = request.args.get('next', '')
     if next is not '':
         return makeAuthTokenResponse(user, data.get('email'), next)
-    return makeAuthTokenResponse(user, data.get('email'), '/')
+    return makeAuthTokenResponse(user, data.get('email'), url_for('articles.index'))
 
 
 @mod.route('/login', methods=['GET'])
 def loginPage():
     '''Returns login page or index page if already logged in'''
     if g.loggedIn:
-        return redirect('/')
+        return redirect(url_for('articles.index'))
     next = request.args.get('next')
     if next:
         err = 'You must be logged in to access this endpoint'
@@ -51,7 +51,7 @@ def loginPage():
 @mod.route('/logout', methods=['GET'])
 def logout():
     '''Returns login page and sets cookie expire time to 0, so that the user gets logged out'''
-    resp = make_response(redirect('/login'))
+    resp = make_response(redirect(url_for('general.loginPage')))
     resp.set_cookie('auth', '', expires=0)
     g.user = None
     g.loggedIn = False
@@ -63,7 +63,8 @@ def signup():
     '''Takes data from signup form and creates an userobject. Sends user object to signup database function. Returns
     signup page with relevant error or index page and authToken'''
     if g.loggedIn:
-        return make_response(jsonify({'err': 'You can not register an account while you are already logged in.'})), 400
+        flash('You can not register an account while you are already logged in.', 'danger')
+        return redirect(url_for('articles.index'))
     form = request.form
     data = form.to_dict()
     data['website'] = form.getlist('website')
@@ -78,14 +79,14 @@ def signup():
 
     id = db.insertUser(user)
 
-    return makeAuthTokenResponse(id, user.email, '/')
+    return makeAuthTokenResponse(id, user.email, url_for('general.signupPage'))
 
 
 @mod.route('/signup', methods=['GET'])
 def signupPage():
     '''Returns signup page or index page if already logged in'''
     if g.loggedIn:
-        return redirect('/')
+        return redirect(url_for('articles.index'))
     return render_template('signup.html', categoryList=db.getCategoryNames())
 
 

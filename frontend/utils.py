@@ -18,7 +18,7 @@ def requiresLogin(f):
         if g.loggedIn:
             return f(*args, **kwargs)
         else:
-            return make_response(redirect(url_for('general.loginPage', next=request.full_path)))
+            return make_response(redirect(url_for('general.loginPage', next=request.script_root+request.full_path)))
     return wrapper
 
 
