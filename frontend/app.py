@@ -8,7 +8,6 @@ import jwt
 from frontend.views import general, admin, articles
 from frontend.config import config, jwtKey, secret_key
 
-
 app = Flask(__name__)
 app.secret_key = secret_key
 app.register_blueprint(general.mod)
@@ -19,7 +18,7 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 
 @app.before_request
 def before_request():
-    '''Checks authTokens before requests to check if users are logged in or not'''
+    """Checks authTokens before requests to check if users are logged in or not"""
     authToken = request.cookies.get("auth")
     try:
         payload = jwt.decode(authToken, jwtKey)
@@ -36,12 +35,12 @@ def before_request():
 
 @app.teardown_appcontext
 def teardownDb(exception):
-    '''Tears down the database connection after the request is done.'''
+    """Tears down the database connection after the request is done."""
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
 
 
 if __name__ == '__main__':
-    app.config['DEBUG'] = True
+    #app.config['DEBUG'] = True
     app.run()
