@@ -14,7 +14,7 @@ This evaluation framework consists of a front-end for *users* (researchers), a b
 
 ### Front-end:
 
-  * Available (soon) at arxivdigest.org
+  * Available at https://arxivdigest.org.
   * After signing up, users can view the articles that are recommended to them. Articles can be "liked" to improve recommendations and for easily finding these articles later.
   * The front-end is implemented as Flask application ([source](frontend/)).
 
@@ -29,7 +29,7 @@ This evaluation framework consists of a front-end for *users* (researchers), a b
     - It includes the interleaving mechanism for combining the recommendations of multiple experimental recommender systems. It also send the personalized recommendations to users in the form of daily digest emails.
   * [MySQL database](mysql/)
     - All data is stored in a MySQL database.
-  * Evaluation 
+  * Evaluation
     - Compares how users interacted with different systems over a period of time and prints the results
 
 ## Benchmark Organization
@@ -38,16 +38,16 @@ This evaluation framework consists of a front-end for *users* (researchers), a b
   * Systems are given a 2.5 hour window each day to download new content once it has been published on arXiv and generate recommendations for all registered ArXivDigest users.
   * System performance is monitored continuously over time. For system comparison, performance is measured during a designated evaluation period.
 
-### HOWTO for Experimental Recommender Systems
+### HOW-TO for Experimental Recommender Systems
 
-Experimental recommender systems need to follow the following steps for submitting recommendations.
+Experimental recommender systems need to follow the following steps for submitting recommendations.  The API is available at https://api.arxivdigest.org.
 
-  1. Call [`GET /api/users`](/api#list-of-users) to get a list of user IDs.
-  1. Call [`GET /api/userinfo?ids`](/api#user-information) with user IDs as a parameter to get information about the users.
-  1. Call [`GET /api/articles`](/api#list-of-articles) to get the list of article IDs that are may be returned as recommendation.
-  1. Call [`GET /api/articledata?ids`](/api#article-data) with article IDs as a parameter to get information about the articles.
+  1. Call [`GET /users`](/api#list-of-users) to get a list of user IDs.
+  1. Call [`GET /userinfo?ids`](/api#user-information) with user IDs as a parameter to get information about the users.
+  1. Call [`GET /articles`](/api#list-of-articles) to get the list of article IDs that are may be returned as recommendation.
+  1. Call [`GET /articledata?ids`](/api#article-data) with article IDs as a parameter to get information about the articles.
   1. Use the gathered information to generate personalized recommendations for users.
-  1. Submit the generated recommendations to [`POST /api/recommendations`](/api#insert-recommendations) in batches of maximum 100 users and 10 recommendations per user. Recommendations sent outside of the [recommendation period](#daily-submission-periods) will be ignored.
+  1. Submit the generated recommendations to [`POST /recommendations`](/api#insert-recommendations) in batches of maximum 100 users and 10 recommendations per user. Recommendations sent outside of the [recommendation period](#daily-submission-periods) will be ignored.
 
 ### Daily submission periods
 

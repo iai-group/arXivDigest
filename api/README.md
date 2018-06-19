@@ -2,7 +2,7 @@
 
 The ArXivDigest API provides a set of endpoints for experimental recommender systems to get access to articles and user profiles, and to upload personalized recommendations for online evaluation.
 
-Systems must have an active API key to access the endpoints.
+Systems must have an active API key to access these endpoints.
 
 * [User data](#user-data)
   + [List of users](#list-of-users)
@@ -19,7 +19,7 @@ Systems must have an active API key to access the endpoints.
 
 ### List of users
 
-`GET /api/users`
+`GET /users`
 
 Returns the list of user IDs, in batches of 10000, that are registered.
 
@@ -35,7 +35,7 @@ Fields returned:
 
 Example:
 
-  - Request: `GET /api/users?from=1000`
+  - Request: `GET /users?from=1000`
   - Header:
     ```
     {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
@@ -55,7 +55,7 @@ Example:
 
 ### User information
 
-`GET /api/userinfo`
+`GET /userinfo`
 
 Returns the details of a given user (or list of users).
 
@@ -75,7 +75,7 @@ Other fields:
 
 Example:
 
-  - Request: `GET /api/userinfo?user_id=1,7`
+  - Request: `GET /userinfo?user_id=1,7`
   - Header:
     ```
     {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
@@ -107,7 +107,7 @@ Example:
 
 ### User feedback
 
-`GET /api/userfeedback`
+`GET /userfeedback`
 
 Returns the feedback data recorded for a given user (or list of users).
 
@@ -151,7 +151,7 @@ Example feedback:
   "clicked_web": 1,
   "liked": 0
   feedback=b'01010'=10
-         
+
   "seen_email": 1,
   "seen_web": 0,
   "clicked_email": 0,
@@ -162,7 +162,7 @@ Example feedback:
 
 Example request:
 
-  - Request: `GET /api/userfeedback?user_id=1,7`
+  - Request: `GET /userfeedback?user_id=1,7`
   - Header:
     ```
     {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
@@ -190,7 +190,7 @@ Example request:
 
 ### List of articles
 
-`GET /api/articles`
+`GET /articles`
 
 Returns a list of articles, which are candidates for recommendation, for a given day. If arXiv did not post anything at the requested date, the article_ids-field will be empty.
 
@@ -204,7 +204,7 @@ Data returned:
 
 Example:
 
-  - Request: `GET /api/articles?date=2018-02-20`
+  - Request: `GET /articles?date=2018-02-20`
   - Header:
     ```
     {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
@@ -226,7 +226,7 @@ Example:
 
 ### Article data
 
-`GET /api/articledata`
+`GET /articledata`
 
 Returns data for a given article (or list of articles).
 
@@ -253,7 +253,7 @@ Other fields:
 
 Example:
 
-  - Request: `GET /api/articledata?article_id=123`
+  - Request: `GET /articledata?article_id=123`
   - Header:
     ```
     {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
@@ -290,7 +290,7 @@ Example:
 
 ### Insert recommendations
 
-`POST /api/recommendations`
+`POST /recommendations`
 
 Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](/../../#daily-submission-periods), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to the arXIv the same day. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
@@ -307,7 +307,7 @@ Data returned:
   - `article_ids`: list of article ids:
 
 Example:
-  - Request: `POST /api/recommendations`
+  - Request: `POST /recommendations`
 
   - Header:
     ```
@@ -338,7 +338,7 @@ Example:
     ```
 ### Recommendation data
 
-`GET /api/recommendations`
+`GET /recommendations`
 
 Returns recommendation data for a given user (or list of users).
 
@@ -358,7 +358,7 @@ Other fields:
 
 Example:
 
-  - Request: `GET /api/recommendations?user_id=123`
+  - Request: `GET /recommendations?user_id=123`
 
   - Header:
     ```
