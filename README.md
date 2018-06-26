@@ -27,7 +27,7 @@ This evaluation framework consists of a front-end for *users* (researchers), a b
     - It continuously monitors the arXiv RSS feed for new articles, and downloads their metadata (authors, title, abstract, etc.)
   * [Interleave processes](Interleave/)
     - It includes the interleaving mechanism for combining the recommendations of multiple experimental recommender systems. It also send the personalized recommendations to users in the form of daily digest emails.
-  * [MySQL database](db/)
+  * [Database](db/)
     - All data is stored in a MySQL database.
   * Evaluation
     - Compares how users interacted with different systems over a period of time and prints the results

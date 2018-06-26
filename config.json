@@ -1,9 +1,9 @@
 {
     "sql_config": {
-        "user": "restrictedAccess",
-        "password": "pw12@er",
-        "host": "92.221.38.208",
-        "database": "testdb"
+        "user": "root",
+        "password": "root",
+        "host": "localhost",
+        "database": "arxivdigest"
     },
     "email_configuration": {
         "fromadd": "yourfavouriteapp@gmail.com",

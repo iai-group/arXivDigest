@@ -81,7 +81,7 @@ def insertCategories(metaData, cursor):
     # fails silently on duplicate primary key, because there is
     #  no need to add the same category twice
     sql = 'insert ignore into categories values(%s,%s,%s,%s)'
-    cursor.executemany(sql, categories)
+    cursor.executemany(sql, list(categories))
 
 
 if __name__ == '__main__':

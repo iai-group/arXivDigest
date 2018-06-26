@@ -6,7 +6,7 @@ api_keys = ['ed679075-21aa-4507-9179-8e27fbebd433',
             '5c0bb1d2-bf1b-497a-be10-63adc7b5c6a2',
             'fe0e32ec-ca7f-4604-b6e5-5f59a85d1450']
 
-link = "http://127.0.0.1:5001/api/"
+link = "https://api.arxivdigest.org/"
 
 
 def users(start, api_key):
@@ -31,7 +31,10 @@ def sendRecommendations(data, api_key):
                           'Content-Type': 'application/json', "api_key": api_key})
     resp = request.urlopen(req)
 
+if __name__ == '__main__':
+    u = users(0, api_keys[0])
 
+"""
 for key in api_keys:
     articlelist = articles(key)['articles']['article_ids']
     i = 0
@@ -54,3 +57,4 @@ for key in api_keys:
         if i > userlist['num']:
             sendRecommendations(data, key)
             break
+"""
