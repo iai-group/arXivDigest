@@ -5,7 +5,7 @@ Motivated by the accelerating pace at which scientific knowledge is being produc
 
 ## Evaluation Methodology
 
-ArXivDigest provides an broker infrastructure that connects researchers that have signed up for the service (*users* for short) and experimental systems that provide content recommendations (*systems* for short). Systems generate personalized article recommendations for all users and make these available to the broker (by uploading them via an API). The broker takes all recommendations created for a given user, interleaves them, and sends out the top-k ranked articles in a digest email. Further, the broker registers implicit/explicit user feedback (and make these available to systems). This process is repeated daily.
+ArXivDigest provides an broker infrastructure that connects researchers that have signed up for the service (*users* for short) and experimental systems that provide content recommendations (*systems* for short). Systems generate personalized article recommendations for all users and make these available to the broker (by uploading them via an API). The broker takes all recommendations created for a given user, interleaves them, and sends out the top-k ranked articles in a digest email. Further, the broker registers user feedback (and make these available to systems). This process is repeated daily.
 
 
 ## Evaluation Infrastructure
