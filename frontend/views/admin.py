@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, request, g, make_response, abort, 
 from frontend.database import admin as db
 from frontend.utils import requiresLogin
 from frontend.config import config
-from mail import mailServer
+from scripts.mail import mailServer
 import mysql
 mod = Blueprint('admin', __name__)
 

@@ -12,6 +12,7 @@
         "port": 587
     },
     "api_config": {
+        "dev_port": 5000,
         "MAX_USERINFO_REQUEST": 100,
         "MAX_USERID_REQUEST": 10000,
         "MAX_ARTICLEDATA_REQUEST": 100,
@@ -25,6 +26,8 @@
         "webaddress": "http://127.0.0.1:5000/"
     },
     "frontend_config": {
+        "dev_port": 80,
+        "MAX_CONTENT_LENGTH": 1048576,
         "jwt_key": "mn643745hb6436l,75687kj37hb26vg3wazsefewms5474.,m4nb4q23vqcxwazsmw46n3bvqcawzwab3241vcawqz,6lk4mj3hbavesww",
         "secret_key": "xPGHuUyNAQaFrlIxtupgu8bnGiSLBpMo4v2w4jcoQ8PCb32Y46WWJhMsSbM2iGzsKravX9l92waqp2qjq7BALke443jbB3uVs7WP08v4JCyrORwvufRY4jKB"
     },

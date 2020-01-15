@@ -3,12 +3,20 @@ __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import mysql.connector
+import sys
+import os
 from flask import Flask, g, jsonify, request, make_response
 from datetime import datetime
-import api.database as db
-from api.utils import validateApiKey, getUserlist
-from api.config import config
 
+try:
+    import api.database as db
+    from api.utils import validateApiKey, getUserlist
+    from api.config import config
+except:
+    sys.path.append(os.path.abspath(''))
+    import api.database as db
+    from api.utils import validateApiKey, getUserlist
+    from api.config import config
 app = Flask(__name__)
 
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
@@ -163,4 +171,4 @@ def teardownDb(exception):
 
 if __name__ == '__main__':
     # app.config['DEBUG'] = True
-    app.run()
+    app.run(port=config.get('api_config').get('dev_port'))
