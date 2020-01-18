@@ -17,7 +17,8 @@
         "MAX_USERID_REQUEST": 10000,
         "MAX_ARTICLEDATA_REQUEST": 100,
         "MAX_RECOMMENDATION_USERS": 100,
-        "MAX_RECOMMENDATION_ARTICLES": 10
+        "MAX_RECOMMENDATION_ARTICLES": 10,
+        "MAX_EXPLANATION_LEN": 100
     },
     "interleave_config": {
         "systems_multileaved_per_user": 3,

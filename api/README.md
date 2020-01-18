@@ -300,6 +300,7 @@ Header:
 JSON:
   - `user_id` id of the user
   - `article_id` id of the article
+  - `explanation` explanation for recommending this article
   - `score` score of the recommendation
 
 Data returned:
@@ -318,13 +319,13 @@ Example:
     ```
     {
         "recommendations": {user_id: [
-            {"article_id": "1107.2529", "score": 2},
-            {"article_id": "1308.1196", "score": 3},
-            {"article_id": "1312.5699", "score": 2}
+            {"article_id": "1107.2529", "score": 2, "explanation" : "reason"},
+            {"article_id": "1308.1196", "score": 3, "explanation" : "reason"},
+            {"article_id": "1312.5699", "score": 2, "explanation" : "reason"}
         ],
-        2: [
-            {"article_id": "1308.1196", "score": 10},
-            {"article_id": "1506.07383", "score": 6}
+        user_id: [
+            {"article_id": "1308.1196", "score": 10, "explanation" : "reason"},
+            {"article_id": "1506.07383", "score": 6, "explanation" : "reason"}
         ]
       }
     }

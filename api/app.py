@@ -8,15 +8,17 @@ import os
 from flask import Flask, g, jsonify, request, make_response
 from datetime import datetime
 
+# API imports
 try:
-    import api.database as db
-    from api.utils import validateApiKey, getUserlist
-    from api.config import config
+    import api
 except:
     sys.path.append(os.path.abspath(''))
-    import api.database as db
-    from api.utils import validateApiKey, getUserlist
-    from api.config import config
+
+import api.database as db
+from api.utils import validateApiKey, getUserlist
+from api.config import config
+import api.validator as validation
+
 app = Flask(__name__)
 
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
@@ -96,50 +98,12 @@ def articledata():
 
 @app.route('/recommendation', methods=['POST'])
 @validateApiKey
+@validation.validate_json(validation.recommendation)
 def recommendation():
     """API-endpoint for inserting recommendations"""
     data = request.get_json().get('recommendations')
-    if not data:
-        return make_response(jsonify({'success': False, 'error': 'No elements to insert'}), 400)
-
-    if len(data) > app.config['MAX_RECOMMENDATION_USERS']:
-        err = 'Requests must not contain more than %s users.' % app.config[
-            'MAX_RECOMMENDATION_USERS']
-        return make_response(jsonify({'success': False, 'error': err}), 400)
-
-    for user in data:
-        if len(user) > app.config['MAX_RECOMMENDATION_ARTICLES']:
-            err = 'Requests must not contain more than %s articles per user.' % app.config[
-                'MAX_RECOMMENDATION_ARTICLES']
-            return make_response(jsonify({'success': False, 'error': err}), 400)
-
-    users = db.checkUsersExists([k for k in data])
-    if len(users) > 0:
-        err = 'No users with ids: %s.' % ', '.join(users)
-        return make_response(jsonify({'success': False, 'error': err}), 400)
-
-    articleIDs = [v['article_id'] for k, v in data.items() for v in v]
-    articles = db.checkArticlesExists(articleIDs)
-    if len(articles) > 0:
-        err = 'Could not find articles with ids: %s.' % ', '.join(articles)
-        return make_response(jsonify({'success': False, 'error': err}), 400)
-
-    today = datetime.utcnow().strftime("%Y/%m/%d")
-    articlesToday = db.getArticleIDs(today)['article_ids']
-    notToday = (set(articlesToday) & set(articleIDs) ^ set(articleIDs))
-    if notToday:
-        err = 'These articles are not from todays batch: %s.' % ', '.join(
-            notToday)
-        return make_response(jsonify({'success': False, 'error': err}), 400)
-
-    try:
-        [float(v['score']) for k, v in data.items() for v in v]
-    except Exception:
-        err = 'Score must be a float'
-        return make_response(jsonify({'success': False, 'error': err}), 400)
-
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-    data = [(k, v['article_id'], g.sysID, v['score'], now)
+    data = [(k, v['article_id'], g.sysID, v['explanation'], v['score'], now)
             for k, v in data.items() for v in v]
 
     db.insertRecommendations(data)
@@ -170,5 +134,5 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
-    # app.config['DEBUG'] = True
+    app.config['DEBUG'] = True
     app.run(port=config.get('api_config').get('dev_port'))

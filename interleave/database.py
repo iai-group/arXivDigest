@@ -10,13 +10,14 @@ def getSystemRecommendations(db, startUserID, n):
     {user_ID:{system_ID:[article_IDs]}}.
     '''
     cur = db.cursor()
-    sql = '''SELECT user_ID,System_ID, article_ID FROM system_recommendations NATURAL JOIN users WHERE user_ID between %s AND %s
+    sql = '''SELECT user_ID,System_ID, article_ID, explanation 
+    FROM system_recommendations NATURAL JOIN users WHERE user_ID between %s AND %s
     AND DATE(recommendation_date) = UTC_DATE()
     AND last_recommendation_date < UTC_DATE() ORDER BY score DESC'''
     cur.execute(sql, (startUserID, startUserID+n-1))
     result = defaultdict(lambda: defaultdict(list))
     for r in cur.fetchall():
-        result[r[0]][r[1]].append(r[2])
+        result[r[0]][r[1]].append({"article_ID": r[2], "explanation": r[3]})
     cur.close()
     return result
 
@@ -24,7 +25,9 @@ def getSystemRecommendations(db, startUserID, n):
 def insertUserRecommendations(db, recommendations):
     '''Inserts the recommended articles into database'''
     cur = db.cursor()
-    sql = 'INSERT INTO user_recommendations VALUES(%s,%s,%s,%s,%s,0,0,0,0,0,0,0)'
+    sql = '''INSERT INTO user_recommendations 
+            (user_ID, article_ID, system_ID, explanation, score, recommendation_date)      
+            VALUES(%s,%s,%s,%s,%s,%s)'''
     cur.executemany(sql, recommendations)
     users = {str(x[0]) for x in recommendations}
     users = ','.join(users)
