@@ -4,16 +4,24 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 from flask import Flask, render_template, request, make_response, g, redirect, logging
 from mysql import connector
+import os
+import sys
 import jwt
-from frontend.views import general, admin, articles
-from frontend.config import config, jwtKey, secret_key
+
+try:
+    from frontend.config import config, jwtKey, secret_key
+    from frontend.views import general, admin, articles
+except:
+    sys.path.append(os.path.abspath(''))
+    from frontend.config import config, frontend_config, jwtKey, secret_key
+    from frontend.views import general, admin, articles
 
 app = Flask(__name__)
 app.secret_key = secret_key
 app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = config.get('MAX_CONTENT_LENGTH')
 
 
 @app.before_request
@@ -43,4 +51,4 @@ def teardownDb(exception):
 
 if __name__ == '__main__':
     #app.config['DEBUG'] = True
-    app.run()
+    app.run(port=frontend_config.get('dev_port'))

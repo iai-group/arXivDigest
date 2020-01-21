@@ -12,6 +12,10 @@ ArXivDigest provides an broker infrastructure that connects researchers that hav
 
 This evaluation framework consists of a front-end for *users* (researchers), a back-end, which includes a RESTful API for *experimental recommender systems*.
 
+All dependencies can be installed by running the command below:
+
+ ```pip install -r .\requirements.txt```
+
 ### Front-end:
 
   * Will (soon) be available at https://arxivdigest.org.
