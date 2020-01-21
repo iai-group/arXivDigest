@@ -14,10 +14,10 @@ def getSystemRecommendations(db, startUserID, n):
     FROM system_recommendations NATURAL JOIN users WHERE user_ID between %s AND %s
     AND DATE(recommendation_date) = UTC_DATE()
     AND last_recommendation_date < UTC_DATE() ORDER BY score DESC'''
-    cur.execute(sql, (startUserID, startUserID+n-1))
+    cur.execute(sql, (startUserID, startUserID + n - 1))
     result = defaultdict(lambda: defaultdict(list))
     for r in cur.fetchall():
-        result[r[0]][r[1]].append({"article_ID": r[2], "explanation": r[3]})
+        result[r[0]][r[1]].append({'article_ID': r[2], 'explanation': r[3]})
     cur.close()
     return result
 
@@ -27,7 +27,7 @@ def insertUserRecommendations(db, recommendations):
     cur = db.cursor()
     sql = '''INSERT INTO user_recommendations 
             (user_ID, article_ID, system_ID, explanation, score, recommendation_date)      
-            VALUES(%s,%s,%s,%s,%s,%s)'''
+            VALUES(%s, %s, %s, %s, %s, %s)'''
     cur.executemany(sql, recommendations)
     users = {str(x[0]) for x in recommendations}
     users = ','.join(users)
@@ -50,7 +50,7 @@ def getUserRecommendations(db, startUserID, n):
     WHERE user_ID between %s AND %s
     AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY) 
     AND last_email_date < UTC_DATE()'''
-    cur.execute(sql, (startUserID, startUserID+n-1))
+    cur.execute(sql, (startUserID, startUserID + n - 1))
     result = defaultdict(lambda: defaultdict(dict))
     for r in cur.fetchall():
         result[r[0]][r[1]][r[2]] = r[3]
@@ -62,7 +62,7 @@ def getUsers(db, startUserID, n):
     '''This method returns user_ID, name, notification_interval and email in a dictionary.'''
     cur = db.cursor()
     sql = 'SELECT user_ID,email,firstname,notification_interval FROM users WHERE user_ID between %s AND %s'
-    cur.execute(sql, (startUserID, startUserID+n-1))
+    cur.execute(sql, (startUserID, startUserID + n - 1))
     users = {x[0]: {'email': x[1], 'name': x[2], 'notification_interval': x[3]}
              for x in cur.fetchall()}
     cur.close()

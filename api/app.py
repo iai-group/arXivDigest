@@ -11,7 +11,7 @@ from datetime import datetime
 # API imports
 try:
     import api
-except:
+except ImportError:
     sys.path.append(os.path.abspath(''))
 
 import api.database as db
@@ -21,7 +21,6 @@ import api.validator as validation
 
 app = Flask(__name__)
 
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 app.config.update(**config.get('api_config'))
 
 
