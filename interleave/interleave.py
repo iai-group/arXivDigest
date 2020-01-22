@@ -5,19 +5,19 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 import sys
-sys.path.append('..')
-from mail import mailServer
+import os
+
+sys.path.append(os.path.dirname(__file__) + '/../')
+from scripts.mail import mailServer
 from mysql import connector
 import database as db
 from tdm import multiLeaver
 import calendar
 from datetime import datetime
-from random import choice
 from uuid import uuid4
 import json
-import os
 
-with open('../config.json', 'r') as f:
+with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
     config = json.load(f)
     interleaveConfig = config.get('interleave_config')
     recommendationsPerUser = interleaveConfig.get('recommendations_per_user')
@@ -33,7 +33,7 @@ def multiLeaveRecommendations(systemRecommendations):
         recs, systems = ml.TDM(lists)
         # prepare results for database insertion
         for i in range(0, len(recs)):
-            score = len(recs)-i
+            score = len(recs) - i
 
             rec = (userID, recs[i], systems[i], score, now)
 
@@ -46,7 +46,7 @@ def topN(articles, n):
     if not articles:
         return []
     maxScore = max(articles.values())
-    return [id for id, score in articles.items() if score > maxScore-n]
+    return [id for id, score in articles.items() if score > maxScore - n]
 
 
 def sendMail():
@@ -56,7 +56,7 @@ def sendMail():
     server = mailServer(**config.get('email_configuration'), templates=path)
     link = interleaveConfig.get('webaddress')
 
-    for i in range(0, maxUserID+batchsize, batchsize):
+    for i in range(0, maxUserID + batchsize, batchsize):
         mails = []
         seenMail = []
         users = db.getUsers(conn, i, batchsize)
@@ -66,7 +66,7 @@ def sendMail():
         for userID, user in users.items():
             mail = {'toadd': user['email'],
                     'subject': 'ArXiv Digest',
-                    'data':  {'name': user['name'], 'articles': [], 'link': link},
+                    'data': {'name': user['name'], 'articles': [], 'link': link},
                     'template': 'weekly'}
             # find the top articles for each user
             topArticles = {}
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     ml = multiLeaver(recommendationsPerUser, systemsPerUser)
     maxUserID = db.getHighestUserID(conn)
     # range-stop is bigger than maxUserID to ensure all users are found
-    for i in range(0, maxUserID+batchsize, batchsize):
+    for i in range(0, maxUserID + batchsize, batchsize):
         systemRecs = db.getSystemRecommendations(conn, i, batchsize)
         if systemRecs:
             userRecommendations = multiLeaveRecommendations(systemRecs)

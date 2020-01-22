@@ -10,8 +10,9 @@ from scrapeMetadata import getCategories, harvestMetadataRss, getRecordsFromLast
 from categories import subCategoryNames
 from mysql import connector
 import json
+import os
 
-with open('../config.json', 'r') as f:
+with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
     config = json.load(f)
 
 
