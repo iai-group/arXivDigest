@@ -14,7 +14,7 @@ INDEX = 'main_index'
 
 
 def articles(api_key):
-    '''Get a list of the article_ids that can be ranked this day from the ArXivDigest API.'''
+    """Get a list of the article_ids that can be ranked this day from the ArXivDigest API."""
     req = request.Request('{}articles'.format(URL),
                           headers={'api_key': api_key})
     try:
@@ -25,9 +25,9 @@ def articles(api_key):
 
 
 def article_data(api_key, article_ids, batch_size=100):
-    '''Return a nested dictionary of data about the supplied article_ids,
-     by querying the ArXivDigest API for the article data. 
-     Batch_size is the limit of number of articles to retrieve data for in one request.'''
+    """Return a nested dictionary of data about the supplied article_ids,
+     by querying the ArXivDigest API for the article data.
+     Batch_size is the limit of number of articles to retrieve data for in one request."""
     article_data = {}
     for i in range(0, len(article_ids), batch_size):
         id_batch = ','.join(article_ids[i:i+batch_size])
@@ -42,7 +42,7 @@ def article_data(api_key, article_ids, batch_size=100):
 
 
 def bulk_insert_articles(index, article_data):
-    '''Bulk insert article data into the elastic search index.'''
+    """Bulk insert article data into the elastic search index."""
     bulk_docs = []
     for article_id, article_fields in article_data.items():
         doc = {
