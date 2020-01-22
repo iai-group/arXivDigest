@@ -44,7 +44,7 @@ def article_data(api_key, article_ids, batch_size=100):
 def bulk_insert_articles(index, article_data):
     '''Bulk insert article data into the elastic search index.'''
     bulk_docs = []
-    for article_id, article_fields in data.items():
+    for article_id, article_fields in article_data.items():
         doc = {
             '_index': index,
             '_type': '_doc',
@@ -63,3 +63,4 @@ print('Starting bulk insertion into index')
 es = Elasticsearch()
 bulk_insert_articles(INDEX, article_data)
 print('Bulk insertion complete')
+

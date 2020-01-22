@@ -3,7 +3,6 @@ __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
 
 INDEX = 'main_index'
 
@@ -31,11 +30,11 @@ INDEX_SETTINGS = {
                 'properties': {
                     'firstname':  {'type': 'keyword'},
                     'lastname': {'type': 'keyword'},
-                    'affiliations': {'type': 'object'}
+                    'affiliations': {'type': 'keyword'}
                 },
             },
             'categories': {
-                'type': 'object',
+                'type': 'keyword',
             },
             'comments': {
                 'type': 'text',
