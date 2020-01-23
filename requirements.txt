@@ -3,3 +3,4 @@ mysql-connector-python
 PyJWT
 Flask
 passlib
+nltk
