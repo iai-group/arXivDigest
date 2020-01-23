@@ -8,24 +8,33 @@ from nltk.tokenize import word_tokenize
 from collections import Counter, defaultdict
 import re
 from nltk.util import ngrams
+from enum import Enum
+
+
+class Metric(Enum):
+    """Different metrics that can be used for ranking candidate keywords."""
+    DEGREE_TO_FREQUENCY_RATIO = 0  # Uses deg(w)/freq(w) as the metric
+    WORD_DEGREE = 1  # Uses deg(w) as the metric
+    WORD_FREQUENCY = 2  # Uses freq(w) as the metric
+
 
 class Rake(object):
-    def __init__(self,max_length,scoring_metric):
-        '''Initializes a rake object with english stop words and string punctuations.
+    def __init__(self, max_length, scoring_metric=Metric.DEGREE_TO_FREQUENCY_RATIO, stopwords=None, punctuation=None):
+        """Initializes a rake object with english stop words and string punctuations.
         Must define max_lenth and what scoring metric to use.
-        Scoring metrics avaiable are f, d, df.'''
-        self.stopwords=nltk.corpus.stopwords.words('english') 
-        self.punctuations = string.punctuation.replace('-','')
+        Scoring metrics available are f, d, df."""
+        self.stopwords = stopwords if stopwords else nltk.corpus.stopwords.words('english')
+        self.punctuations = punctuation if punctuation else string.punctuation.replace('-', '')
         self.max_length = max_length
         self.scoring_metric = scoring_metric
         self.frequency = None
         self.degree = None
-        self.rank_list = None
+        self.rank_list = None  #TODO  getters or more clear interface ?
         self.ranked_phrases = None
-    
-    def extract_keyword_from_title_list(self, title_list):
-        '''Extracts keywords from list of paper titles.'''
-        phrase_list = set()
+
+    def extract_keyword_from_title_list(self, title_list): #TODO sentences instead of titles
+        """Extracts keywords from list of paper titles."""
+        phrase_list = set()  #TODO prob not set
         for title in title_list:
             word_list = [word.lower() for word in word_tokenize(title)]
             phrase_list.update(self.get_candidate_keywords(word_list))
@@ -33,9 +42,9 @@ class Rake(object):
         self.create_freq_dist(phrase_list)
         self.create_degree_dist(phrase_list)
         self.find_ranked_keywords(phrase_list)
-    
+
     def get_candidate_keywords(self, tokenized_title):
-        '''Returns candidate keywords for a tokenized title.'''
+        """Returns candidate keywords for a tokenized title."""
         candidate_keywords = []
         current_candidate = ''
         for word in tokenized_title:
@@ -53,13 +62,13 @@ class Rake(object):
         return filtered_keyword
 
     def find_adjoining_keywords(self, titles):
-        '''Finds adjoining keywords from list of all paper titles'''
+        """Finds adjoining keywords from list of all paper titles"""
         title_data = ''
         for title in titles:
             title_data += title + ' '
         adjoining_keywords = Counter()
         for i in range(self.max_length):
-            adjoining_keywords = adjoining_keywords + Counter(extract_ngrams(title_data,i+1))
+            adjoining_keywords = adjoining_keywords + Counter(extract_ngrams(title_data, i + 1))
         filtered_keywords = []
         for keyword, count in adjoining_keywords.items():
             if count < 3 or keyword in self.stopwords or keyword in self.punctuations:
@@ -71,55 +80,59 @@ class Rake(object):
             if len(word_tokenize(keyword)) <= self.max_length:
                 filtered_keywords.append(keyword)
         return filtered_keywords
-    
+
     def create_freq_dist(self, phrase_list):
-        '''Computes the word frequency by counting the occurence
-        of single word in all phrases.'''
-        self.frequency = Counter()
+        """Computes the word frequency by counting the occurence
+        of single word in all phrases."""
+        self.frequency = Counter() #TODO return instead
         for phrase in phrase_list:
             phrase = word_tokenize(phrase)
             for word in phrase:
-                self.frequency[word] += 1 
-        
+                self.frequency[word] += 1
+
     def create_degree_dist(self, phrase_list):
-        '''Computes the word degree of each single word in each 
-        phrase.'''
+        """Computes the word degree of each single word in each
+        phrase."""
         co_occurence_graph = defaultdict(lambda: defaultdict(lambda: 0))
         for phrase in phrase_list:
             phrase = word_tokenize(phrase)
             for word in phrase:
                 for co_word in phrase:
                     co_occurence_graph[word][co_word] += 1
-        self.degree = defaultdict(lambda: 0)
+        self.degree = defaultdict(lambda: 0) #TODO return instead
         for word in co_occurence_graph:
             self.degree[word] = sum(co_occurence_graph[word].values())
-    
+
     def find_ranked_keywords(self, phrase_list):
-        '''Ranks the keywords found using the specified scoring metric'''
+        """Ranks the keywords found using the specified scoring metric"""
         self.rank_list = []
         for phrase in phrase_list:
             rank = 0.0
             phrase = word_tokenize(phrase)
             for word in phrase:
-                if self.scoring_metric == 'df':
+                if self.scoring_metric == Metric.DEGREE_TO_FREQUENCY_RATIO:
                     rank += 1.0 * self.degree[word] / self.frequency[word]
-                elif self.scoring_metric == 'f':
+                elif self.scoring_metric == Metric.WORD_FREQUENCY:
                     rank += 1.0 * self.frequency[word]
+                elif self.scoring_metric == Metric.WORD_DEGREE:
+                    rank += 1.0 * self.degree[word]
                 else:
-                    rank += 1.0 * self.degree[words]
-            self.rank_list.append((rank, " ".join(phrase)))
+                   raise ValueError('Invalid Metric: {}'.format(self.scoring_metric))
+            self.rank_list.append((rank, ' '.join(phrase)))
         self.rank_list.sort(reverse=True)
         self.ranked_phrases = [phrase[1] for phrase in self.rank_list]
 
+
 def load_stopwords(path):
-    '''Loads stopwords from a file. File must have one stop word
-    per line and no first line explanation or title.'''
+    """Loads stopwords from a file. File must have one stop word
+    per line and no first line explanation or title."""
     stopwords = []
     for line in open(path):
         stopwords.append(re.sub('\n', '', line))
     return stopwords
 
+
 def extract_ngrams(data, num):
-    '''Returns ngrams from data with length specified by the number supplied'''
+    """Returns ngrams from data with length specified by the number supplied"""
     n_grams = ngrams(nltk.word_tokenize(data), num)
-    return [ ' '.join(grams) for grams in n_grams]
+    return [' '.join(grams) for grams in n_grams]
