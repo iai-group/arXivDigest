@@ -7,6 +7,7 @@ import string
 from nltk.tokenize import word_tokenize
 from collections import Counter, defaultdict
 import re
+from nltk.util import ngrams
 
 class Rake(object):
     def __init__(self,max_length,scoring_metric):
@@ -28,6 +29,7 @@ class Rake(object):
         for title in title_list:
             word_list = [word.lower() for word in word_tokenize(title)]
             phrase_list.update(self.get_candidate_keywords(word_list))
+        phrase_list.update(self.find_adjoining_keywords(title_list))
         self.create_freq_dist(phrase_list)
         self.create_degree_dist(phrase_list)
         self.find_ranked_keywords(phrase_list)
@@ -49,6 +51,25 @@ class Rake(object):
             if len(word_tokenize(keyword)) <= self.max_length:
                 filtered_keyword.append(keyword)
         return filtered_keyword
+
+    def find_adjoining_keywords(self, titles):
+        '''Finds adjoining keywords from list of all paper titles'''
+        title_data = ''
+        for title in titles:
+            title_data += title + ' '
+        adjoining_keywords = Counter()
+        for i in range(self.max_length):
+            print(i)
+            adjoining_keywords = adjoining_keywords + Counter(extract_ngrams(title_data,i))
+        filtered_keywords = []
+        for keyword, count in adjoining_keywords.items():
+            if count < 2 or keyword in self.stopwords or keyword in self.punctuations:
+                continue
+            if word_tokenize(keyword)[0] in self.stopwords or word_tokenize(keyword)[-1] in self.stopwords:
+                continue
+            if len(word_tokenize(keyword)) <= self.max_length:
+                filtered_keywords.append(keyword)
+        return filtered_keywords
     
     def create_freq_dist(self, phrase_list):
         '''Computes the word frequency by counting the occurence
@@ -73,7 +94,7 @@ class Rake(object):
             self.degree[word] = sum(co_occurence_graph[word].values())
     
     def find_ranked_keywords(self, phrase_list):
-        '''Ranks the keywords found using degree/freq.'''
+        '''Ranks the keywords found using the specified scoring metric'''
         self.rank_list = []
         for phrase in phrase_list:
             rank = 0.0
@@ -96,3 +117,8 @@ def load_stopwords(path):
     for line in open(path):
         stopwords.append(re.sub('\n', '', line))
     return stopwords
+
+def extract_ngrams(data, num):
+    '''Returns ngrams from data with length specified by the number supplied'''
+    n_grams = ngrams(nltk.word_tokenize(data), num)
+    return [ ' '.join(grams) for grams in n_grams]
