@@ -4,7 +4,7 @@ __copyright__ = "Copyright 2020, The ArXivDigest Project"
 
 import nltk
 import string
-from nltk.tokenize import wordpunct_tokenize
+from nltk.tokenize import word_tokenize
 from collections import Counter, defaultdict
 import re
 
@@ -14,7 +14,7 @@ class Rake(object):
         Must define max_lenth and what scoring metric to use.
         Scoring metrics avaiable are f, d, df.'''
         self.stopwords=nltk.corpus.stopwords.words('english') 
-        self.punctuations = string.punctuation
+        self.punctuations = string.punctuation.replace('-','')
         self.max_length = max_length
         self.scoring_metric = scoring_metric
         self.frequency = None
@@ -26,7 +26,7 @@ class Rake(object):
         '''Extracts keywords from list of paper titles.'''
         phrase_list = set()
         for title in title_list:
-            word_list = [word.lower() for word in wordpunct_tokenize(title)]
+            word_list = [word.lower() for word in word_tokenize(title)]
             phrase_list.update(self.get_candidate_keywords(word_list))
         self.create_freq_dist(phrase_list)
         self.create_degree_dist(phrase_list)
@@ -46,7 +46,7 @@ class Rake(object):
             candidate_keywords.append(current_candidate[:-1])
         filtered_keyword = []
         for keyword in candidate_keywords:
-            if len(wordpunct_tokenize(keyword)) <= self.max_length:
+            if len(word_tokenize(keyword)) <= self.max_length:
                 filtered_keyword.append(keyword)
         return filtered_keyword
     
@@ -55,7 +55,7 @@ class Rake(object):
         of single word in all phrases.'''
         self.frequency = Counter()
         for phrase in phrase_list:
-            phrase = wordpunct_tokenize(phrase)
+            phrase = word_tokenize(phrase)
             for word in phrase:
                 self.frequency[word] += 1 
         
@@ -64,7 +64,7 @@ class Rake(object):
         phrase.'''
         co_occurence_graph = defaultdict(lambda: defaultdict(lambda: 0))
         for phrase in phrase_list:
-            phrase = wordpunct_tokenize(phrase)
+            phrase = word_tokenize(phrase)
             for word in phrase:
                 for co_word in phrase:
                     co_occurence_graph[word][co_word] += 1
@@ -77,7 +77,7 @@ class Rake(object):
         self.rank_list = []
         for phrase in phrase_list:
             rank = 0.0
-            phrase = wordpunct_tokenize(phrase)
+            phrase = word_tokenize(phrase)
             for word in phrase:
                 if self.scoring_metric == 'df':
                     rank += 1.0 * self.degree[word] / self.frequency[word]
