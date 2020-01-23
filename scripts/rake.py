@@ -59,13 +59,14 @@ class Rake(object):
             title_data += title + ' '
         adjoining_keywords = Counter()
         for i in range(self.max_length):
-            print(i)
-            adjoining_keywords = adjoining_keywords + Counter(extract_ngrams(title_data,i))
+            adjoining_keywords = adjoining_keywords + Counter(extract_ngrams(title_data,i+1))
         filtered_keywords = []
         for keyword, count in adjoining_keywords.items():
-            if count < 2 or keyword in self.stopwords or keyword in self.punctuations:
+            if count < 3 or keyword in self.stopwords or keyword in self.punctuations:
                 continue
             if word_tokenize(keyword)[0] in self.stopwords or word_tokenize(keyword)[-1] in self.stopwords:
+                continue
+            if word_tokenize(keyword)[0] in self.punctuations or word_tokenize(keyword)[-1] in self.punctuations:
                 continue
             if len(word_tokenize(keyword)) <= self.max_length:
                 filtered_keywords.append(keyword)
