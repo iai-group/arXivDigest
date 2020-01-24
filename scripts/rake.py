@@ -13,9 +13,9 @@ from enum import Enum
 
 class Metric(Enum):
     """Different metrics that can be used for ranking candidate keywords."""
-    DEGREE_TO_FREQUENCY_RATIO = 0  # Uses deg(w)/freq(w) as the metric
-    WORD_DEGREE = 1  # Uses deg(w) as the metric
-    WORD_FREQUENCY = 2  # Uses freq(w) as the metric
+    DEGREE_TO_FREQUENCY_RATIO = 0  
+    WORD_DEGREE = 1 
+    WORD_FREQUENCY = 2  
 
 
 class Rake(object):
@@ -29,25 +29,25 @@ class Rake(object):
         self.scoring_metric = scoring_metric
         self.frequency = None
         self.degree = None
-        self.rank_list = None  #TODO  getters or more clear interface ?
+        self.rank_list = None 
         self.ranked_phrases = None
 
-    def extract_keyword_from_title_list(self, title_list): #TODO sentences instead of titles
-        """Extracts keywords from list of paper titles."""
-        phrase_list = set()  #TODO prob not set
-        for title in title_list:
-            word_list = [word.lower() for word in word_tokenize(title)]
-            phrase_list.update(self.get_candidate_keywords(word_list))
-        phrase_list.update(self.find_adjoining_keywords(title_list))
-        self.create_freq_dist(phrase_list)
-        self.create_degree_dist(phrase_list)
+    def extract_keyword_from_sentences(self, sentences): 
+        """Extracts keywords from list of sentences."""
+        phrase_list = Counter()  #TODO prob not set
+        for sentence in sentences:
+            word_list = [word.lower() for word in word_tokenize(sentence)]
+            phrase_list = phrase_list + Counter(self.get_candidate_keywords(word_list))
+        phrase_list = phrase_list + Counter(self.find_adjoining_keywords(sentences))
+        self.frequency = self.create_freq_dist(phrase_list)
+        self.degree = self.create_degree_dist(phrase_list)
         self.find_ranked_keywords(phrase_list)
 
-    def get_candidate_keywords(self, tokenized_title):
-        """Returns candidate keywords for a tokenized title."""
+    def get_candidate_keywords(self, tokenized_sentence):
+        """Returns candidate keywords for a tokenized sentence."""
         candidate_keywords = []
         current_candidate = ''
-        for word in tokenized_title:
+        for word in tokenized_sentence:
             if word not in self.stopwords and word not in self.punctuations:
                 current_candidate += word + ' '
             elif current_candidate != '':
@@ -84,24 +84,26 @@ class Rake(object):
     def create_freq_dist(self, phrase_list):
         """Computes the word frequency by counting the occurence
         of single word in all phrases."""
-        self.frequency = Counter() #TODO return instead
+        frequency = Counter() 
         for phrase in phrase_list:
-            phrase = word_tokenize(phrase)
-            for word in phrase:
-                self.frequency[word] += 1
+            tokenized_phrase = word_tokenize(phrase)
+            for word in tokenized_phrase:
+                frequency[word] += phrase_list[phrase] 
+        return frequency
 
     def create_degree_dist(self, phrase_list):
         """Computes the word degree of each single word in each
         phrase."""
         co_occurence_graph = defaultdict(lambda: defaultdict(lambda: 0))
         for phrase in phrase_list:
-            phrase = word_tokenize(phrase)
-            for word in phrase:
-                for co_word in phrase:
-                    co_occurence_graph[word][co_word] += 1
-        self.degree = defaultdict(lambda: 0) #TODO return instead
+            tokenized_phrase = word_tokenize(phrase)
+            for word in tokenized_phrase:
+                for co_word in tokenized_phrase:
+                    co_occurence_graph[word][co_word] += phrase_list[phrase]
+        degree = defaultdict(lambda: 0) 
         for word in co_occurence_graph:
-            self.degree[word] = sum(co_occurence_graph[word].values())
+            degree[word] = sum(co_occurence_graph[word].values())
+        return degree
 
     def find_ranked_keywords(self, phrase_list):
         """Ranks the keywords found using the specified scoring metric"""
@@ -121,6 +123,14 @@ class Rake(object):
             self.rank_list.append((rank, ' '.join(phrase)))
         self.rank_list.sort(reverse=True)
         self.ranked_phrases = [phrase[1] for phrase in self.rank_list]
+    
+    def get_keywords(self):
+        """"Returns the candidate keywords created"""
+        return self.ranked_phrases
+
+    def get_keywords_with_score(self):
+        """Returns the candidate keywords created together with their score"""
+        return self.rank_list
 
 
 def load_stopwords(path):
