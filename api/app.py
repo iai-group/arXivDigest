@@ -170,5 +170,4 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
-    # app.config['DEBUG'] = True
-    app.run(port=config.get('api_config').get('dev_port'))
+    app.run(port=config.get('api_config').get('dev_port'), debug=True)

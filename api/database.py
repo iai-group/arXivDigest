@@ -140,6 +140,7 @@ def getArticleData(ids):
             'comments': articleData[4],
             'license': articleData[5],
             'journal': articleData[6],
+            'date': articleData[7].strftime('%Y-%m-%d'),
             'authors': [],
             'categories': [],
         }
