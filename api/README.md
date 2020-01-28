@@ -4,6 +4,18 @@ The ArXivDigest API provides a set of endpoints for experimental recommender sys
 
 Systems must have an active API key to access these endpoints.
 
+## Configurations
+These are the values that can be configured in the API-section of config.json.
+- `dev_port`: Port the server while be launched on while running in development mode.
+- `MAX_CONTENT_LENGTH`: Maximum request size.
+- `MAX_USERINFO_REQUEST`: The maximal amount of users that info can be retrieved for in one request. More info on [endpoint](#user-information).
+- `MAX_USERID_REQUEST`: The maximal amount of userIds that can be retrieved in one request. More info on [endpoint](#list-of-users).
+- `MAX_ARTICLEDATA_REQUEST`: The maximal amount of articles that info can be retrieved for in one request. More info on [endpoint](#article-data).
+- `MAX_RECOMMENDATION_USERS`:The maximal amount of users that recommendations can be submitted for in each request. More info on [endpoint](#insert-recommendations).
+- `MAX_RECOMMENDATION_ARTICLES`: The maximal amount of articles that info can be recommended to each user in one request. More info on [endpoint](#insert-recommendations).
+- `MAX_EXPLANATION_LEN`: The maximal length of an explanation for a recommendation. More info on [endpoint](#insert-recommendations).
+
+## Endpoints
 * [User data](#user-data)
   + [List of users](#list-of-users)
   + [User information](#user-information)
@@ -21,7 +33,7 @@ Systems must have an active API key to access these endpoints.
 
 `GET /users`
 
-Returns the list of user IDs, in batches of 10000, that are registered.
+Returns the list of user IDs, in batches of up to 10000, this limit can be [configured](#configurations)..
 
 Parameters:
   - `from` start index of listing (default: 0)
@@ -57,7 +69,7 @@ Example:
 
 `GET /userinfo`
 
-Returns the details of a given user (or list of users).
+Returns the details of a given user (or list of users). Limited to 100 per request by default, this values can be [configured](#configurations).
 
 Parameters:
   - `user_id` user ID, or a list of up to 100 user IDs, separated by a comma
@@ -228,7 +240,7 @@ Example:
 
 `GET /articledata`
 
-Returns data for a given article (or list of articles).
+Returns data for a given article (or list of articles). This is by default limited to 100 articles per request, but can be [configured](#configurations).
 
 Parameters:
 
@@ -294,7 +306,9 @@ Example:
 
 `POST /recommendations`
 
-Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](/../../#daily-submission-periods), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to the arXIv the same day. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](/../../#daily-submission-periods), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to the arXiv the same day. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+
+The maximal number of users that can be given recommendations in a single request, maximal number of recommendations per user and maximal length of explanations can be [configured](#configurations).
 
 Header:
 - `api_key` used to identify which system the recomendations come from
@@ -302,6 +316,7 @@ Header:
 JSON:
   - `user_id` id of the user
   - `article_id` id of the article
+  - `explanation` explanation for recommending this article
   - `score` score of the recommendation
 
 Data returned:
@@ -320,13 +335,13 @@ Example:
     ```
     {
         "recommendations": {user_id: [
-            {"article_id": "1107.2529", "score": 2},
-            {"article_id": "1308.1196", "score": 3},
-            {"article_id": "1312.5699", "score": 2}
+            {"article_id": "1107.2529", "score": 2, "explanation" : "reason"},
+            {"article_id": "1308.1196", "score": 3, "explanation" : "reason"},
+            {"article_id": "1312.5699", "score": 2, "explanation" : "reason"}
         ],
-        2: [
-            {"article_id": "1308.1196", "score": 10},
-            {"article_id": "1506.07383", "score": 6}
+        user_id: [
+            {"article_id": "1308.1196", "score": 10, "explanation" : "reason"},
+            {"article_id": "1506.07383", "score": 6, "explanation" : "reason"}
         ]
       }
     }
@@ -342,7 +357,7 @@ Example:
 
 `GET /recommendations`
 
-Returns recommendation data for a given user (or list of users).
+Returns recommendation data for a given user (or list of users). By default it is limited to 100 users per request, but this can be [configured](#configurations).
 
 Parameters:
 
