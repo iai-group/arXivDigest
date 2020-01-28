@@ -239,6 +239,7 @@ Fields returned for each article:
   - `title`: title of article
   - `abstract`: description of article content
   - `license`: license
+  - `date`: date article was added to arXivDigest
   - `doi`: the doi of the article (if available)
   - `comments`: arxiv comments on article (if available)
   - `journal-ref` : journal references (if available)
@@ -269,6 +270,7 @@ Example:
           "comments": "XXX",
           "license": "XXX",
           "journal-ref": "XXX",
+          "date":"2018-01-15",
           "authors":[
             {"firstname":"XXX",
              "keyname":"XXX",
