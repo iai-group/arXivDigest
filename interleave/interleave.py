@@ -4,18 +4,22 @@
 '''
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
-import sys
-sys.path.append('..')
-from scripts.mail import mailServer
-from mysql import connector
-import database as db
-from tdm import multiLeaver
-import calendar
-from datetime import datetime
-from random import choice
-from uuid import uuid4
-import json
 import os
+import json
+from uuid import uuid4
+from random import choice
+from datetime import datetime
+import calendar
+from tdm import multiLeaver
+import database as db
+from mysql import connector
+import sys
+
+try:
+    import mail
+except:
+    sys.path.append(os.path.abspath('../scripts/'))
+from mail import mailServer
 
 with open('../config.json', 'r') as f:
     config = json.load(f)
@@ -35,7 +39,8 @@ def multiLeaveRecommendations(systemRecommendations):
         for i in range(0, len(recs)):
             score = len(recs)-i
 
-            rec = (userID, recs[i], systems[i], score, now)
+            rec = (userID, recs[i]["article_ID"],
+                   systems[i], recs[i]["explanation"],  score, now)
 
             userRecommendations.append(rec)
     return userRecommendations
