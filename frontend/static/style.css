@@ -445,7 +445,15 @@ code {
   overflow: hidden;
   line-height: 1.5em;
   height: 4.6em;
- 
+}
+
+.explanation{
+  position: absolute;
+  left:120px;
+  bottom:5px;
+  margin: 0px;
+  color:rgb(151, 151, 151);
+  font-size: 1em;
 }
 
 .showMore{
