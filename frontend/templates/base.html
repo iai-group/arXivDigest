@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <title>ArXivDigest</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
+
     <link rel="stylesheet " href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css ">
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -16,32 +16,35 @@
             inlineMath: [['$','$'], ['\\(','\\)']]
         }
     });
+
     </script>
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML"
-        async>
-        </script>
+    <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML"
+            async>
+    </script>
 
 </head>
 
 <body>
-    <header class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+<header class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false"
                     aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand inactiveLink" href="#">ArXivDigest</a>
-            </div>
-            <div id="navbar" class="collapse navbar-collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active">
-                        <a href="{{ url_for('general.loginPage') }}" id="homeButton">Home</a>
-                    </li>
-                    {% if g.loggedIn%}
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand inactiveLink" href="#">ArXivDigest</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="{{ url_for('general.loginPage') }}" id="homeButton">Home</a>
+                </li>
+                {% if g.loggedIn %}
                     <li>
                         <a href="{{ url_for('general.profile') }}">Profile</a>
                     </li>
@@ -49,55 +52,57 @@
                         <a href="{{ url_for('articles.likedArticles') }}">Your liked articles</a>
                     </li>
                     {% if g.admin %}
-                    <li>
-                        <a href="{{ url_for('admin.admin') }}">Administrate</a>
-                    </li>
+                        <li>
+                            <a href="{{ url_for('admin.admin') }}">Administrate</a>
+                        </li>
                     {% endif %} {% endif %}
-                    <li>
-                        <a href="{{ url_for('general.registerSystemPage') }}">Register new system</a>
-                    </li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    {% if g.loggedIn%}
+                <li>
+                    <a href="{{ url_for('general.registerSystemPage') }}">Register new system</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if g.loggedIn %}
                     <li>
                         <a href="#profile" class="inactiveLink"> Logged in as {{ g.email }}</a>
                     </li>
                     <li>
                         <a href="{{ url_for('general.logout') }}" id="logoutButton">Log out</a>
                     </li>
-                    {% else %}
+                {% else %}
                     <li>
                         <a href="{{ url_for('general.login') }}" id="loginButton">Login</a>
                     </li>
                     <li>
                         <a href="{{ url_for('general.signup') }}">Signup</a>
                     </li>
-                    {% endif %}
-                </ul>
-            </div>
+                {% endif %}
+            </ul>
         </div>
-    </header> {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages
-    %}
-    <div class="alert alert-{{ category }}">
-        {{ message }}
     </div>
+</header> {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
     {% endfor %} {% endif %} {% endwith %}
 
-    <br> {% block content %} {% endblock %}
-    <br>
+<br> {% block content %} {% endblock %}
+<br>
 
-    <footer>
-        <div class="container ">
-            <p class="footer-contact">Insert useful footer information here</p>
-        </div>
-    </footer>
-    <!-- Libraries - Placed at the end of the page so it loads faster-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js "></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js "></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js'></script>
-
+<footer>
+    <div class="container ">
+        <p class="footer-contact">Insert useful footer information here</p>
+    </div>
+</footer>
+<!-- Libraries - Placed at the end of the page so it loads faster-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js "></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js "></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js'></script>
+{% assets filters="jsmin", output="gen/packed.js", "javascript/forms.js",
+ "javascript/autocomplete.js","javascript/articlelist.js","javascript/admin.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 </body>
 
 </html>
