@@ -47,11 +47,19 @@ def multiLeaveRecommendations(systemRecommendations):
 
 
 def topN(articles, n):
-    '''Returns the top n scored articleIDs.'''
+    '''Returns the top n scored articleIDs and the explanation to why each
+    article was recommended'''
     if not articles:
         return []
-    maxScore = max(articles.values())
-    return [id for id, score in articles.items() if score > maxScore-n]
+    maxScore = []
+    for articleID in articles:
+        maxScore.append(articles[articleID]['score'])
+    maxScore = max(maxScore)
+    top = []
+    for articleID in articles:
+        if articles[articleID]['score'] > maxScore-n:
+            top.append([articleID,articles[articleID]['explanation']])
+    return top
 
 
 def sendMail():
@@ -86,13 +94,14 @@ def sendMail():
                 continue
             # create mail data for each article
             mailData = []
-            for day, articleIDs in topArticles.items():
+            for day, article in topArticles.items():
                 articleInfo = []
-                for articleID in articleIDs:
+                for articleID, explanation in article:
                     article = articleData.get(articleID)
                     clickTrace = str(uuid4())
                     likeTrace = str(uuid4())
                     articleInfo.append({'title': article.get('title'),
+                                        'explanation': explanation,
                                         'authors': article.get('authors'),
                                         'readlink': '%smail/read/%s/%s/%s' % (link, user, articleID, clickTrace),
                                         'likelink': '%smail/like/%s/%s/%s' % (link, user, articleID, likeTrace)
