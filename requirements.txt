@@ -5,3 +5,4 @@ Flask
 passlib
 Flask-Assets
 jsmin
+elasticsearch
