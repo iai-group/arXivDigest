@@ -140,6 +140,7 @@ def getArticleData(ids):
             'comments': articleData[4],
             'license': articleData[5],
             'journal': articleData[6],
+            'date': articleData[7].strftime('%Y-%m-%d'),
             'authors': [],
             'categories': [],
         }
@@ -176,7 +177,7 @@ def insertRecommendations(recommendations):
     and inserts them into the system_recomendation table, replacing duplicate primary keys."""
     conn = getDb()
     cur = conn.cursor()
-    sql = "REPLACE INTO system_recommendations VALUES (%s, %s, %s, %s, %s)"
+    sql = "REPLACE INTO system_recommendations VALUES (%s, %s, %s, %s, %s, %s)"
     cur.executemany(sql, recommendations)
     cur.close()
     conn.commit()

@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-'''This script that combines the recommendations from the experimental recommender systems and inserts the combined ranking, for each user, into the database.
+"""This script that combines the recommendations from the experimental recommender systems and inserts the combined ranking, for each user, into the database.
  It also sends out the digest emails to users.
-'''
+"""
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
-import sys
 import os
+import json
+from uuid import uuid4
+from datetime import datetime
+import calendar
+from tdm import multiLeaver
+import database as db
+from mysql import connector
+import sys
 
 sys.path.append(os.path.dirname(__file__) + '/../')
 from scripts.mail import mailServer
-from mysql import connector
-import database as db
-from tdm import multiLeaver
-import calendar
-from datetime import datetime
-from uuid import uuid4
-import json
 
 with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
     config = json.load(f)
@@ -26,7 +26,7 @@ with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
 
 
 def multiLeaveRecommendations(systemRecommendations):
-    '''Multileaves the given systemRecommendations and returns a list of userRecommendations. '''
+    """Multileaves the given systemRecommendations and returns a list of userRecommendations. """
     userRecommendations = []
     for userID, lists in systemRecommendations.items():
         # mulileave system recommendations
@@ -35,22 +35,31 @@ def multiLeaveRecommendations(systemRecommendations):
         for i in range(0, len(recs)):
             score = len(recs) - i
 
-            rec = (userID, recs[i], systems[i], score, now)
+            rec = (userID, recs[i]["article_ID"],
+                   systems[i], recs[i]["explanation"],  score, now)
 
             userRecommendations.append(rec)
     return userRecommendations
 
 
 def topN(articles, n):
-    '''Returns the top n scored articleIDs.'''
+    """Returns the top n scored articleIDs and the explanation to why each
+    article was recommended"""
     if not articles:
         return []
-    maxScore = max(articles.values())
-    return [id for id, score in articles.items() if score > maxScore - n]
+    maxScore = []
+    for articleID in articles:
+        maxScore.append(articles[articleID]['score'])
+    maxScore = max(maxScore)
+    top = []
+    for articleID in articles:
+        if articles[articleID]['score'] > maxScore-n:
+            top.append([articleID, articles[articleID]['explanation']])
+    return top
 
 
 def sendMail():
-    '''Sends notification emails to users about new recommendations'''
+    """Sends notification emails to users about new recommendations"""
     articleData = db.getArticleData(conn)
     path = os.path.join(os.path.dirname(__file__), 'templates')
     server = mailServer(**config.get('email_configuration'), templates=path)
@@ -81,13 +90,14 @@ def sendMail():
                 continue
             # create mail data for each article
             mailData = []
-            for day, articleIDs in topArticles.items():
+            for day, article in topArticles.items():
                 articleInfo = []
-                for articleID in articleIDs:
+                for articleID, explanation in article:
                     article = articleData.get(articleID)
                     clickTrace = str(uuid4())
                     likeTrace = str(uuid4())
                     articleInfo.append({'title': article.get('title'),
+                                        'explanation': explanation,
                                         'authors': article.get('authors'),
                                         'readlink': '%smail/read/%s/%s/%s' % (link, user, articleID, clickTrace),
                                         'likelink': '%smail/like/%s/%s/%s' % (link, user, articleID, likeTrace)
@@ -113,7 +123,7 @@ def sendMail():
 
 
 if __name__ == '__main__':
-    '''Multileaves system recommendations and inserts the new lists into the database, then sends notification email to user.'''
+    """Multileaves system recommendations and inserts the new lists into the database, then sends notification email to user."""
     conn = connector.connect(**config.get('sql_config'))
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     ml = multiLeaver(recommendationsPerUser, systemsPerUser)
