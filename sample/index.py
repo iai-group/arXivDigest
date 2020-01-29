@@ -7,32 +7,31 @@ import json
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
-API_KEY = '4c02e337-c94b-48b6-b30e-0c06839c81e6'
-URL = 'http://127.0.0.1:5000/'
-INDEX = 'main_index'
 
-
-def get_article_ids(api_key):
-    """Get a list of the article_ids that can be ranked this day from the ArXivDigest API."""
-    req = request.Request('{}articles'.format(URL),
-                          headers={'api_key': api_key})
+def get_article_ids(api_key, api_url, date):
+    """Get a list of the article_ids from the ArXivDigest API for the date object supplied, defaults to the current date."""
+    url = '{}articles'.format(api_url)
+    url = url + '?date=' + date.strftime("%Y-%m-%d") if date else url
+    req = request.Request(url, headers={'api_key': api_key})
     resp = request.urlopen(req)
     return json.loads(resp.read())
 
 
-def get_article_data(api_key, article_ids, batch_size=100):
+def get_article_data(api_key, api_url, article_ids, batch_size=100):
     """Return a nested dictionary of data about the supplied article_ids,
      by querying the ArXivDigest API for the article data.
      Batch_size is the limit of number of articles to retrieve data for in one request."""
     article_data = {}
     for i in range(0, len(article_ids), batch_size):
-        id_batch = ','.join(article_ids[i:i+batch_size])
-        req = request.Request('{}articledata?article_id={}'.format(URL, id_batch),
+        id_batch = ','.join(article_ids[i:i + batch_size])
+        req = request.Request('{}articledata?article_id={}'.format(api_url, id_batch),
                               headers={'api_key': api_key})
 
         resp = request.urlopen(req)
         article_data.update(json.loads(resp.read())['articles'])
 
+    for article_id, article in article_data.items():
+        article_data[article_id]['catch_all'] = article['title'] + " " + article['abstract']
     return article_data
 
 
@@ -51,13 +50,12 @@ def bulk_insert_articles(index, article_data):
     bulk(es, bulk_docs, request_timeout=10)
 
 
-def run_indexing(index):
+def run_indexing(index, api_key, api_url, date=None):
+    """Indexes article data for new additions to the arXivDigest database for the given date object, defaults to the current date."""
     print('Retrieving article IDs')
-    article_ids = get_article_ids(API_KEY)['articles']['article_ids']
+    article_ids = get_article_ids(api_key, api_url, date)['articles']['article_ids']
     print('Retriving article data')
-    article_data = get_article_data(API_KEY, article_ids)
-    print('Starting bulk insertion into index')
-    bulk_insert_articles(INDEX, article_data)
+    article_data = get_article_data(api_key, api_url, article_ids)
+    print('Starting bulk insertion of article data into index')
+    bulk_insert_articles(index, article_data)
     print('Bulk insertion complete')
-
-run_indexing(INDEX)

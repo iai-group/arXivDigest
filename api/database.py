@@ -97,6 +97,8 @@ def getArticleIDs(date):
 def checkArticlesExists(ids):
     """Takes in a list of articleIDs and returns a list of the IDs that did not match any articles
     in the database."""
+    if len(ids) is 0:
+        return []
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
 
@@ -111,6 +113,8 @@ def checkArticlesExists(ids):
 def checkUsersExists(ids):
     """Takes in a list of userIDs and returns a list of the IDs that did not match any users
     in the database."""
+    if len(ids) is 0:
+        return []
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
 
