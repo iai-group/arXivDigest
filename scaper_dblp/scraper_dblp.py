@@ -6,13 +6,13 @@ from mysql import connector
 import gzip
 import re
 import requests
-from rake import Rake
-from rake import Metric
 import nltk
 import string
 from nltk.tokenize import word_tokenize
 import json
 from nltk.util import ngrams
+import sys
+import os
 
 with open('../config.json', 'r') as f:
     config = json.load(f)
