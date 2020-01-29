@@ -37,5 +37,10 @@
         "liked_weight": 5,
         "clicked_web_weight": 3,
         "clicked_email_weight": 3
+    },
+    "scraper_dblp_config": {
+        "max_keyword_length": 4,
+        "dblp_dump_link": "https://dblp.uni-trier.de/xml/dblp.xml.gz",
+        "dblp_save_path": "data/dblp.xml.gz"
     }
 }
