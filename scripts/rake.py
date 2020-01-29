@@ -19,10 +19,16 @@ class Metric(Enum):
 
 
 class Rake(object):
+    """To change the scoring fuctions, use the Metric class provied.
+    Example of a Rake initialization can be
+        r = Rake(max_lenght=4, scoring_metric=Metric.WORD_FREQUENCY)
+
+    WORD_FREQUENCY favors words that appear more frequent
+    WORD_DEGREE favors words that occur often and in longer keywords
+    DEGREE_TO_FREQUENCY_RATIO favours words that mostly occur in longer keywords"""
+    
     def __init__(self, max_length, scoring_metric=Metric.DEGREE_TO_FREQUENCY_RATIO, stopwords=None, punctuation=None):
-        """Initializes a rake object with english stop words and string punctuations.
-        Must define max_lenth and what scoring metric to use.
-        Scoring metrics available are f, d, df."""
+        """Initializes a rake object with english stop words and string punctuations."""
         self.stopwords = stopwords if stopwords else nltk.corpus.stopwords.words('english')
         self.punctuations = punctuation if punctuation else string.punctuation.replace('-', '')
         self.max_length = max_length
@@ -37,13 +43,13 @@ class Rake(object):
         phrase_list = Counter()  #TODO prob not set
         for sentence in sentences:
             word_list = [word.lower() for word in word_tokenize(sentence)]
-            phrase_list = phrase_list + Counter(self.get_candidate_keywords(word_list))
-        phrase_list = phrase_list + Counter(self.find_adjoining_keywords(sentences))
-        self.frequency = self.create_freq_dist(phrase_list)
-        self.degree = self.create_degree_dist(phrase_list)
-        self.find_ranked_keywords(phrase_list)
+            phrase_list = phrase_list + Counter(self.__get_candidate_keywords(word_list))
+        phrase_list = phrase_list + Counter(self.__find_adjoining_keywords(sentences))
+        self.frequency = self.__create_freq_dist(phrase_list)
+        self.degree = self.__create_degree_dist(phrase_list)
+        self.__find_ranked_keywords(phrase_list)
 
-    def get_candidate_keywords(self, tokenized_sentence):
+    def __get_candidate_keywords(self, tokenized_sentence):
         """Returns candidate keywords for a tokenized sentence."""
         candidate_keywords = []
         current_candidate = ''
@@ -61,7 +67,7 @@ class Rake(object):
                 filtered_keyword.append(keyword)
         return filtered_keyword
 
-    def find_adjoining_keywords(self, titles):
+    def __find_adjoining_keywords(self, titles):
         """Finds adjoining keywords from list of all paper titles"""
         title_data = ''
         for title in titles:
@@ -81,7 +87,7 @@ class Rake(object):
                 filtered_keywords.append(keyword)
         return filtered_keywords
 
-    def create_freq_dist(self, phrase_list):
+    def __create_freq_dist(self, phrase_list):
         """Computes the word frequency by counting the occurence
         of single word in all phrases."""
         frequency = Counter() 
@@ -91,7 +97,7 @@ class Rake(object):
                 frequency[word] += phrase_list[phrase] 
         return frequency
 
-    def create_degree_dist(self, phrase_list):
+    def __create_degree_dist(self, phrase_list):
         """Computes the word degree of each single word in each
         phrase."""
         co_occurence_graph = defaultdict(lambda: defaultdict(lambda: 0))
@@ -105,7 +111,7 @@ class Rake(object):
             degree[word] = sum(co_occurence_graph[word].values())
         return degree
 
-    def find_ranked_keywords(self, phrase_list):
+    def __find_ranked_keywords(self, phrase_list):
         """Ranks the keywords found using the specified scoring metric"""
         self.rank_list = []
         for phrase in phrase_list:
