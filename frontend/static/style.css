@@ -62,7 +62,6 @@ input:required:valid,
 }
 
 form label {
-  width: 100px;
   padding: 12px 12px 12px 0;
 }
 
@@ -455,7 +454,14 @@ code {
   color:rgb(151, 151, 151);
   font-size: 1em;
 }
-
+#indexDiv .feedback a{
+  position: absolute;
+  right:10px;
+  bottom:5px;
+  margin: 0px;
+  color:rgb(151, 151, 151);
+  font-size: 1em;
+}
 .showMore{
   position: absolute;
   left:10px;
