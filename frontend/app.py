@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os.path
+
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
@@ -7,7 +9,7 @@ from mysql import connector
 import os
 import sys
 import jwt
-
+from flask_assets import Environment
 try:
     from frontend.config import config, jwtKey, secret_key
     from frontend.views import general, admin, articles
@@ -22,7 +24,7 @@ app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
 app.config['MAX_CONTENT_LENGTH'] = config.get('MAX_CONTENT_LENGTH')
-
+assets = Environment(app)
 
 @app.before_request
 def before_request():
@@ -50,5 +52,4 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
-    #app.config['DEBUG'] = True
-    app.run(port=frontend_config.get('dev_port'))
+    app.run(port=frontend_config.get('dev_port'), debug=True)

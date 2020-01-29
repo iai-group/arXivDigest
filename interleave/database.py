@@ -10,13 +10,14 @@ def getSystemRecommendations(db, startUserID, n):
     {user_ID:{system_ID:[article_IDs]}}.
     '''
     cur = db.cursor()
-    sql = '''SELECT user_ID,System_ID, article_ID FROM system_recommendations NATURAL JOIN users WHERE user_ID between %s AND %s
+    sql = '''SELECT user_ID,System_ID, article_ID, explanation 
+    FROM system_recommendations NATURAL JOIN users WHERE user_ID between %s AND %s
     AND DATE(recommendation_date) = UTC_DATE()
     AND last_recommendation_date < UTC_DATE() ORDER BY score DESC'''
-    cur.execute(sql, (startUserID, startUserID+n-1))
+    cur.execute(sql, (startUserID, startUserID + n - 1))
     result = defaultdict(lambda: defaultdict(list))
     for r in cur.fetchall():
-        result[r[0]][r[1]].append(r[2])
+        result[r[0]][r[1]].append({'article_ID': r[2], 'explanation': r[3]})
     cur.close()
     return result
 
@@ -24,7 +25,9 @@ def getSystemRecommendations(db, startUserID, n):
 def insertUserRecommendations(db, recommendations):
     '''Inserts the recommended articles into database'''
     cur = db.cursor()
-    sql = 'INSERT INTO user_recommendations VALUES(%s,%s,%s,%s,%s,0,0,0,0,0,0,0)'
+    sql = '''INSERT INTO user_recommendations 
+            (user_ID, article_ID, system_ID, explanation, score, recommendation_date)      
+            VALUES(%s, %s, %s, %s, %s, %s)'''
     cur.executemany(sql, recommendations)
     users = {str(x[0]) for x in recommendations}
     users = ','.join(users)
@@ -43,14 +46,14 @@ def getUserRecommendations(db, startUserID, n):
     {user_ID:{date:{article_IDs:score}}.
     '''
     cur = db.cursor()
-    sql = '''SELECT user_ID, DATE(recommendation_date), article_ID,  score FROM user_recommendations NATURAL JOIN users 
+    sql = '''SELECT user_ID, DATE(recommendation_date), article_ID, score, explanation FROM user_recommendations NATURAL JOIN users 
     WHERE user_ID between %s AND %s
     AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY) 
     AND last_email_date < UTC_DATE()'''
-    cur.execute(sql, (startUserID, startUserID+n-1))
+    cur.execute(sql, (startUserID, startUserID + n - 1))
     result = defaultdict(lambda: defaultdict(dict))
     for r in cur.fetchall():
-        result[r[0]][r[1]][r[2]] = r[3]
+        result[r[0]][r[1]][r[2]] = {'score' : r[3], 'explanation' : r[4]}
     cur.close()
     return result
 
@@ -59,7 +62,7 @@ def getUsers(db, startUserID, n):
     '''This method returns user_ID, name, notification_interval and email in a dictionary.'''
     cur = db.cursor()
     sql = 'SELECT user_ID,email,firstname,notification_interval FROM users WHERE user_ID between %s AND %s'
-    cur.execute(sql, (startUserID, startUserID+n-1))
+    cur.execute(sql, (startUserID, startUserID + n - 1))
     users = {x[0]: {'email': x[1], 'name': x[2], 'notification_interval': x[3]}
              for x in cur.fetchall()}
     cur.close()

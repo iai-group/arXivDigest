@@ -4,18 +4,22 @@
 '''
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
-import sys
-sys.path.append('..')
-from mail import mailServer
-from mysql import connector
-import database as db
-from tdm import multiLeaver
-import calendar
-from datetime import datetime
-from random import choice
-from uuid import uuid4
-import json
 import os
+import json
+from uuid import uuid4
+from random import choice
+from datetime import datetime
+import calendar
+from tdm import multiLeaver
+import database as db
+from mysql import connector
+import sys
+
+try:
+    import mail
+except:
+    sys.path.append(os.path.abspath('../scripts/'))
+from mail import mailServer
 
 with open('../config.json', 'r') as f:
     config = json.load(f)
@@ -35,18 +39,27 @@ def multiLeaveRecommendations(systemRecommendations):
         for i in range(0, len(recs)):
             score = len(recs)-i
 
-            rec = (userID, recs[i], systems[i], score, now)
+            rec = (userID, recs[i]["article_ID"],
+                   systems[i], recs[i]["explanation"],  score, now)
 
             userRecommendations.append(rec)
     return userRecommendations
 
 
 def topN(articles, n):
-    '''Returns the top n scored articleIDs.'''
+    '''Returns the top n scored articleIDs and the explanation to why each
+    article was recommended'''
     if not articles:
         return []
-    maxScore = max(articles.values())
-    return [id for id, score in articles.items() if score > maxScore-n]
+    maxScore = []
+    for articleID in articles:
+        maxScore.append(articles[articleID]['score'])
+    maxScore = max(maxScore)
+    top = []
+    for articleID in articles:
+        if articles[articleID]['score'] > maxScore-n:
+            top.append([articleID,articles[articleID]['explanation']])
+    return top
 
 
 def sendMail():
@@ -81,13 +94,14 @@ def sendMail():
                 continue
             # create mail data for each article
             mailData = []
-            for day, articleIDs in topArticles.items():
+            for day, article in topArticles.items():
                 articleInfo = []
-                for articleID in articleIDs:
+                for articleID, explanation in article:
                     article = articleData.get(articleID)
                     clickTrace = str(uuid4())
                     likeTrace = str(uuid4())
                     articleInfo.append({'title': article.get('title'),
+                                        'explanation': explanation,
                                         'authors': article.get('authors'),
                                         'readlink': '%smail/read/%s/%s/%s' % (link, user, articleID, clickTrace),
                                         'likelink': '%smail/like/%s/%s/%s' % (link, user, articleID, likeTrace)
