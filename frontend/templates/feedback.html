@@ -28,7 +28,7 @@
                             <tr>
                                 <td><label for="article_id">Article ID:</label></td>
                                 <td>
-                                    <a href="{{ url_for('articles.click', articleId=article_id) }}" target="_blank">
+                                    <a href="{{ url_for('articles.click', articleId=article_id) }}" target="_blank" id="article_id">
                                         {{ article_id }}
                                     </a>
                                         <input type="text" name="article_id" value={{ article_id }} hidden>
