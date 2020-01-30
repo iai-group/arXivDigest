@@ -25,8 +25,8 @@ try:
     import rake
 except:
     sys.path.append(os.path.abspath('../scripts/'))
-from scripts.rake import Rake
-from scripts.rake import Metric
+from rake import Rake
+from rake import Metric
 
 def download_dump(dump_url, dump_path):
     """Downloads a dblp dump file to disk."""
