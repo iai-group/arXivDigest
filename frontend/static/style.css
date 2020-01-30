@@ -564,6 +564,10 @@ code {
   border-bottom: 1px solid grey;
 }
 
+.keyword:last-of-type{
+  border: none;
+}
+
 .keyword p{
   float:right;
   margin-left: 5px;
