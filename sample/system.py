@@ -23,9 +23,8 @@ def get_user_info(user_ids, api_key, api_url, batch_size=100):
     user_info = {}
     for i in range(0, len(user_ids), batch_size):
         user_id_string = ','.join([str(u) for u in user_ids[i:i + batch_size]])
-
-        req = request.Request('%suserinfo?user_id=%s' % (api_url, user_id_string),
-                              headers={"api_key": api_key})
+        url = '%suserinfo?user_id=%s' % (api_url, user_id_string)
+        req = request.Request(url, headers={"api_key": api_key})
         resp = request.urlopen(req)
         user_info.update(json.loads(resp.read())['userinfo'])
     return user_info
@@ -33,7 +32,8 @@ def get_user_info(user_ids, api_key, api_url, batch_size=100):
 
 def get_articles_by_keywords(keywords, index, window_size=1, size=10000):
     """Retrieves articles from the Elasticsearch index mentioning 'keywords',
-    the 'window_size' is the number of days back in time articles will be included from."""
+    the 'window_size' is the number of days back in time articles will
+    be included from."""
     es = Elasticsearch()
     query = {
         'query': {
@@ -60,10 +60,12 @@ def get_articles_by_keywords(keywords, index, window_size=1, size=10000):
 
 
 def send_recommendations(recommendations, api_key, api_url, batch_size=100):
-    """Sends the recommendations to the arXivDigest API. Recommendations should be a dict of user_id, recommendation pairs."""
+    """Sends the recommendations to the arXivDigest API.
+    Recommendations should be a dict of user_id, recommendation pairs."""
     recommendations = list(recommendations.items())
     for i in range(0, len(recommendations), batch_size):
-        data = json.dumps({'recommendations': dict(recommendations[i:i + batch_size])}).encode('utf8')
+        data = json.dumps({'recommendations': dict(
+            recommendations[i:i + batch_size])}).encode('utf8')
         req = request.Request(api_url + "recommendation", data=data, headers={
             'Content-Type': 'application/json', "api_key": api_key})
         resp = request.urlopen(req)
@@ -72,17 +74,20 @@ def send_recommendations(recommendations, api_key, api_url, batch_size=100):
 
 
 def make_recommendations(user_info, index, n_articles=10):
-    """Makes recommendations for all the users in user_info based on the keywords in user_info.
-    Searches the elasticsearch index for candidates and uses the Elasticsearch score as score.
+    """Makes recommendations for all the users in user_info based on the
+    keywords in user_info. Searches the elasticsearch index for candidates
+    and uses the Elasticsearch score as score.
     'n_articles' is the number of articles to recommend for each user."""
     recommendations = {}
     for user, info in user_info.items():
-        articles = get_articles_by_keywords(' '.join(info['keywords']), index, window_size=1)['hits']['hits']
+        articles = get_articles_by_keywords(' '.join(info['keywords']), index,
+                                            window_size=1)['hits']['hits']
         article_recommendations = []
         for i in range(0, min(n_articles, len(articles))):
-            article_recommendations.append({'article_id': articles[i]['_id'],
-                                            'score': articles[i]['_score'],
-                                            'explanation': 'Elasticsearch score based on keywords.'})
+            rec = {'article_id': articles[i]['_id'],
+                   'score': articles[i]['_score'],
+                   'explanation': 'Elasticsearch score based on keywords.'}
+            article_recommendations.append(rec)
         recommendations[user] = article_recommendations
     return recommendations
 
@@ -99,7 +104,8 @@ def recommend(api_key, api_url, index):
         send_recommendations(recommendations, api_key, api_url)
 
         recommendation_count += len(user_ids)
-        print('\rRecommended articles for {} users'.format(recommendation_count), end='')
+        print('\rRecommended articles for {} users'
+              .format(recommendation_count), end='')
 
 
 def run(api_key, api_url, index):

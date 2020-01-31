@@ -6,9 +6,9 @@ This folder contains a sample implementation of a recommender system.
 
 The system has several stages of execution:
 - First makes sure an Elasticsearch index with the correct mappings exist. If not it will be created.
-- Then it queries the arXivDigest API for articles to add to the index. These are the articles that will be recommended later.
-- Next the system queries the arXivDigest API for user information. This is the information which the system bases its recommendations on.
-- For each user the system queries the index for recommendations are made, currently only the user's keywords are used to search the Elastic search index for the best matching articles. 
+- Then it queries the arXivDigest API for articles to add to the index. These are the articles that will be candidate recommendations later.
+- Next the system queries the arXivDigest API for user information. This is the information which the system bases its personalized recommendations on.
+- The system then creates personalized recommendations for each user, currently the recommendations are created by searching the Elasticsearch index with the users keywords for the best matching articles. 
 - Finally the articles found for each user are submitted to the arXivDigest API as recommendations. 
 
 ## Usage
