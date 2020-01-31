@@ -1,8 +1,3 @@
-$(document).ready(function () { //TODO remove this is for testing only
-    var keywords = ["pepsi1jasndjsndjsfjdjsafjdbsfjhb","pepsi2","pepsi3","pepsi4","pepsi5","pepsi6","pepsi7","pepsi8","pepsi9","pepsi10","pepsi11"] //TODO add input arg and remove list
-    $.each(keywords, show_keyword);
-});
-
 function show_keyword(index,keyword){
     var keyword_list = $("#keywords");
     if(keyword_list.children().length >= 8){
@@ -29,6 +24,6 @@ function add_keyword(div){
     $(div).parent().parent().remove();
 };
 
-function discard_keyword(keyword){
+function discard_keyword(div){
     $(div).parent().parent().remove();
 };

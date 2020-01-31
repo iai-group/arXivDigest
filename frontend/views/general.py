@@ -9,6 +9,7 @@ from frontend.models.validate import validPassword
 from frontend.models.errors import ValidationError
 from frontend.database import general as db
 from frontend.utils import encode_auth_token, requiresLogin
+from frontend.scrape_keywords.find_titles import find_author_titles
 
 mod = Blueprint('general', __name__)
 
@@ -172,6 +173,18 @@ def registerSystem():
 def registerSystemPage():
     '''Returns page for registering a new system'''
     return render_template('registerSystem.html')
+
+@mod.route('/author_keywords/<path:author_url>', methods=['GET'])
+def author_keywords(author_url):
+    '''Endpoint for fetching an authors keywords from their dblp article url.
+    Returns list of keywords or an empty string for failure.'''
+    author_titles = find_author_titles(author_url) 
+    if author_titles == "":
+        return jsonify(keywords="")
+    keywords = db.get_keywords_from_titles(author_titles)
+    if len(keywords) > 0:
+        return jsonify(keywords=keywords)
+    return jsonify(keywords="")
 
 
 def makeAuthTokenResponse(id, email, next):

@@ -165,3 +165,22 @@ def getCategoryNames():
     data = cur.fetchall()
     cur.close()
     return [[x[0], x[1]] for x in data]
+
+def get_keywords_from_titles(titles, quantity=30):
+    """Returns dict of keywords and scores for a list of scientific paper titles.
+    Can also specify quantity of keywords to return."""
+    keywords = {}
+    for title in titles:
+        cur = getDb().cursor()
+        sql = 'SELECT keyword, score FROM keywords WHERE title = %s'
+        cur.execute(sql, (title,))
+        data = cur.fetchall()
+        cur.close()
+        if not data:
+            continue
+        for keyword in data:
+            if keyword[0] in keywords and keyword[1] < keywords[keyword[0]]:
+                continue
+            keywords[keyword[0]] = keyword[1]
+    sorted_keywords = sorted(keywords.items(), key=lambda kv: kv[0], reverse=True)
+    return [keyword for keyword,_ in sorted_keywords[0:quantity]]

@@ -6,3 +6,4 @@ passlib
 Flask-Assets
 jsmin
 elasticsearch
+bs4
