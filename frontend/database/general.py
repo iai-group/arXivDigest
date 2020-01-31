@@ -182,5 +182,5 @@ def get_keywords_from_titles(titles, quantity=30):
             if keyword[0] in keywords and keyword[1] < keywords[keyword[0]]:
                 continue
             keywords[keyword[0]] = keyword[1]
-    sorted_keywords = sorted(keywords.items(), key=lambda kv: kv[0], reverse=True)
+    sorted_keywords = sorted(keywords.items(), key=lambda kv: kv[1], reverse=True)
     return [keyword for keyword,_ in sorted_keywords[0:quantity]]
