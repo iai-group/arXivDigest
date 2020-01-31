@@ -1,7 +1,7 @@
 from urllib import request
 import json
 from elasticsearch import Elasticsearch
-
+from collections import defaultdict
 from init_index import init_index
 from index import run_indexing
 
@@ -30,7 +30,7 @@ def get_user_info(user_ids, api_key, api_url, batch_size=100):
     return user_info
 
 
-def get_articles_by_keywords(keywords, index, window_size=1, size=10000):
+def get_articles_by_keyword(keyword, index, window_size=1, size=10000):
     """Retrieves articles from the Elasticsearch index mentioning 'keywords',
     the 'window_size' is the number of days back in time articles will
     be included from."""
@@ -41,7 +41,7 @@ def get_articles_by_keywords(keywords, index, window_size=1, size=10000):
                 'must': {
                     'match': {
                         'catch_all': {
-                            'query': keywords,
+                            'query': keyword,
                         }
                     }
                 },
@@ -68,9 +68,30 @@ def send_recommendations(recommendations, api_key, api_url, batch_size=100):
             recommendations[i:i + batch_size])}).encode('utf8')
         req = request.Request(api_url + "recommendation", data=data, headers={
             'Content-Type': 'application/json', "api_key": api_key})
-        resp = request.urlopen(req)
-        if resp.getcode() is not 200:
-            print(resp)
+        request.urlopen(req)
+
+
+def make_user_recommendation(keywords, index):
+    """Makes recommendations based on list of keywords and returns a list of
+    articles. The score of each article is calculated as the sum of the score of
+    each keyword, and the explanation is contains all keywords that matched an
+    article."""
+    article_scores = defaultdict(list)
+    article_keywords = defaultdict(list)
+    for keyword in keywords:
+        for article in get_articles_by_keyword(keyword, index)['hits']['hits']:
+            article_scores[article['_id']].append(article['_score'])
+            article_keywords[article['_id']].append(keyword)
+
+    result = []
+    for article_id in article_scores:
+        expl_str = ', '.join(article_keywords[article_id])
+        explanation = 'This article matches the keywords: {}'.format(expl_str)
+        result.append({'article_id': article_id,
+                       'score': sum(article_scores[article_id]),
+                       'explanation': explanation
+                       })
+    return result
 
 
 def make_recommendations(user_info, index, n_articles=10):
@@ -80,15 +101,9 @@ def make_recommendations(user_info, index, n_articles=10):
     'n_articles' is the number of articles to recommend for each user."""
     recommendations = {}
     for user, info in user_info.items():
-        articles = get_articles_by_keywords(' '.join(info['keywords']), index,
-                                            window_size=1)['hits']['hits']
-        article_recommendations = []
-        for i in range(0, min(n_articles, len(articles))):
-            rec = {'article_id': articles[i]['_id'],
-                   'score': articles[i]['_score'],
-                   'explanation': 'Elasticsearch score based on keywords.'}
-            article_recommendations.append(rec)
-        recommendations[user] = article_recommendations
+        articles = make_user_recommendation(info['keywords'], index)
+        articles = sorted(articles, key=lambda k: k['score'], reverse=True)
+        recommendations[user] = articles[0:n_articles]
     return recommendations
 
 
