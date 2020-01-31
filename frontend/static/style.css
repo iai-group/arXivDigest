@@ -62,7 +62,6 @@ input:required:valid,
 }
 
 form label {
-  width: 100px;
   padding: 12px 12px 12px 0;
 }
 
@@ -454,6 +453,44 @@ code {
   margin: 0px;
   color:rgb(151, 151, 151);
   font-size: 1em;
+}
+
+#indexDiv .feedback a{
+  position: absolute;
+  right:10px;
+  bottom:5px;
+  margin: 0px;
+  color:rgb(151, 151, 151);
+  font-size: 1em;
+}
+
+#article_id{
+  font-size: 1.5em;
+  color: black;
+  text-decoration: none;
+  position: absolute;
+  top:25%;
+  font-weight: bold;
+}
+
+#article_id:hover{
+  color: rgb(78, 78, 78);
+}
+
+#footer_feedback{
+  color: white;
+  text-decoration: none;
+  position: absolute;
+  top:25%;
+  border: 1px solid rgb(80, 80, 80);
+  background-color: #868585;
+  border-radius: 10px;
+  padding: 5px;
+  left: 43%;
+}
+
+#footer_feedback:hover{
+  background-color: #696969;
 }
 
 .showMore{

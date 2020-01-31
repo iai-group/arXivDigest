@@ -1,0 +1,53 @@
+{% extends "base.html" %} {% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">
+                <h1>Feedback</h1>
+        <form action="{{ url_for('general.submitFeedback') }}" method="POST"  enctype=multipart/form-data>
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <td><label for="feedback_type">Feedback type:</label></td>
+
+                            <td>
+                                <select id="feedbackType" name="feedback_type" required>
+                                    {% if article_id %}
+                                        <option value="Explanation">Feedback on explanation</option>
+                                        <option value="Recommendation">Feedback on recommendation</option>
+                                    {% endif %}
+                                    {% if not article_id %}
+                                        <option value="Bug">Found a bug</option>
+                                        <option value="Feature">Feature request</option>
+                                        <option value="Other">Other</option>
+                                    {% endif %}
+                                </select>
+                            </td>
+                        </tr>
+                        {% if article_id %}
+                            <tr>
+                                <td><label for="article_id">Article ID:</label></td>
+                                <td>
+                                    <a href="{{ url_for('articles.click', articleId=article_id) }}" target="_blank" id="article_id">
+                                        {{ article_id }}
+                                    </a>
+                                        <input type="text" name="article_id" value={{ article_id }} hidden>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <td><label for="feedback_text">Feedback:</label></td>
+                            <td>
+                                <textarea name="feedback_text" required></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><input type="submit" value="Submit"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

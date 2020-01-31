@@ -10,10 +10,11 @@ from mysql import connector
 from uuid import uuid4
 from passlib.hash import pbkdf2_sha256
 from frontend.database.db import getDb
+from mysql.connector import errorcode
 
 
 def getUser(id):
-    '''Return user as a dictionary. Include webpages and categories as sub dictionaries'''
+    """Return user as a dictionary. Include webpages and categories as sub dictionaries"""
     cur = getDb().cursor()
     sql = '''SELECT user_ID, email, salted_hash, firstname, lastname, keywords, 
     notification_interval, registered
@@ -46,7 +47,7 @@ def getUser(id):
 
 
 def updatePassword(id, password):
-    '''Hash and update password to user with id. Returns True on success"'''
+    """Hash and update password to user with id. Returns True on success\""""
     conn = getDb()
     cur = conn.cursor()
     passwordsql = 'UPDATE users SET salted_hash = %s WHERE user_ID = %s'
@@ -59,7 +60,7 @@ def updatePassword(id, password):
 
 
 def insertUser(user):
-    '''Insert user object, webpages and categories into database. Return error or users id'''
+    """Insert user object, webpages and categories into database. Return error or users id"""
     conn = getDb()
     cur = conn.cursor()
     usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,DEFAULT,%s,false)'
@@ -87,8 +88,8 @@ def insertUser(user):
 
 
 def insertSystem(system):
-    '''Inserts a new system into the database, name will be used as Name for the system,
-    and using uuid a random API-key is generated. Returns None if successfull and an error if not.'''
+    """Inserts a new system into the database, name will be used as Name for the system,
+    and using uuid a random API-key is generated. Returns None if successfull and an error if not."""
     conn = getDb()
     cur = conn.cursor()
     sql = 'INSERT INTO systems VALUES(null,%s,%s,%s,%s,%s,False)'
@@ -108,7 +109,7 @@ def insertSystem(system):
 
 
 def updateUser(userid, user):
-    '''Update user with userid. User object contains new info for this user. Returns True on Success'''
+    """Update user with userid. User object contains new info for this user. Returns True on Success"""
     conn = getDb()
     cur = conn.cursor()
     usersql = 'UPDATE users SET email = %s, firstname = %s, lastname = %s, keywords = %s, notification_interval = %s WHERE user_ID = %s'
@@ -133,8 +134,8 @@ def updateUser(userid, user):
 
 
 def validatePassword(email, password):
-    '''Checks if users password is correct. Returns userid if correct password, none if user does not exists and
-    false if incorrect password'''
+    """Checks if users password is correct. Returns userid if correct password, none if user does not exists and
+    false if incorrect password"""
     cur = getDb().cursor()
     sql = 'SELECT user_ID,salted_Hash FROM users WHERE email = %s'
     cur.execute(sql, (email,))
@@ -149,7 +150,7 @@ def validatePassword(email, password):
 
 
 def userExist(email):
-    '''Checks if email is already in use by another user. Returns True if in use and False if not.'''
+    """Checks if email is already in use by another user. Returns True if in use and False if not."""
     cur = getDb().cursor()
     sql = 'SELECT EXISTS(SELECT user_ID FROM users WHERE email = %s)'
     cur.execute(sql, (email,))
@@ -159,9 +160,23 @@ def userExist(email):
 
 
 def getCategoryNames():
-    '''Returns list of article categories available in the database'''
+    """Returns list of article categories available in the database"""
     cur = getDb().cursor()
     cur.execute('SELECT category_ID,category_name FROM categories')
     data = cur.fetchall()
     cur.close()
     return [[x[0], x[1]] for x in data]
+
+
+def insertFeedback(user_id, article_id, type, feedback_text):
+    """Inserts feedback into the database. Returns None if successful and an error if not."""
+    conn = getDb()
+    cur = conn.cursor()
+    sql = 'INSERT INTO feedback (user_ID, article_ID, type, feedback_text) VALUES(%s, %s, %s, %s)'
+    try:
+        cur.execute(sql, (user_id, article_id, type, feedback_text))
+    except mysql.connector.errors.IntegrityError as e:
+        if e.errno == errorcode.ER_NO_REFERENCED_ROW_2:
+            return "Unknown article id."
+        raise
+    conn.commit()
