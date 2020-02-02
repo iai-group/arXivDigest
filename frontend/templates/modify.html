@@ -1,8 +1,12 @@
 {% extends "base.html" %} {% block content %}
 <script>
-    categoryList = {{ categoryList | safe }}
-    usercategories = {{ user.categories | safe }}
-
+    categoryList = {{ categoryList | safe }};
+    usercategories = {{ user.categories | safe }};
+    user_keywords = "{{ user.keywords | safe }}".split(",");
+    user_keywords = user_keywords.map(function (el) {
+        return el.trim();
+    });
+    suggested_keywords = [];
 </script>
 <div class="container">
 
@@ -64,7 +68,7 @@
                             <div>
                                 <br>
                                 <p class="signupHint">Enter your interests seperated by a comma or add suggested keyords from the list to the right</p>
-                                <textarea id="keyword_text" value="{{user.keywords}}" name="keywords" style="height:220px; resize: none;"></textarea>
+                                <textarea id="keyword_text" name="keywords" style="height:220px; resize: none;">{{user.keywords}}</textarea>
                             </div>
                         </div>
                     </td>

@@ -3,6 +3,13 @@ function inputTouched(input) {
         input.classList.remove("touched");
     } else {
         input.classList.add("touched");
+
+        $.getJSON("/author_keywords/" + input.value, {},
+            function (data) {
+                if (data.keywords != "") {
+                    $.each(data.keywords, append_keywords); //ajax result contains a list of keywords (top 8 shown on website)
+                };
+            });
     }
 }
 
@@ -46,12 +53,6 @@ $(document).ready(function () {
             input = $("<input id='websiteInput' type='text' name='website' placeholder='Your website..' onblur='inputTouched(this);'onfocus='removeTouched(this)' required size='1024'>");
             $(this).after(input);
             input.focus();
-            $.getJSON("/author_keywords/" + this.value, {},
-                function (data) {
-                    if (data.result != "") {
-                        $.each(data.keywords, show_keyword); //ajax result contains a list of keywords (top 8 shown on website)
-                    }
-                });
         } else if (!$(this).is(":last-of-type") && (this.value == '' || this.value == null)) {
             $(this).remove();
         }
