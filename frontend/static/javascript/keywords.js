@@ -1,3 +1,12 @@
+function fetch_suggested_keywords(value){
+    $.getJSON("/author_keywords/" + value, {},
+        function (data) {
+            if (data.keywords != "" || data.keywords != null) {
+                $.each(data.keywords, append_keywords); //ajax result contains a list of keywords (top 8 shown on website)
+            };
+        });
+};
+
 function show_keywords(){
     var keyword_list = $("#keywords");
     keyword_list.empty();

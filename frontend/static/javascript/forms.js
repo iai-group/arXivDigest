@@ -3,13 +3,9 @@ function inputTouched(input) {
         input.classList.remove("touched");
     } else {
         input.classList.add("touched");
-
-        $.getJSON("/author_keywords/" + input.value, {},
-            function (data) {
-                if (data.keywords != "") {
-                    $.each(data.keywords, append_keywords); //ajax result contains a list of keywords (top 8 shown on website)
-                };
-            });
+        if($(input).attr('id') === "websiteInput"){
+            fetch_suggested_keywords(input.value)
+        }
     }
 }
 
