@@ -577,3 +577,10 @@ code {
   margin-right: 5px;
   margin-top: 1px;
 }
+
+#keyword_info{
+  font-size: 0.9em;
+  color: rgb(134, 134, 134);
+  margin-left: 10px;
+  text-align: center;
+}
