@@ -12,6 +12,8 @@ function fetch_suggested_keywords(value){
 function show_keywords(){
     var keyword_list = $("#keywords");
     keyword_list.empty();
+    var title = $("<p style='font-weight:bold; font-size:1.1em;'>Suggested keywords:</p>");
+    keyword_list.append(title);
     for(var i=0; i<8; i++){
         if(suggested_keywords[i] == "" || suggested_keywords[i] == null){
             return null;
