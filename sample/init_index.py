@@ -4,8 +4,6 @@ __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
 from elasticsearch import Elasticsearch
 
-INDEX = 'main_index'
-
 INDEX_SETTINGS = {
     'settings': {
         'index': {
@@ -28,7 +26,7 @@ INDEX_SETTINGS = {
             'authors': {
                 'type': 'nested',
                 'properties': {
-                    'firstname':  {'type': 'keyword'},
+                    'firstname': {'type': 'keyword'},
                     'lastname': {'type': 'keyword'},
                     'affiliations': {'type': 'keyword'}
                 },
@@ -62,7 +60,10 @@ INDEX_SETTINGS = {
         }
     }
 }
-print('Creating index')
-es = Elasticsearch()
-es.indices.create(index=INDEX, body=INDEX_SETTINGS)
-print('Finished creating index')
+
+
+def init_index(index):
+    print('Creating index')
+    es = Elasticsearch()
+    es.indices.create(index=index, body=INDEX_SETTINGS)
+    print('Finished creating index')

@@ -28,15 +28,17 @@ app.config.update(**config.get('api_config'))
 @validateApiKey
 @getUserlist
 def userfeedback(users):
-    """API-endpoint for requesting userfeedback, 'user_id' must be one or more ids seperated by comma."""
+    """API-endpoint for requesting userfeedback, 'user_id' must be one or more
+    ids separated by comma."""
     return jsonify(db.getUserFeedback(users))
 
 
 @app.route('/users', methods=['GET'])
 @validateApiKey
 def users():
-    """API-endpoint for fetching userIDs, ids will be returned in batches starting from 'fromID'
-    if 'fromID' is unspecified 0 will be used as default."""
+    """API-endpoint for fetching userIDs, ids will be returned in batches
+    starting from 'fromID'.
+    If 'fromID' is unspecified 0 will be used as default."""
     try:
         fromID = int(request.args.get('from', 0))
         if fromID < 0:
@@ -53,15 +55,16 @@ def users():
 @validateApiKey
 @getUserlist
 def userinfo(users):
-    """API-endpoint for requesting userdata, 'user_id' must be one or more ids seperated by comma."""
+    """API-endpoint for requesting userdata, 'user_id' must be one or more ids
+    separated by comma."""
     return make_response(jsonify({'userinfo': db.getUsers(users)}), 200)
 
 
 @app.route('/articles', methods=['GET'])
 @validateApiKey
 def articles():
-    """API-endpoint for requesting articleIDs, all articles added on the specified "date",
-     if "date" is not specified it will the current date."""
+    """API-endpoint for requesting articleIDs, all articles added on the
+    specified "date", if "date" is not specified it will the current date."""
     date = request.args.get('date', datetime.utcnow().strftime("%Y-%m-%d"))
     try:
         date = datetime.strptime(
@@ -75,8 +78,8 @@ def articles():
 @app.route('/articledata', methods=['GET'])
 @validateApiKey
 def articledata():
-    """API-endpoint for requesting articledata, 'article_id' must be one or more ids
-    seperated by comma."""
+    """API-endpoint for requesting articledata, 'article_id' must be one or more
+    ids separated by comma."""
     try:
         ids = request.args.get('article_id').split(',')
     except Exception:
