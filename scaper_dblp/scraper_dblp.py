@@ -14,7 +14,7 @@ from nltk.util import ngrams
 import sys
 import os
 
-with open('../config.json', 'r') as f:
+with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
     config = json.load(f)
     scraper_dblp_config = config.get('scraper_dblp_config')
     dump_url = scraper_dblp_config.get('dblp_dump_link')
@@ -24,20 +24,22 @@ with open('../config.json', 'r') as f:
 try:
     import rake
 except:
-    sys.path.append(os.path.abspath('../scripts/'))
-from scripts.rake import Rake
+    sys.path.append(sys.path[0] + '/../')
 from scripts.rake import Metric
+from scripts.rake import Rake
+
 
 def download_dump(dump_url, dump_path):
     """Downloads a dblp dump file to disk."""
-    print('Downloads dblp dump to file')
+    print('Downloading dblp dump to file')
     try:
         document = requests.get(dump_url)
     except Exception as e:
         return e
 
-    with open(dump_path,'wb') as outFile:
+    with open(dump_path, 'wb') as outFile:
         outFile.write(document.content)
+
 
 def find_dblp_titles(file_path):
     """Scrapes the dbpl xml dump file for publicated titles
@@ -53,6 +55,7 @@ def find_dblp_titles(file_path):
                 titles.append(line)
     return titles
 
+
 def find_dblp_keywords(titles, keyword_lenght):
     """Uses rake to find keywords for set of all dblp titles.
     Return keyword and score in nested lists."""
@@ -62,53 +65,39 @@ def find_dblp_keywords(titles, keyword_lenght):
     rank_list = r.get_keywords_with_score()
     new_keywords = {}
     for score, word in rank_list:
-        if not bool(re.search(r'\d', word)): 
-            new_keywords[word] = score
+        new_keywords[word] = score
     return new_keywords
 
-def match_keywords(conn, titles, keywords, keyword_lenght):
+
+def match_keywords(conn, titles, keywords, keyword_lenght, batch_size=1000):
     """Matches the titles with which of the created keywords they
     contain. Then inserts them into the database."""
-    print('Matches keywords to titles and inserts into db.')
-    for title in titles:
-        candidate_keywords = create_ngram_list(title, keyword_lenght)
-        title_keywords = {}
-        for candidate_keyword in candidate_keywords:
-            if candidate_keyword in keywords:
-                title_keywords[candidate_keyword] = keywords[candidate_keyword]
-        database_insert_keywords(conn, title, title_keywords)
-        
+    print('\nMatches keywords to titles and inserts into db.')
+    r = Rake(keyword_lenght, Metric.DEGREE_TO_FREQUENCY_RATIO,
+             min_occurrences=10)
+    for i in range(0, len(titles), batch_size):
+        print('\rProcessed {} titles.'.format(i), end='')
+        match_keyword_batch(conn, titles[i:i + batch_size], keywords, r)
 
-def database_insert_keywords(conn, title, keywords):
+
+def match_keyword_batch(conn, titles, keywords, rake):
+    title_keywords = []
+    for title in titles:
+        candidate_keywords = rake.get_all_candidate_keywords_for_sentence(title)
+        for keyword in candidate_keywords:
+            if keyword in keywords:
+                title_keywords.append((title, keyword, keywords[keyword]))
+    database_insert_keywords(conn, title_keywords)
+
+
+def database_insert_keywords(conn, data):
     """Inserts keywords and scores into the database for each title."""
     cur = conn.cursor()
-    keywords_query = 'insert ignore into keywords values (%s,%s,%s)'
-    for keyword in keywords:
-        data = [title, keyword, keywords[keyword]]
-        cur.execute(keywords_query, data)
+    query = 'replace into keywords (title, keyword, score) values (%s,%s,%s)'
+    cur.executemany(query, data)
     conn.commit()
     cur.close()
 
-def create_ngram_list(title, keyword_lenght):
-    """Creates a list of all possible keywords for a paper title using ngrams."""
-    stopwords = nltk.corpus.stopwords.words('english')
-    punctuations = string.punctuation.replace('-', '')
-    candidate_keywords = []
-    for i in range(1,keyword_lenght):
-        ngrams = extract_ngrams(title, i)
-        for gram in ngrams:
-            if word_tokenize(gram)[0] in stopwords or word_tokenize(gram)[-1] in stopwords:
-                continue
-            elif word_tokenize(gram)[0] in punctuations or word_tokenize(gram)[-1] in punctuations:
-                continue
-            else:
-                candidate_keywords.append(gram.lower())
-    return candidate_keywords
-
-def extract_ngrams(data, num):
-    """Returns ngrams from data with length specified by the number supplied."""
-    n_grams = ngrams(nltk.word_tokenize(data), num)
-    return [' '.join(grams) for grams in n_grams]
 
 def clear_keyword_database(conn):
     """Clears keyword table in database for titles and keywords."""
@@ -118,12 +107,23 @@ def clear_keyword_database(conn):
     conn.commit()
     cur.close()
 
+
 if __name__ == '__main__':
     conn = connector.connect(**config.get("sql_config"))
-
+    # TODO cleanup
     clear_keyword_database(conn)
-    download_dump(dump_url, dump_file_path) 
-    titles = find_dblp_titles(dump_file_path)
+    # download_dump(dump_url, dump_file_path)
+    import pickle
+    from pprint import pprint
+
+    # titles = find_dblp_titles(dump_file_path)
+    # pickle.dump(titles, open("save.p", "wb"))
+    titles = pickle.load(open("save.p", "rb"))[:10000]
+
     keywords = find_dblp_keywords(titles, keyword_lenght)
+
+    # pickle.dump(keywords, open("keywords.p", "wb"))
+    # keywords = pickle.load(open("keywords.p", "rb"))
+
     match_keywords(conn, titles, keywords, keyword_lenght)
     conn.close()

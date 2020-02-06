@@ -13,9 +13,9 @@ from enum import Enum
 
 class Metric(Enum):
     """Different metrics that can be used for ranking candidate keywords."""
-    DEGREE_TO_FREQUENCY_RATIO = 0  
-    WORD_DEGREE = 1 
-    WORD_FREQUENCY = 2  
+    DEGREE_TO_FREQUENCY_RATIO = 0
+    WORD_DEGREE = 1
+    WORD_FREQUENCY = 2
 
 
 class Rake(object):
@@ -26,75 +26,104 @@ class Rake(object):
     WORD_FREQUENCY favors words that appear more frequent
     WORD_DEGREE favors words that occur often and in longer keywords
     DEGREE_TO_FREQUENCY_RATIO favours words that mostly occur in longer keywords"""
-    
-    def __init__(self, max_length, scoring_metric=Metric.DEGREE_TO_FREQUENCY_RATIO, stopwords=None, punctuation=None):
+
+    def __init__(self, max_length,
+                 scoring_metric=Metric.DEGREE_TO_FREQUENCY_RATIO,
+                 stopwords=nltk.corpus.stopwords.words('english'),
+                 punctuation=string.punctuation.replace('-', ''),
+                 min_occurrences=2,
+                 min_char_length=5,
+                 min_chars=5):
         """Initializes a rake object with english stop words and string punctuations."""
-        self.stopwords = stopwords if stopwords else nltk.corpus.stopwords.words('english')
-        self.punctuations = punctuation if punctuation else string.punctuation.replace('-', '')
+        self.stopwords = set(stopwords)
+        self.punctuations = punctuation
         self.max_length = max_length
         self.scoring_metric = scoring_metric
+        self.min_occurrences = min_occurrences
+        self.min_char_length = min_char_length
+        self.min_chars = min_chars
         self.frequency = None
         self.degree = None
-        self.rank_list = None 
+        self.rank_list = None
         self.ranked_phrases = None
 
-    def extract_keyword_from_sentences(self, sentences): 
+    def extract_keyword_from_sentences(self, sentences):
         """Extracts keywords from list of sentences."""
-        phrase_list = Counter()  #TODO prob not set
-        for sentence in sentences:
-            word_list = [word.lower() for word in word_tokenize(sentence)]
-            phrase_list = phrase_list + Counter(self.__get_candidate_keywords(word_list))
-        phrase_list = phrase_list + Counter(self.__find_adjoining_keywords(sentences))
-        self.frequency = self.__create_freq_dist(phrase_list)
-        self.degree = self.__create_degree_dist(phrase_list)
-        self.__find_ranked_keywords(phrase_list)
+        phrases = defaultdict(int)
+        adjoined_phrases = defaultdict(int)
+        for i, sentence in enumerate(sentences):
+            if i % 1000 == 0:
+                print('\rProcessed {} sentences.'.format(i), end='')
 
-    def __get_candidate_keywords(self, tokenized_sentence):
+            word_list = word_tokenize(sentence.lower())
+
+            for phrase in self.__get_candidate_keywords(word_list):
+                phrases[phrase] += 1
+
+            for phrase in self.__adjoined_candidates_from_sentence(word_list):
+                adjoined_phrases[phrase] += 1
+
+        for phrase, count in adjoined_phrases.items():
+            phrases[phrase] += count if count >= self.min_occurrences else 0
+
+        phrases = {k: c for k, c in phrases.items() if self.__valid_keyword(k)}
+
+        self.frequency = self.__create_freq_dist(phrases)
+        self.degree = self.__create_degree_dist(phrases)
+        self.__find_ranked_keywords(phrases)
+
+    def __valid_keyword(self, keyword):
+        if len(keyword) < self.min_char_length:
+            return False
+        if sum(c.isalpha() for c in keyword) < self.min_chars:
+            return False
+        return True
+
+    def __get_candidate_keywords(self, word_list):
         """Returns candidate keywords for a tokenized sentence."""
-        candidate_keywords = []
-        current_candidate = ''
-        for word in tokenized_sentence:
-            if word not in self.stopwords and word not in self.punctuations:
-                current_candidate += word + ' '
-            elif current_candidate != '':
-                candidate_keywords.append(current_candidate[:-1])
-                current_candidate = ''
-        if current_candidate != '':
-            candidate_keywords.append(current_candidate[:-1])
-        filtered_keyword = []
-        for keyword in candidate_keywords:
-            if len(word_tokenize(keyword)) <= self.max_length:
-                filtered_keyword.append(keyword)
-        return filtered_keyword
+        candidates = []
+        current_candidate = []
 
-    def __find_adjoining_keywords(self, titles):
-        """Finds adjoining keywords from list of all paper titles"""
-        title_data = ''
-        for title in titles:
-            title_data += title + ' '
-        adjoining_keywords = Counter()
-        for i in range(self.max_length):
-            adjoining_keywords = adjoining_keywords + Counter(extract_ngrams(title_data, i + 1))
-        filtered_keywords = []
-        for keyword, count in adjoining_keywords.items():
-            if count < 3 or keyword in self.stopwords or keyword in self.punctuations:
-                continue
-            if word_tokenize(keyword)[0] in self.stopwords or word_tokenize(keyword)[-1] in self.stopwords:
-                continue
-            if word_tokenize(keyword)[0] in self.punctuations or word_tokenize(keyword)[-1] in self.punctuations:
-                continue
-            if len(word_tokenize(keyword)) <= self.max_length:
-                filtered_keywords.append(keyword)
-        return filtered_keywords
+        for word in word_list:
+            if word not in self.stopwords and word not in self.punctuations:
+                current_candidate.append(word)
+            elif current_candidate:
+                candidates.append(current_candidate)
+                current_candidate = []
+        if current_candidate:
+            candidates.append(current_candidate)
+
+        return [' '.join(k) for k in candidates if len(k) <= self.max_length]
+
+    def __adjoined_candidates_from_sentence(self, word_list):
+        """Finds all candidates for adjoined keywords in a sentence."""
+        candidates = []
+        for ngram in extract_ngrams(word_list, 2, self.max_length):
+            in_stopwords = [1 if w in self.stopwords else 0 for w in ngram]
+            if not any(in_stopwords[1:-1]):
+                continue  # If ngram no internal stopwords
+            if in_stopwords[0] or in_stopwords[-1]:
+                continue  # If ngram starts or stops with a stopword
+            if any([1 for w in ngram if w in self.punctuations]):
+                continue  # If ngram contains punctuation
+            candidates.append(' '.join(ngram))
+        return candidates
+
+    def get_all_candidate_keywords_for_sentence(self, sentence):
+        """This function returns all the candidate keywords considered for a
+        sentence when extracting keywords."""
+        word_list = word_tokenize(sentence.lower())
+        candidates = self.__get_candidate_keywords(word_list)
+        return candidates + self.__adjoined_candidates_from_sentence(word_list)
 
     def __create_freq_dist(self, phrase_list):
         """Computes the word frequency by counting the occurence
         of single word in all phrases."""
-        frequency = Counter() 
+        frequency = Counter()
         for phrase in phrase_list:
             tokenized_phrase = word_tokenize(phrase)
             for word in tokenized_phrase:
-                frequency[word] += phrase_list[phrase] 
+                frequency[word] += phrase_list[phrase]
         return frequency
 
     def __create_degree_dist(self, phrase_list):
@@ -106,7 +135,7 @@ class Rake(object):
             for word in tokenized_phrase:
                 for co_word in tokenized_phrase:
                     co_occurence_graph[word][co_word] += phrase_list[phrase]
-        degree = defaultdict(lambda: 0) 
+        degree = defaultdict(lambda: 0)
         for word in co_occurence_graph:
             degree[word] = sum(co_occurence_graph[word].values())
         return degree
@@ -125,11 +154,12 @@ class Rake(object):
                 elif self.scoring_metric == Metric.WORD_DEGREE:
                     rank += 1.0 * self.degree[word]
                 else:
-                   raise ValueError('Invalid Metric: {}'.format(self.scoring_metric))
+                    raise ValueError(
+                        'Invalid Metric: {}'.format(self.scoring_metric))
             self.rank_list.append((rank, ' '.join(phrase)))
         self.rank_list.sort(reverse=True)
         self.ranked_phrases = [phrase[1] for phrase in self.rank_list]
-    
+
     def get_keywords(self):
         """"Returns the candidate keywords created"""
         return self.ranked_phrases
@@ -139,16 +169,9 @@ class Rake(object):
         return self.rank_list
 
 
-def load_stopwords(path):
-    """Loads stopwords from a file. File must have one stop word
-    per line and no first line explanation or title."""
-    stopwords = []
-    for line in open(path):
-        stopwords.append(re.sub('\n', '', line))
-    return stopwords
-
-
-def extract_ngrams(data, num):
-    """Returns ngrams from data with length specified by the number supplied"""
-    n_grams = ngrams(nltk.word_tokenize(data), num)
-    return [' '.join(grams) for grams in n_grams]
+def extract_ngrams(word_list, n_min, n_max):
+    """Returns ngrams from the text with lengths between n_min and n_max."""
+    n_grams = []
+    for n in range(n_min, n_max + 1):
+        n_grams.extend(ngrams(word_list, n))
+    return n_grams
