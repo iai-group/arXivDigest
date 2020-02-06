@@ -176,22 +176,22 @@ def registerSystemPage():
 
 @mod.route('/author_keywords/<path:author_url>', methods=['GET'])
 def author_keywords(author_url):
-    '''Endpoint for fetching an authors keywords from their dblp article url.
-    Returns list of keywords or an empty string for failure.'''
+    """Endpoint for fetching an authors keywords from their dblp article url.
+    Returns list of keywords or an empty string for failure."""
     author_titles = find_author_titles(author_url) 
-    if author_titles == "":
-        return jsonify(keywords="")
+    if author_titles == '':
+        return jsonify(keywords='') # TODO weird error handling,
     keywords = db.get_keywords_from_titles(author_titles, 30, g.user)
     if len(keywords) > 0:
         return jsonify(keywords=keywords)
-    return jsonify(keywords="")
+    return jsonify(keywords='') # TODO weird error handling, especially considering the returnvalue of the previous function
 
 @mod.route('/keyword_opinion/<keyword>/<opinion>', methods=['GET'])
 def send_user_opinion(keyword, opinion):
     """Endpoint for saving a users opinion on a suggested keyword.
     Returns success or fail"""
-    result = db.store_keyword_opinion(g.user, keyword, opinion)
-    if result:
+    success = db.store_keyword_opinion(g.user, keyword, opinion)
+    if success:
         return jsonify(result="success")
     else:
         return jsonify(results="fail")

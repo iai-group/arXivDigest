@@ -183,7 +183,7 @@ def get_keywords_from_titles(titles, quantity, userid):
         return []
     for keyword in data:
         # checks users opinion on keyword
-        if get_keyword_opinion(userid, keyword[0]) == "discarded":
+        if get_keyword_opinion(userid, keyword[0]) == "discarded": # TODO join instead
             continue
         if keyword[0] in keywords:
             keywords[0] += keyword[1]

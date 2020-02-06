@@ -16,14 +16,14 @@ def get_pid(auth_url):
     if pid_element:
         return pid_element.text
     else:
-        return ValueError('Cannot find pid in web page')
+        return ValueError('Cannot find pid in web page') # TODO return exception?
 
-def get_titles_from_pid(url):
+def get_titles_from_pid(url):#TODO name pid?
     """Returns a list of titles from an author using the authors PID web
     address. Returns error if the author has no titles or request fails."""
     try:
         document = requests.get(url+'.xml')
-    except Exception as e:
+    except Exception as e: # TODO Return exception?
         return e
 
     soup = BeautifulSoup(document.content, 'lxml')
@@ -31,7 +31,7 @@ def get_titles_from_pid(url):
     if titles:
         return [title.text for title in titles]
     else:
-        return ValueError('Author has no titles publicated')
+        return ValueError('Author has no titles publicated')  # TODO return exception?
 
 def get_dblp_titles(author_url):
     """Fetches the author pid and then the author paper titles.
@@ -40,6 +40,6 @@ def get_dblp_titles(author_url):
     try:
         author_pid = get_pid(author_url)
         author_titles = get_titles_from_pid(author_pid)
-    except Exception as e:
+    except Exception as e: # TODO should this really catch?
         return 'Fail'
     return author_titles
