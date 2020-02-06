@@ -62,6 +62,10 @@ Routes available:
 
 >Scrapes the url provided for paper titles and looks up titles in database to find matching keywords. Returns "" or list of keywords.
 
+``/keyword_opinion/<keyword>/<opinion> [GET]``
+
+>Stores the suggested keyword for an user along with the users opinion on that keywors (discarded or approved). Returns "fail" or "success".
+
 ``/mail/like/<int:userID>/<string:articleID>/<uuid:trace> [GET]``
 
 >Likes article directly from email based on userid, articleid and a trace from the email.

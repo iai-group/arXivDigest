@@ -181,11 +181,20 @@ def author_keywords(author_url):
     author_titles = find_author_titles(author_url) 
     if author_titles == "":
         return jsonify(keywords="")
-    keywords = db.get_keywords_from_titles(author_titles)
+    keywords = db.get_keywords_from_titles(author_titles, 30, g.user)
     if len(keywords) > 0:
         return jsonify(keywords=keywords)
     return jsonify(keywords="")
 
+@mod.route('/keyword_opinion/<keyword>/<opinion>', methods=['GET'])
+def send_user_opinion(keyword, opinion):
+    """Endpoint for saving a users opinion on a suggested keyword.
+    Returns success or fail"""
+    result = db.store_keyword_opinion(g.user, keyword, opinion)
+    if result:
+        return jsonify(result="success")
+    else:
+        return jsonify(results="fail")
 
 def makeAuthTokenResponse(id, email, next):
     '''creates an authToken for a user with id and email. Then redirects to next'''

@@ -166,22 +166,56 @@ def getCategoryNames():
     cur.close()
     return [[x[0], x[1]] for x in data]
 
-def get_keywords_from_titles(titles, quantity=30):
+def get_keywords_from_titles(titles, quantity, userid):
     """Returns dict of keywords and scores for a list of scientific paper titles.
     Can also specify quantity of keywords to return."""
     keywords = {}
-    for title in titles:
-        cur = getDb().cursor()
-        sql = 'SELECT keyword, score FROM keywords WHERE title = %s'
-        cur.execute(sql, (title,))
-        data = cur.fetchall()
-        cur.close()
-        if not data:
+    cur = getDb().cursor()
+    title_list = tuple(titles)
+    sql = "SELECT keyword, score FROM keywords WHERE title IN {}".format(title_list)    
+    cur.execute(sql)
+    data = cur.fetchall()
+    cur.close()
+    if not data:
+        return []
+    for keyword in data:
+        if get_keyword_opinion(userid, keyword[0]) == "discarded": #checks users opinion on keyword
             continue
-        for keyword in data:
-            if keyword[0] in keywords:
-                keywords[0] += keyword[1]
-                continue
-            keywords[keyword[0]] = keyword[1]
+        if keyword[0] in keywords:
+            keywords[0] += keyword[1]
+            continue
+        keywords[keyword[0]] = keyword[1]
     sorted_keywords = sorted(keywords.items(), key=lambda kv: kv[1], reverse=True)
     return [keyword for keyword,_ in sorted_keywords[0:quantity]]
+
+def store_keyword_opinion(userid,keyword,opinion):
+    """Stores the users opinion on a keyword to the db.
+    Returns true on success and false on failure"""
+    sql = 'INSERT IGNORE INTO keyword_opinions VALUES(%s, %s, %s)'
+    conn = getDb()
+    cur = conn.cursor()
+    try:
+        cur.execute(sql,(userid, keyword, opinion))
+    except:
+        cur.close()
+        return False
+    cur.close()
+    conn.commit()
+    return True
+
+def get_keyword_opinion(userid, keyword):
+    """Checks if the user has discarded or approved a keyword earlier.
+    Returns approved, discarded or no opinion"""
+    sql = 'SELECT opinion FROM keyword_opinions WHERE user_ID = %s AND keyword = %s'
+    conn = getDb()
+    cur = conn.cursor()
+    try:
+        cur.execute(sql,(userid, keyword))
+    except Exception as e:
+        cur.close()
+        return "no opinion"
+    opinion = cur.fetchone()
+    cur.close()
+    if opinion == None:
+        return "no opinion"
+    return opinion[0]

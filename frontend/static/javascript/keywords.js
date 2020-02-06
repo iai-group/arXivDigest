@@ -9,6 +9,20 @@ function fetch_suggested_keywords(value){
         });
 };
 
+function send_user_opinion(div,opinion){
+    $.getJSON("/keyword_opinion/" + $(div).parent().parent().find("p").text()+ "/" + opinion, {},
+        function (data) {
+            if (data.result == "success") {
+                if(opinion == "discarded"){
+                    discard_keyword(div);
+                }
+                if(opinion == "approved"){
+                    add_keyword(div); 
+                }                
+            };
+        });
+}
+
 function show_keywords(){
     var keyword_list = $("#keywords");
     keyword_list.empty();
@@ -20,8 +34,8 @@ function show_keywords(){
         }
         var new_keyword_element = $("<div class='keyword'></div>");
         var buttons = $("<div class='keyword_buttons'></div>");
-        var add_button = $("<div class='add_keyword glyphicon glyphicon-ok' data-value='keyword' title='Add this keyword to list' onclick='add_keyword(this)' style='color:green; cursor:pointer;'></div>");
-        var discard_button = $("<div class='discard_keyword glyphicon glyphicon-remove' data-value='keyword' title='Discard this keywors' onclick='discard_keyword(this)' style='color:red; cursor:pointer;'></div>");
+        var add_button = $("<div class='add_keyword glyphicon glyphicon-ok' data-value='keyword' title='Add this keyword to list' onclick='send_user_opinion(this,\"approved\")' style='color:green; cursor:pointer;'></div>");
+        var discard_button = $("<div class='discard_keyword glyphicon glyphicon-remove' data-value='keyword' title='Discard this keywors' onclick='send_user_opinion(this,\"discarded\")' style='color:red; cursor:pointer;'></div>");
         buttons.append(discard_button);
         buttons.append(add_button);
         new_keyword_element.append(buttons);
@@ -61,4 +75,17 @@ function append_keywords(index,keyword){
     }
     suggested_keywords.push(keyword);
     show_keywords();
+};
+
+$(document).ready(function () {
+    if (top.location.pathname === '/modify'){ //run only on modify page
+    suggest_keywords_from_forms();
+    }
+});
+
+function suggest_keywords_from_forms(){
+    url_fields = $("#signupForm").find("#websiteInput");
+    for(i=0;i<url_fields.length;i++){
+        fetch_suggested_keywords(url_fields[i].value)
+    }
 };
