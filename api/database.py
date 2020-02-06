@@ -18,8 +18,9 @@ def getDb():
 
 
 def getUserIDs(fromID, max):
-    """This method returns the total number of users a list of user ids and at wich id the results starts.
-    The result ids will start from 'fromID', and there will be no up to 'max' nubmer of ids."""
+    """This method returns the total number of users,
+    a list of user ids starting at 'fromID' until 'fromID' + 'max',
+    and at which id the results starts."""
     cur = getDb().cursor()
 
     cur.execute("SELECT COUNT(*) FROM users")
@@ -95,8 +96,8 @@ def getArticleIDs(date):
 
 
 def checkArticlesExists(ids):
-    """Takes in a list of articleIDs and returns a list of the IDs that did not match any articles
-    in the database."""
+    """Takes in a list of articleIDs and returns a list of the IDs that did not
+    match any articles in the database."""
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
 

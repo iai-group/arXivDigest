@@ -10,10 +10,11 @@ from mysql import connector
 from uuid import uuid4
 from passlib.hash import pbkdf2_sha256
 from frontend.database.db import getDb
+from mysql.connector import errorcode
 
 
 def getUser(id):
-    '''Return user as a dictionary. Include webpages and categories as sub dictionaries'''
+    """Return user as a dictionary. Include webpages and categories as sub dictionaries"""
     cur = getDb().cursor()
     sql = '''SELECT user_ID, email, salted_hash, firstname, lastname, keywords, 
     notification_interval, registered
@@ -46,7 +47,7 @@ def getUser(id):
 
 
 def updatePassword(id, password):
-    '''Hash and update password to user with id. Returns True on success"'''
+    """Hash and update password to user with id. Returns True on success\""""
     conn = getDb()
     cur = conn.cursor()
     passwordsql = 'UPDATE users SET salted_hash = %s WHERE user_ID = %s'
@@ -59,7 +60,7 @@ def updatePassword(id, password):
 
 
 def insertUser(user):
-    '''Insert user object, webpages and categories into database. Return error or users id'''
+    """Insert user object, webpages and categories into database. Return error or users id"""
     conn = getDb()
     cur = conn.cursor()
     usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,DEFAULT,%s,false)'
@@ -87,8 +88,8 @@ def insertUser(user):
 
 
 def insertSystem(system):
-    '''Inserts a new system into the database, name will be used as Name for the system,
-    and using uuid a random API-key is generated. Returns None if successfull and an error if not.'''
+    """Inserts a new system into the database, name will be used as Name for the system,
+    and using uuid a random API-key is generated. Returns None if successfull and an error if not."""
     conn = getDb()
     cur = conn.cursor()
     sql = 'INSERT INTO systems VALUES(null,%s,%s,%s,%s,%s,False)'
@@ -108,7 +109,7 @@ def insertSystem(system):
 
 
 def updateUser(userid, user):
-    '''Update user with userid. User object contains new info for this user. Returns True on Success'''
+    """Update user with userid. User object contains new info for this user. Returns True on Success"""
     conn = getDb()
     cur = conn.cursor()
     usersql = 'UPDATE users SET email = %s, firstname = %s, lastname = %s, keywords = %s, notification_interval = %s WHERE user_ID = %s'
@@ -133,8 +134,8 @@ def updateUser(userid, user):
 
 
 def validatePassword(email, password):
-    '''Checks if users password is correct. Returns userid if correct password, none if user does not exists and
-    false if incorrect password'''
+    """Checks if users password is correct. Returns userid if correct password, none if user does not exists and
+    false if incorrect password"""
     cur = getDb().cursor()
     sql = 'SELECT user_ID,salted_Hash FROM users WHERE email = %s'
     cur.execute(sql, (email,))
@@ -149,7 +150,7 @@ def validatePassword(email, password):
 
 
 def userExist(email):
-    '''Checks if email is already in use by another user. Returns True if in use and False if not.'''
+    """Checks if email is already in use by another user. Returns True if in use and False if not."""
     cur = getDb().cursor()
     sql = 'SELECT EXISTS(SELECT user_ID FROM users WHERE email = %s)'
     cur.execute(sql, (email,))
@@ -159,12 +160,13 @@ def userExist(email):
 
 
 def getCategoryNames():
-    '''Returns list of article categories available in the database'''
+    """Returns list of article categories available in the database"""
     cur = getDb().cursor()
     cur.execute('SELECT category_ID,category_name FROM categories')
     data = cur.fetchall()
     cur.close()
     return [[x[0], x[1]] for x in data]
+
 
 def get_keywords_from_titles(titles, quantity, userid):
     """Returns dict of keywords and scores for a list of scientific paper titles.
@@ -172,36 +174,41 @@ def get_keywords_from_titles(titles, quantity, userid):
     keywords = {}
     cur = getDb().cursor()
     title_list = tuple(titles)
-    sql = "SELECT keyword, score FROM keywords WHERE title IN {}".format(title_list)    
+    sql = "SELECT keyword, score FROM keywords WHERE title IN {}".format(
+        title_list)
     cur.execute(sql)
     data = cur.fetchall()
     cur.close()
     if not data:
         return []
     for keyword in data:
-        if get_keyword_opinion(userid, keyword[0]) == "discarded": #checks users opinion on keyword
+        # checks users opinion on keyword
+        if get_keyword_opinion(userid, keyword[0]) == "discarded":
             continue
         if keyword[0] in keywords:
             keywords[0] += keyword[1]
             continue
         keywords[keyword[0]] = keyword[1]
-    sorted_keywords = sorted(keywords.items(), key=lambda kv: kv[1], reverse=True)
-    return [keyword for keyword,_ in sorted_keywords[0:quantity]]
+    sorted_keywords = sorted(
+        keywords.items(), key=lambda kv: kv[1], reverse=True)
+    return [keyword for keyword, _ in sorted_keywords[0:quantity]]
 
-def store_keyword_opinion(userid,keyword,opinion):
+
+def store_keyword_opinion(userid, keyword, opinion):
     """Stores the users opinion on a keyword to the db.
     Returns true on success and false on failure"""
     sql = 'INSERT IGNORE INTO keyword_opinions VALUES(%s, %s, %s)'
     conn = getDb()
     cur = conn.cursor()
     try:
-        cur.execute(sql,(userid, keyword, opinion))
+        cur.execute(sql, (userid, keyword, opinion))
     except:
         cur.close()
         return False
     cur.close()
     conn.commit()
     return True
+
 
 def get_keyword_opinion(userid, keyword):
     """Checks if the user has discarded or approved a keyword earlier.
@@ -210,7 +217,7 @@ def get_keyword_opinion(userid, keyword):
     conn = getDb()
     cur = conn.cursor()
     try:
-        cur.execute(sql,(userid, keyword))
+        cur.execute(sql, (userid, keyword))
     except Exception as e:
         cur.close()
         return "no opinion"
@@ -219,3 +226,17 @@ def get_keyword_opinion(userid, keyword):
     if opinion == None:
         return "no opinion"
     return opinion[0]
+
+
+def insertFeedback(user_id, article_id, type, feedback_text):
+    """Inserts feedback into the database. Returns None if successful and an error if not."""
+    conn = getDb()
+    cur = conn.cursor()
+    sql = 'INSERT INTO feedback (user_ID, article_ID, type, feedback_text) VALUES(%s, %s, %s, %s)'
+    try:
+        cur.execute(sql, (user_id, article_id, type, feedback_text))
+    except mysql.connector.errors.IntegrityError as e:
+        if e.errno == errorcode.ER_NO_REFERENCED_ROW_2:
+            return "Unknown article id."
+        raise
+    conn.commit()

@@ -3,6 +3,7 @@ mysql-connector-python
 PyJWT
 Flask
 passlib
+nltk
 Flask-Assets
 jsmin
 elasticsearch

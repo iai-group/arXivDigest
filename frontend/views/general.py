@@ -16,8 +16,8 @@ mod = Blueprint('general', __name__)
 
 @mod.route('/login', methods=['POST'])
 def login():
-    '''Logs in user based on username and password from form. Returns proper error message on template if 
-    anything is wrong. Else returns index page and authToken'''
+    """Logs in user based on username and password from form. Returns proper error message on template if
+    anything is wrong. Else returns index page and authToken"""
     if g.loggedIn:
         flash('You can\'t login while you\'re already logged in.', 'danger')
         return redirect(url_for('articles.index'))
@@ -38,7 +38,7 @@ def login():
 
 @mod.route('/login', methods=['GET'])
 def loginPage():
-    '''Returns login page or index page if already logged in'''
+    """Returns login page or index page if already logged in"""
     if g.loggedIn:
         return redirect(url_for('articles.index'))
     next = request.args.get('next')
@@ -51,7 +51,7 @@ def loginPage():
 
 @mod.route('/logout', methods=['GET'])
 def logout():
-    '''Returns login page and sets cookie expire time to 0, so that the user gets logged out'''
+    """Returns login page and sets cookie expire time to 0, so that the user gets logged out"""
     resp = make_response(redirect(url_for('general.loginPage')))
     resp.set_cookie('auth', '', expires=0)
     g.user = None
@@ -61,8 +61,8 @@ def logout():
 
 @mod.route('/signup', methods=['POST'])
 def signup():
-    '''Takes data from signup form and creates an userobject. Sends user object to signup database function. Returns
-    signup page with relevant error or index page and authToken'''
+    """Takes data from signup form and creates an userobject. Sends user object to signup database function. Returns
+    signup page with relevant error or index page and authToken"""
     if g.loggedIn:
         flash('You can not register an account while you are already logged in.', 'danger')
         return redirect(url_for('articles.index'))
@@ -85,7 +85,7 @@ def signup():
 
 @mod.route('/signup', methods=['GET'])
 def signupPage():
-    '''Returns signup page or index page if already logged in'''
+    """Returns signup page or index page if already logged in"""
     if g.loggedIn:
         return redirect(url_for('articles.index'))
     return render_template('signup.html', categoryList=db.getCategoryNames())
@@ -94,8 +94,8 @@ def signupPage():
 @mod.route('/passwordChange', methods=['POST'])
 @requiresLogin
 def passwordChange():
-    '''Gets old and new password from form. Returns password change template with relevant error 
-    or profile page on success'''
+    """Gets old and new password from form. Returns password change template with relevant error
+    or profile page on success"""
     data = request.form
     if not data['password'] == data['confirmPassword']:
         flash('Passwords must match.', 'danger')
@@ -113,15 +113,15 @@ def passwordChange():
 @mod.route('/passwordChange', methods=['GET'])
 @requiresLogin
 def passwordChangePage():
-    '''Returns password change template'''
+    """Returns password change template"""
     return render_template('passwordChange.html')
 
 
 @mod.route('/modify', methods=['POST'])
 @requiresLogin
 def modify():
-    '''Gets new user data from form. creates user object and sends old user data and new user data to database update
-    user function. Returns user modify template with relevant error or user profile template.'''
+    """Gets new user data from form. creates user object and sends old user data and new user data to database update
+    user function. Returns user modify template with relevant error or user profile template."""
     form = request.form
     data = form.to_dict()
     data['website'] = form.getlist('website')
@@ -139,7 +139,7 @@ def modify():
 @mod.route('/modify', methods=['GET'])
 @requiresLogin
 def modifyPage():
-    '''Returns user modification template with user data filled out'''
+    """Returns user modification template with user data filled out"""
     user = db.getUser(g.user)
     return render_template('modify.html', user=user, categoryList=db.getCategoryNames())
 
@@ -147,14 +147,14 @@ def modifyPage():
 @mod.route('/profile', methods=['GET'])
 @requiresLogin
 def profile():
-    '''Returns user profile page with user info'''
+    """Returns user profile page with user info"""
     user = db.getUser(g.user)
     return render_template('profile.html', user=user)
 
 
 @mod.route('/system/register', methods=['POST'])
 def registerSystem():
-    '''Registers a system or returns an error if something went wrong.'''
+    """Registers a system or returns an error if something went wrong."""
     form = request.form.to_dict()
     try:
         system = System(form)
@@ -171,7 +171,7 @@ def registerSystem():
 
 @mod.route('/system/register', methods=['GET'])
 def registerSystemPage():
-    '''Returns page for registering a new system'''
+    """Returns page for registering a new system"""
     return render_template('registerSystem.html')
 
 @mod.route('/author_keywords/<path:author_url>', methods=['GET'])
@@ -196,8 +196,40 @@ def send_user_opinion(keyword, opinion):
     else:
         return jsonify(results="fail")
 
+@mod.route('/feedback/', methods=['GET'])
+@requiresLogin
+def feedbackPage():
+    """Returns feedback page with list of articles."""
+    article_id = request.args.get('articleID', '', type=str)
+    return render_template('feedback.html', endpoint='general.feedback', article_id=article_id)
+
+
+@mod.route('/feedback/', methods=['POST'])
+def submitFeedback():
+    """Submits the feedback form."""
+    form = request.form.to_dict()
+    try:
+        feedback_type = form['feedback_type']
+        feedback_text = form['feedback_text']
+        if feedback_type in ['Explanation', 'Recommendation']:
+            article_id = form['article_id']
+        else:
+            article_id = None
+    except KeyError:
+        flash('All fields must be filled in.', 'danger')
+        return render_template('feedback.html', endpoint='general.feedback')
+
+    err = db.insertFeedback(g.user, article_id, feedback_type, feedback_text)
+    if err:
+        flash(err, 'danger')
+        return render_template('feedback.html', endpoint='general.feedback')
+
+    flash('Successfully sent feedback.', 'success')
+    return redirect('/')
+
+
 def makeAuthTokenResponse(id, email, next):
-    '''creates an authToken for a user with id and email. Then redirects to next'''
+    """creates an authToken for a user with id and email. Then redirects to next"""
     authToken = encode_auth_token(id, email)
     resp = make_response(redirect(next))
     resp.set_cookie('auth', authToken, max_age=60 * 60 * 24 * 10)
