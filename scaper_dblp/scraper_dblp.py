@@ -102,7 +102,7 @@ def database_insert_keywords(conn, data):
 def clear_keyword_database(conn):
     """Clears keyword table in database for titles and keywords."""
     cur = conn.cursor()
-    clear_sql = 'DELETE FROM keywords;'
+    clear_sql = 'TRUNCATE TABLE keywords;'
     cur.execute(clear_sql)
     conn.commit()
     cur.close()
