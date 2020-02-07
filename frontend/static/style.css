@@ -615,7 +615,7 @@ code {
   margin-top: 1px;
 }
 
-#keyword_info{
+#keyword_info, #keyword_error{
   font-size: 0.9em;
   color: rgb(134, 134, 134);
   margin-left: 10px;

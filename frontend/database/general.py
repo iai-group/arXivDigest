@@ -180,7 +180,7 @@ def get_keywords_from_titles(titles, quantity, userid):
     data = cur.fetchall()
     cur.close()
     if not data:
-        return []
+        raise ValueError("No matching publications in database")
     for keyword in data:
         # checks users opinion on keyword
         if get_keyword_opinion(userid, keyword[0]) == "discarded": # TODO join instead

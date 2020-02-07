@@ -178,13 +178,12 @@ def registerSystemPage():
 def author_keywords(author_url):
     """Endpoint for fetching an authors keywords from their dblp article url.
     Returns list of keywords or an empty string for failure."""
-    author_titles = find_author_titles(author_url) 
-    if author_titles == '':
-        return jsonify(keywords='') # TODO weird error handling,
-    keywords = db.get_keywords_from_titles(author_titles, 30, g.user)
-    if len(keywords) > 0:
-        return jsonify(keywords=keywords)
-    return jsonify(keywords='') # TODO weird error handling, especially considering the returnvalue of the previous function
+    try:
+        author_titles = find_author_titles(author_url)
+        keywords = db.get_keywords_from_titles(author_titles, 30, g.user)
+    except Exception as e:
+        return jsonify(error=str(e))
+    return jsonify(keywords=keywords)
 
 @mod.route('/keyword_opinion/<keyword>/<opinion>', methods=['GET'])
 def send_user_opinion(keyword, opinion):
@@ -226,7 +225,6 @@ def submitFeedback():
 
     flash('Successfully sent feedback.', 'success')
     return redirect('/')
-
 
 def makeAuthTokenResponse(id, email, next):
     """creates an authToken for a user with id and email. Then redirects to next"""
