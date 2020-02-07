@@ -12,4 +12,4 @@ def find_author_titles(author_url):
         author_titles = get_dblp_titles(author_url)
         return author_titles
     else:
-        raise ValueError("Webpage is not supported")
+        raise ValueError('Webpage is not supported')

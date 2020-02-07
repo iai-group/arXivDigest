@@ -11,6 +11,7 @@ from uuid import uuid4
 from passlib.hash import pbkdf2_sha256
 from frontend.database.db import getDb
 from mysql.connector import errorcode
+from datetime import datetime
 
 
 def getUser(id):
@@ -169,21 +170,21 @@ def getCategoryNames():
 
 
 def get_keywords_from_titles(titles, quantity, userid):
-    """Returns dict of keywords and scores for a list of scientific paper titles.
+    """Returns a list of keywords for a list of scientific paper titles.
     Can also specify quantity of keywords to return."""
+    titles=['pepsi max']
     keywords = {}
     cur = getDb().cursor()
-    title_list = tuple(titles)
-    sql = "SELECT keyword, score FROM keywords WHERE title IN {}".format(
-        title_list)
-    cur.execute(sql)
+    format_strings = ','.join(['%s'] * len(titles))
+    sql = 'SELECT keyword, score FROM keywords WHERE title IN (%s)' % format_strings
+    cur.execute(sql, titles)
     data = cur.fetchall()
     cur.close()
     if not data:
-        raise ValueError("No matching publications in database")
+        raise ValueError('No matching publications in database')
     for keyword in data:
         # checks users opinion on keyword
-        if get_keyword_opinion(userid, keyword[0]) == "discarded": # TODO join instead
+        if get_keyword_opinion(userid, keyword[0]) == 'discarded': # TODO join instead
             continue
         if keyword[0] in keywords:
             keywords[0] += keyword[1]
@@ -197,11 +198,13 @@ def get_keywords_from_titles(titles, quantity, userid):
 def store_keyword_opinion(userid, keyword, opinion):
     """Stores the users opinion on a keyword to the db.
     Returns true on success and false on failure"""
-    sql = 'INSERT IGNORE INTO keyword_opinions VALUES(%s, %s, %s)'
+    sql = 'INSERT IGNORE INTO keyword_opinions VALUES(%s, %s, %s, %s)'
     conn = getDb()
     cur = conn.cursor()
+    now = datetime.now()
+    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
     try:
-        cur.execute(sql, (userid, keyword, opinion))
+        cur.execute(sql, (userid, keyword, opinion, formatted_date))
     except:
         cur.close()
         return False

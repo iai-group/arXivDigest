@@ -1,10 +1,10 @@
 function fetch_suggested_keywords(value) {
+    $("#keyword_error").html("");
     $("#keyword_info").html("Loading suggested keywords...");
     $.getJSON("/author_keywords/" + value, {},
         function (data) {
             if (data.error == null) { 
                 $.each(data.keywords, append_keywords); //ajax result contains a list of keywords (top 8 shown on website)
-                $("#keyword_error").html("");
             }else{
                 $("#keyword_error").html(data.error);
             }

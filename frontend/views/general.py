@@ -181,7 +181,7 @@ def author_keywords(author_url):
     try:
         author_titles = find_author_titles(author_url)
         keywords = db.get_keywords_from_titles(author_titles, 30, g.user)
-    except Exception as e:
+    except ValueError as e:
         return jsonify(error=str(e))
     return jsonify(keywords=keywords)
 
@@ -191,9 +191,9 @@ def send_user_opinion(keyword, opinion):
     Returns success or fail"""
     success = db.store_keyword_opinion(g.user, keyword, opinion)
     if success:
-        return jsonify(result="success")
+        return jsonify(result='success')
     else:
-        return jsonify(results="fail")
+        return jsonify(results='fail')
 
 @mod.route('/feedback/', methods=['GET'])
 @requiresLogin

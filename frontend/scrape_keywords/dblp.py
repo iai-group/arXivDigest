@@ -17,7 +17,7 @@ def get_pid(auth_url):
     if pid_element:
         return pid_element.text
     else:
-        raise ValueError("No pid adress found on author page")
+        raise ValueError('No pid adress found on author page')
 
 def get_titles_from_pid(pid):
     """Returns a list of titles from an author using the authors PID web
@@ -29,7 +29,7 @@ def get_titles_from_pid(pid):
     if titles:
         return [title.text for title in titles]
     else:
-        raise ValueError("Author has no publicated papers")
+        raise ValueError('Author has no publicated papers')
 
 def get_dblp_titles(author_url):
     """Fetches the author pid and then the author paper titles.
