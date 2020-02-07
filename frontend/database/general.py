@@ -172,7 +172,6 @@ def getCategoryNames():
 def get_keywords_from_titles(titles, quantity, userid):
     """Returns a list of keywords for a list of scientific paper titles.
     Can also specify quantity of keywords to return."""
-    titles=['pepsi max']
     keywords = {}
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(titles))
