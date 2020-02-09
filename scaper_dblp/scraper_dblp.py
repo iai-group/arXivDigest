@@ -24,10 +24,9 @@ with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
 try:
     import rake
 except:
-    sys.path.append(sys.path[0] + '/../')
-from scripts.rake import Metric
-from scripts.rake import Rake
-
+    sys.path.append(os.path.abspath('../scripts/'))
+from rake import Rake
+from rake import Metric
 
 def download_dump(dump_url, dump_path):
     """Downloads a dblp dump file to disk."""
