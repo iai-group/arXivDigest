@@ -180,7 +180,7 @@ def author_keywords(author_url):
     Returns list of keywords or an empty string for failure."""
     try:
         author_titles = find_author_titles(author_url)
-        keywords = db.get_keywords_from_titles(author_titles, 30, g.user)
+        keywords = db.get_keywords_from_titles(author_titles)
     except ValueError as e:
         return jsonify(error=str(e))
     return jsonify(keywords=keywords)

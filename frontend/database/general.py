@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import collections
+
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
@@ -12,6 +14,7 @@ from passlib.hash import pbkdf2_sha256
 from frontend.database.db import getDb
 from mysql.connector import errorcode
 from datetime import datetime
+from collections import defaultdict
 
 
 def getUser(id):
@@ -75,7 +78,8 @@ def insertUser(user):
     user.hashedPassword = pbkdf2_sha256.hash(password)
     curdate = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
     cur.execute(usersql, (user.email, user.hashedPassword,
-                          user.firstName, user.lastName, user.keywords, user.digestfrequency, curdate))
+                          user.firstName, user.lastName, user.keywords,
+                          user.digestfrequency, curdate))
     id = cur.lastrowid
     userCategories = [(id, x) for x in user.categories]
     userWebpages = [(id, x) for x in user.webpages]
@@ -121,7 +125,8 @@ def updateUser(userid, user):
     userWebpages = [(user.email, x) for x in user.webpages]
 
     cur.execute(usersql, (user.email, user.firstName,
-                          user.lastName, user.keywords, user.digestfrequency, userid))
+                          user.lastName, user.keywords, user.digestfrequency,
+                          userid))
     cur.execute('DELETE FROM user_webpages WHERE user_ID = %s', (userid,))
     cur.execute('DELETE FROM user_categories WHERE user_ID = %s', (userid,))
     userCategories = [(userid, x) for x in user.categories]
@@ -169,29 +174,42 @@ def getCategoryNames():
     return [[x[0], x[1]] for x in data]
 
 
-def get_keywords_from_titles(titles, quantity, userid):
+def get_keywords_from_titles(titles, quantity=1000):
     """Returns a list of keywords for a list of scientific paper titles.
     Can also specify quantity of keywords to return."""
-    keywords = {}
-    cur = getDb().cursor()
-    format_strings = ','.join(['%s'] * len(titles))
-    sql = 'SELECT keyword, score FROM keywords WHERE title IN (%s)' % format_strings
-    cur.execute(sql, titles)
+    cur = getDb().cursor(dictionary=True)
+
+    sql = f'''SELECT o.opinion, k.title, k.keyword, k.score FROM keywords k 
+              NATURAL LEFT JOIN keyword_opinions o
+              WHERE title IN ({','.join(['%s'] * len(titles))}) 
+              AND (o.user_ID = %s OR o.user_ID IS NULL) 
+              UNION 
+              SELECT null, k.title, k.keyword, k.score FROM keywords k   
+              WHERE title IN ({','.join(['%s'] * len(titles))})
+              ORDER BY score DESC LIMIT %s;'''
+
+    cur.execute(sql, (*titles, g.user, *titles, quantity))
     data = cur.fetchall()
     cur.close()
+
     if not data:
         raise ValueError('No matching publications in database')
-    for keyword in data:
-        # checks users opinion on keyword
-        if get_keyword_opinion(userid, keyword[0]) == 'discarded': # TODO join instead
+
+    rows = defaultdict(list)
+    for row in data:  # Some keyword-title pairs has two rows
+        rows[(row['title'], row['keyword'])].append(row)
+
+    keywords = defaultdict(int)
+    for row in rows.values():
+        if len(row) > 1:  # Only keep the row containing 'opinion'
+            row = row[0] if row[0]['opinion'] else row[1]
+        else:
+            row = row[0]
+        if row['opinion'] == 'discarded':
             continue
-        if keyword[0] in keywords:
-            keywords[0] += keyword[1]
-            continue
-        keywords[keyword[0]] = keyword[1]
-    sorted_keywords = sorted(
-        keywords.items(), key=lambda kv: kv[1], reverse=True)
-    return [keyword for keyword, _ in sorted_keywords[0:quantity]]
+        keywords[row['keyword']] += row['score']
+
+    return keywords
 
 
 def store_keyword_opinion(userid, keyword, opinion):
