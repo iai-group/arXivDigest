@@ -110,20 +110,11 @@ def clear_keyword_database(conn):
 
 if __name__ == '__main__':
     conn = connector.connect(**config.get("sql_config"))
-    # TODO cleanup
     clear_keyword_database(conn)
-    # download_dump(dump_url, dump_file_path)
-    import pickle
-    from pprint import pprint
 
-    # titles = find_dblp_titles(dump_file_path)
-    # pickle.dump(titles, open("save.p", "wb"))
-    titles = pickle.load(open("save.p", "rb"))[:10000]
-
+    download_dump(dump_url, dump_file_path)
+    titles = find_dblp_titles(dump_file_path)
     keywords = find_dblp_keywords(titles, keyword_lenght)
-
-    # pickle.dump(keywords, open("keywords.p", "wb"))
-    # keywords = pickle.load(open("keywords.p", "rb"))
-
     match_keywords(conn, titles, keywords, keyword_lenght)
+
     conn.close()
