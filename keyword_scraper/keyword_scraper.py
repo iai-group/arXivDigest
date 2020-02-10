@@ -16,7 +16,7 @@ import os
 
 with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
     config = json.load(f)
-    scraper_dblp_config = config.get('scraper_dblp_config')
+    scraper_dblp_config = config.get('keyword_scraper_config')
     dump_url = scraper_dblp_config.get('dblp_dump_link')
     dump_file_path = scraper_dblp_config.get('dblp_save_path')
     keyword_lenght = scraper_dblp_config.get('max_keyword_length')

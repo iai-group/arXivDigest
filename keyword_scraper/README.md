@@ -26,6 +26,7 @@ Following functions are used in the execution of the scraper_dblp.py script:
 This script interacts with one database table shown below.
 
 | Tables | Fields |
+| ---    |    --- |
 | keywords | id, title, keyword, score |
 
 ## Usage
@@ -36,7 +37,7 @@ The dump is updated daily, but with no version number and unknown number of chan
 
  The script can be run directly with the python command: 
 ```
-python scraper_dblp.py
+python keyword_scraper.py
 ```
 
 ## Depencencies
