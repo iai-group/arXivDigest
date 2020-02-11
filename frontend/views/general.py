@@ -9,7 +9,7 @@ from frontend.models.validate import validPassword
 from frontend.models.errors import ValidationError
 from frontend.database import general as db
 from frontend.utils import encode_auth_token, requiresLogin
-from frontend.scrape_keywords.find_titles import find_author_titles
+from frontend.scrape_titles.find_titles import find_author_titles
 
 mod = Blueprint('general', __name__)
 
