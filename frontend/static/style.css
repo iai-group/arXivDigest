@@ -457,15 +457,6 @@ code {
   padding-right: 20%;
 }
 
-#indexDiv{
-  position: absolute;
-  right:10px;
-  bottom:5px;
-  margin: 0px;
-  color:rgb(151, 151, 151);
-  font-size: 1em;
-}
-
 #article_id{
   font-size: 1.5em;
   color: black;
