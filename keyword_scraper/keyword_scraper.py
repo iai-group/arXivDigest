@@ -13,6 +13,8 @@ import json
 from nltk.util import ngrams
 import sys
 import os
+from rake import Rake
+from rake import Metric
 
 with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
     config = json.load(f)
@@ -21,12 +23,6 @@ with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
     dump_file_path = scraper_dblp_config.get('dblp_save_path')
     keyword_lenght = scraper_dblp_config.get('max_keyword_length')
 
-try:
-    import rake
-except:
-    sys.path.append(os.path.abspath('../scripts/'))
-from rake import Rake
-from rake import Metric
 
 def download_dump(dump_url, dump_path):
     """Downloads a dblp dump file to disk."""
@@ -57,14 +53,15 @@ def find_dblp_titles(file_path):
 
 def find_dblp_keywords(titles, keyword_lenght):
     """Uses rake to find keywords for set of all dblp titles.
-    Return keyword and score in nested lists."""
+    Return keyword and score in dictionary."""
     print('Creates keywords from dumped titles')
     r = Rake(keyword_lenght, Metric.WORD_FREQUENCY)
     r.extract_keyword_from_sentences(titles)
     rank_list = r.get_keywords_with_score()
     new_keywords = {}
     for score, word in rank_list:
-        new_keywords[word] = score
+        if len(word) < 75:
+            new_keywords[word] = score
     return new_keywords
 
 
