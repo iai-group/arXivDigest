@@ -8,13 +8,14 @@ The script prints the result in a table when its done calculating.
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
+import os
 from mysql import connector
 import json
 from collections import defaultdict
 import argparse
-import sys
 from datetime import datetime
-with open('config.json', 'r') as f:
+
+with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
     config = json.load(f)
     evalconfig = config.get('evaluation_config')
 
