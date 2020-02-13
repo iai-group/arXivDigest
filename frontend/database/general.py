@@ -174,13 +174,13 @@ def getCategoryNames():
     return [[x[0], x[1]] for x in data]
 
 
-def get_keywords_from_titles(titles, quantity=1000):
+def get_keywords_from_titles(titles, num=1000):
     """Returns a list of keywords for a list of scientific paper titles.
-    Can also specify quantity of keywords to return."""
+    Can also specify the number of keywords to return."""
     cur = getDb().cursor(dictionary=True)
 
-    sql = f'''SELECT o.opinion, k.title, k.keyword, k.score FROM keywords k 
-              NATURAL LEFT JOIN keyword_opinions o
+    sql = f'''SELECT o.feedback, k.title, k.keyword, k.score FROM keywords k 
+              NATURAL LEFT JOIN keyword_feedback o
               WHERE title IN ({','.join(['%s'] * len(titles))}) 
               AND (o.user_ID = %s OR o.user_ID IS NULL) 
               UNION 
@@ -188,7 +188,7 @@ def get_keywords_from_titles(titles, quantity=1000):
               WHERE title IN ({','.join(['%s'] * len(titles))})
               ORDER BY score DESC LIMIT %s;'''
 
-    cur.execute(sql, (*titles, g.user, *titles, quantity))
+    cur.execute(sql, (*titles, g.user, *titles, num))
     data = cur.fetchall()
     cur.close()
 
@@ -201,27 +201,27 @@ def get_keywords_from_titles(titles, quantity=1000):
 
     keywords = defaultdict(int)
     for row in rows.values():
-        if len(row) > 1:  # Only keep the row containing 'opinion'
-            row = row[0] if row[0]['opinion'] else row[1]
+        if len(row) > 1:  # Only keep the row containing 'feedback'
+            row = row[0] if row[0]['feedback'] else row[1]
         else:
             row = row[0]
-        if row['opinion'] == 'discarded':
+        if row['feedback'] == 'discarded':
             continue
         keywords[row['keyword']] += row['score']
 
     return keywords
 
 
-def store_keyword_opinion(userid, keyword, opinion):
-    """Stores the users opinion on a keyword to the db.
+def store_keyword_feedback(userid, keyword, feedback):
+    """Stores the users feedback on a keyword to the db.
     Returns true on success and false on failure"""
-    sql = 'INSERT IGNORE INTO keyword_opinions VALUES(%s, %s, %s, %s)'
+    sql = 'INSERT IGNORE INTO keyword_feedback VALUES(%s, %s, %s, %s)'
     conn = getDb()
     cur = conn.cursor()
     now = datetime.now()
     formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
     try:
-        cur.execute(sql, (userid, keyword, opinion, formatted_date))
+        cur.execute(sql, (userid, keyword, feedback, formatted_date))
     except:
         cur.close()
         return False
@@ -230,22 +230,22 @@ def store_keyword_opinion(userid, keyword, opinion):
     return True
 
 
-def get_keyword_opinion(userid, keyword):
+def get_keyword_feedback(userid, keyword):
     """Checks if the user has discarded or approved a keyword earlier.
-    Returns approved, discarded or no opinion"""
-    sql = 'SELECT opinion FROM keyword_opinions WHERE user_ID = %s AND keyword = %s'
+    Returns approved, discarded or no feedback"""
+    sql = 'SELECT feedback FROM keyword_feedback WHERE user_ID = %s AND keyword = %s'
     conn = getDb()
     cur = conn.cursor()
     try:
         cur.execute(sql, (userid, keyword))
     except Exception as e:
         cur.close()
-        return "no opinion"
-    opinion = cur.fetchone()
+        return "no feedback"
+    feedback = cur.fetchone()
     cur.close()
-    if opinion == None:
-        return "no opinion"
-    return opinion[0]
+    if feedback == None:
+        return "no feedbCK"
+    return feedback[0]
 
 
 def insertFeedback(user_id, article_id, type, feedback_text):

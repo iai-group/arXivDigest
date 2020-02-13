@@ -185,11 +185,11 @@ def author_keywords(author_url):
         return jsonify(error=str(e))
     return jsonify(keywords=keywords)
 
-@mod.route('/keyword_opinion/<keyword>/<opinion>', methods=['GET'])
-def send_user_opinion(keyword, opinion):
-    """Endpoint for saving a users opinion on a suggested keyword.
+@mod.route('/keyword_feedback/<keyword>/<feedback>', methods=['GET'])
+def user_keyword_feedback(keyword, feedback):
+    """Endpoint for saving a users feedback on a suggested keyword.
     Returns success or fail"""
-    success = db.store_keyword_opinion(g.user, keyword, opinion)
+    success = db.store_keyword_feedback(g.user, keyword, feedback)
     if success:
         return jsonify(result='success')
     else:
