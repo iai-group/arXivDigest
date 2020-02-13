@@ -178,7 +178,10 @@ def insertRecommendations(recommendations):
     and inserts them into the system_recomendation table, replacing duplicate primary keys."""
     conn = getDb()
     cur = conn.cursor()
-    sql = "REPLACE INTO system_recommendations VALUES (%s, %s, %s, %s, %s, %s)"
+
+    sql = '''REPLACE INTO system_recommendations 
+             (user_ID, article_ID, system_ID, explanation, score, recommendation_date) 
+             VALUES (%s, %s, %s, %s, %s, %s)'''
     cur.executemany(sql, recommendations)
     cur.close()
     conn.commit()

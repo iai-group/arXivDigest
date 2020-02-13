@@ -71,24 +71,26 @@ def send_recommendations(recommendations, api_key, api_url, batch_size=100):
         request.urlopen(req)
 
 
-def make_user_recommendation(keywords, index):
+def make_user_recommendation(keywords, index, n_keywords_explanation=3):
     """Makes recommendations based on list of keywords and returns a list of
     articles. The score of each article is calculated as the sum of the score of
     each keyword, and the explanation is contains all keywords that matched an
-    article."""
-    article_scores = defaultdict(list)
-    article_keywords = defaultdict(list)
+    article.
+    'n_keywords_explanation' is how many of the top keywords that will be
+    included in the explaantion."""
+    articles = defaultdict(list)
     for keyword in keywords:
         for article in get_articles_by_keyword(keyword, index)['hits']['hits']:
-            article_scores[article['_id']].append(article['_score'])
-            article_keywords[article['_id']].append(keyword)
+            articles[article['_id']].append((article['_score'], keyword))
 
     result = []
-    for article_id in article_scores:
-        expl_str = ', '.join(article_keywords[article_id])
+    for article_id, score_keyword_list in articles.items():
+        sorted_keywords = [keyword for _, keyword in sorted(score_keyword_list)]
+        expl_str = ', '.join(sorted_keywords[:n_keywords_explanation])
         explanation = 'This article matches the keywords: {}'.format(expl_str)
+
         result.append({'article_id': article_id,
-                       'score': sum(article_scores[article_id]),
+                       'score': sum([score for score, _ in score_keyword_list]),
                        'explanation': explanation
                        })
     return result
