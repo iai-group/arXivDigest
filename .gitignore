@@ -2,3 +2,4 @@
 __pycache__
 .webassets-cache
 */static/gen/*
+/arXivDigest.egg-info/

@@ -17,7 +17,7 @@ def assembleMail(message, toadd, fromadd, subject):
     return message.as_string()
 
 
-class mailServer():
+class MailServer():
 
     def __init__(self, fromadd, password, host, port, templates):
         '''Starts and logs into mail server'''

@@ -4,16 +4,15 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import mysql.connector
 from flask import g
-from api.config import config
 from collections import defaultdict
-
+from core.config import sql_config
 """This module implements methods which the api uses to interface with the database"""
 
 
 def getDb():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = mysql.connector.connect(**config.get("sql_config"))
+        db = g._database = mysql.connector.connect(**sql_config)
     return db
 
 

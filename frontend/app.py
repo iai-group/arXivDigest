@@ -4,26 +4,20 @@ import os.path
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-from flask import Flask, render_template, request, make_response, g, redirect, logging
-from mysql import connector
-import os
-import sys
+from flask import Flask, request,  g
 import jwt
 from flask_assets import Environment
-try:
-    from frontend.config import config, jwtKey, secret_key
-    from frontend.views import general, admin, articles
-except:
-    sys.path.append(os.path.abspath(''))
-    from frontend.config import config, frontend_config, jwtKey, secret_key
-    from frontend.views import general, admin, articles
+
+from core.config import jwtKey, secret_key, frontend_config
+from frontend.views import general, admin, articles
+
 
 app = Flask(__name__)
 app.secret_key = secret_key
 app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
-app.config['MAX_CONTENT_LENGTH'] = config.get('MAX_CONTENT_LENGTH')
+app.config['MAX_CONTENT_LENGTH'] = frontend_config.get('MAX_CONTENT_LENGTH')
 assets = Environment(app)
 
 @app.before_request

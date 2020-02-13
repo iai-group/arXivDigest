@@ -9,10 +9,7 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 from scrapeMetadata import getCategories, harvestMetadataRss, getRecordsFromLastnDays
 from categories import subCategoryNames
 from mysql import connector
-import json
-
-with open('../config.json', 'r') as f:
-    config = json.load(f)
+from core.config import sql_config
 
 
 def insertIntoDB(metaData, conn):
@@ -85,5 +82,5 @@ def insertCategories(metaData, cursor):
 
 
 if __name__ == '__main__':
-    conn = connector.connect(**config.get("sql_config"))
+    conn = connector.connect(**sql_config)
     insertIntoDB(harvestMetadataRss(), conn)
