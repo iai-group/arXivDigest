@@ -55,9 +55,9 @@
             <p class="articleAuthors">{{ article.authors }}</p>
             <p class="articleDescription">{{ article.abstract }}</p>
             <span>
-                <span class='explanation'>{{ article.explanation }}</span>
+                <span style="max-width: 75%;"><p class='explanation'>{{ article.explanation }}</p></span>
                 <span class='feedback'>
-                    <a href="{{ url_for('general.feedbackPage',articleID=article.article_ID) }}">
+                    <a href="{{ url_for('general.feedbackPage',articleID=article.article_ID) }}" style="color: rgb(90, 90, 90);">
                         Feedback
                     </a>
                 </span>

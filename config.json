@@ -19,7 +19,7 @@
         "MAX_ARTICLEDATA_REQUEST": 100,
         "MAX_RECOMMENDATION_USERS": 100,
         "MAX_RECOMMENDATION_ARTICLES": 10,
-        "MAX_EXPLANATION_LEN": 100
+        "MAX_EXPLANATION_LEN": 700
     },
     "interleave_config": {
         "systems_multileaved_per_user": 3,
@@ -37,5 +37,10 @@
         "liked_weight": 5,
         "clicked_web_weight": 3,
         "clicked_email_weight": 3
+    },
+    "keyword_scraper_config": {
+        "max_keyword_length": 6,
+        "dblp_dump_link": "https://dblp.uni-trier.de/xml/dblp.xml.gz",
+        "dblp_save_path": "dblp.xml.gz"
     }
 }
