@@ -9,6 +9,7 @@ from frontend.models.validate import validPassword
 from frontend.models.errors import ValidationError
 from frontend.database import general as db
 from frontend.utils import encode_auth_token, requiresLogin
+from frontend.scrape_titles.find_titles import find_author_titles
 
 mod = Blueprint('general', __name__)
 
@@ -173,6 +174,26 @@ def registerSystemPage():
     """Returns page for registering a new system"""
     return render_template('registerSystem.html')
 
+@mod.route('/author_keywords/<path:author_url>', methods=['GET'])
+def author_keywords(author_url):
+    """Endpoint for fetching an authors keywords from their dblp article url.
+    Returns list of keywords or an empty string for failure."""
+    try:
+        author_titles = find_author_titles(author_url)
+        keywords = db.get_keywords_from_titles(author_titles)
+    except ValueError as e:
+        return jsonify(error=str(e))
+    return jsonify(keywords=keywords)
+
+@mod.route('/keyword_feedback/<keyword>/<feedback>', methods=['GET'])
+def user_keyword_feedback(keyword, feedback):
+    """Endpoint for saving a users feedback on a suggested keyword.
+    Returns success or fail"""
+    success = db.store_keyword_feedback(g.user, keyword, feedback)
+    if success:
+        return jsonify(result='success')
+    else:
+        return jsonify(results='fail')
 
 @mod.route('/feedback/', methods=['GET'])
 @requiresLogin
@@ -204,7 +225,6 @@ def submitFeedback():
 
     flash('Successfully sent feedback.', 'success')
     return redirect('/')
-
 
 def makeAuthTokenResponse(id, email, next):
     """creates an authToken for a user with id and email. Then redirects to next"""

@@ -58,6 +58,14 @@ Routes available:
 
 >Likes or unlikes articles from web, depending on current state. Returns "Success" or "Fail".
 
+``/author_keywords/<author_url> [GET]``
+
+>Scrapes the url provided for paper titles and looks up titles in database to find matching keywords. Returns "" or list of keywords.
+
+``/keyword_opinion/<keyword>/<opinion> [GET]``
+
+>Stores the suggested keyword for an user along with the users opinion on that keywors (discarded or approved). Returns "fail" or "success".
+
 ``/mail/like/<int:userID>/<string:articleID>/<uuid:trace> [GET]``
 
 >Likes article directly from email based on userid, articleid and a trace from the email.
@@ -117,6 +125,7 @@ Routes available:
 | system_recommendations | user_ID, article_ID, system_ID, score, recommendation_date |
 | systems | system_ID, api_key, system_name, active |
 | user_recommendations | user_ID, article_ID, system_ID, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email |
+| keywords | title, keyword, score |
 
 ## Setup
 

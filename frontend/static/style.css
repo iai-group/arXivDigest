@@ -598,3 +598,38 @@ code {
   border-radius:10px;
   padding:3px;
 }
+
+#keywords{ 
+  height:270px;
+  max-height: 270px;
+  margin-left: 30px;
+  margin-top: 20px;
+}
+
+.keyword{ 
+  height: 24px;
+  margin-bottom: 7px;
+  display: flex;
+  border-bottom: 1px solid grey;
+}
+
+.keyword:last-of-type{
+  border: none;
+}
+
+.keyword p{
+  float:right;
+  margin-left: 5px;
+}
+.keyword div{
+  float: right;
+  margin-right: 5px;
+  margin-top: 1px;
+}
+
+#keyword_info, #keyword_error{
+  font-size: 0.9em;
+  color: rgb(134, 134, 134);
+  margin-left: 10px;
+  text-align: center;
+}

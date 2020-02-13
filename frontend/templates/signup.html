@@ -1,6 +1,8 @@
 {% extends "base.html" %} {% block content %}
 <script>
     categoryList = {{ categoryList | tojson | safe }};
+    user_keywords = [];
+    suggested_keywords = [];
 </script>
 <div class="container">
 
@@ -18,6 +20,7 @@
                         <input type="email" id="email" name="email" placeholder="Your email.." required onblur="inputTouched(this)" autofocus size="254"
                             onfocus="removeTouched(this)">
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -31,6 +34,7 @@
                             required onblur="inputTouched(this)" size="256" oninput="this.value==confirmPassword.value ? confirmPassword.setCustomValidity(''): confirmPassword.setCustomValidity('Passwords must match.')"
                             onfocus="removeTouched(this)">
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -42,6 +46,7 @@
                             size="256" oninput="this.value==password.value ? this.setCustomValidity(''): this.setCustomValidity('Passwords must match.')"
                             onfocus="removeTouched(this)">
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -51,6 +56,7 @@
                         <input type="text" id="firstName" name="firstName" placeholder="First Name.." required onblur="inputTouched(this)" size="60"
                             onfocus="removeTouched(this)">
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -60,6 +66,7 @@
                         <input type="text" id="lastName" name="lastName" placeholder="Last Name.." required onblur="inputTouched(this);" size="60"
                             onfocus="removeTouched(this)">
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -67,19 +74,30 @@
                     </td>
                     <td>
                         <br>
-                        <p class="signupHint">Enter one or more webpages. Preferably your dblp, google profile or linkedIn</p>
+                        <p class="signupHint">Enter one or more webpages. Preferably your dblp, google scholar or linkedIn</p>
                         <input id="websiteInput" type="text" name="website" placeholder="Your website.." onblur="inputTouched(this);" onfocus="removeTouched(this)"
                             required size="1024">
+                        <p id="keyword_info"></p>
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
                         <label for="keywords" class="signupLabel">Keywords:</label>
                     </td>
                     <td>
-                        <br>
-                        <p class="signupHint">Enter your interests seperated by a comma</p>
-                        <input type="text" id="linkedin" name="keywords" placeholder="Enter interests seperated by comma.." size="255">
+                        <div style="height:300px;">
+                            <div>
+                                <br>
+                                <p class="signupHint">Enter your interests seperated by a comma or add suggested keywords from the list to the right</p>
+                                <textarea id="keyword_text" name="keywords" style="height:220px; resize: none;"></textarea>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div id="keywords">
+
+                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -98,6 +116,7 @@
                             <button id="addCategory">Add</button>
                         </div>
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -110,6 +129,7 @@
                         <br>
                         <input type="radio" name="digestFrequency" value="7 days">7 days
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td></td>
@@ -117,7 +137,7 @@
                         <br>
                         <input type="submit" value="Signup">
                     </td>
-
+                    <td></td>
                 </tr>
             </table>
 

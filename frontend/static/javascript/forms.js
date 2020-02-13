@@ -3,6 +3,9 @@ function inputTouched(input) {
         input.classList.remove("touched");
     } else {
         input.classList.add("touched");
+        if($(input).attr('id') === "websiteInput"){
+            fetch_suggested_keywords(input.value)
+        }
     }
 }
 

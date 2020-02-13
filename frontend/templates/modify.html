@@ -1,8 +1,12 @@
 {% extends "base.html" %} {% block content %}
 <script>
-    categoryList = {{ categoryList | safe }}
-    usercategories = {{ user.categories | safe }}
-
+    categoryList = {{ categoryList | safe }};
+    usercategories = {{ user.categories | safe }};
+    user_keywords = "{{ user.keywords | safe }}".split(",");
+    user_keywords = user_keywords.map(function (el) {
+        return el.trim();
+    });
+    suggested_keywords = [];
 </script>
 <div class="container">
 
@@ -18,8 +22,9 @@
                     <td>
                         <p class="signupHint">Your email will not be distributed.</p>
                         <input type="email" id="email" name="email" value="{{user.email}}" required onblur="inputTouched(this)" autofocus size="254"
-                            onfocus="removeTouched(this)">
+                            onfocus="removeTouched(this)" style="margin-bottom: 3px;">
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -29,6 +34,7 @@
                         <input type="text" id="firstName" name="firstName" value="{{user.firstName}}" required onblur="inputTouched(this)" size="60"
                             onfocus="removeTouched(this)">
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -38,6 +44,7 @@
                         <input type="text" id="lastName" name="lastName" value="{{user.lastName}}" required onblur="inputTouched(this);" size="60"
                             onfocus="removeTouched(this)">
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -45,20 +52,32 @@
                     </td>
                     <td>
                         <br>
-                        <p class="signupHint">Enter one or more webpages. Preferably your dblp, google profile or linkedIn</p>
+                        <p class="signupHint">Enter one or more webpages. Preferably your dblp, google scholar or linkedIn</p>
                         {%for page in user.webpages%}
                         <input id="websiteInput" type="text" name="website" value="{{page}}" onblur="inputTouched(this);" onfocus="removeTouched(this)"
                             required size="1024"> {%endfor%}
+                        <p id="keyword_info"></p>
+                        <p id="keyword_error" style="color: red;"></p>
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
                         <label for="keywords" class="signupLabel">Keywords:</label>
                     </td>
                     <td>
-                        <br>
-                        <p class="signupHint">Enter your interests seperated by a comma</p>
-                        <input type="text" id="linkedin" name="keywords" value="{{user.keywords}}" size="255">
+                        <div style="height:300px;">
+                            <div>
+                                <br>
+                                <p class="signupHint">Enter your interests seperated by a comma or add suggested keywords from the list to the right</p>
+                                <textarea id="keyword_text" name="keywords" style="height:220px; resize: none;">{{user.keywords}}</textarea>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div id="keywords">
+
+                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -77,6 +96,7 @@
                             <button id="addCategory">Add</button>
                         </div>
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td>
@@ -93,6 +113,7 @@
                         <br>
                         <input type="radio" name="digestFrequency" value="7 days">7 days {%endif%}
                     </td>
+                    <td></td>
                 </tr>
 
                 <tr>
@@ -101,6 +122,7 @@
                         <br>
                         <input type="submit" value="Update Profile">
                     </td>
+                    <td></td>
 
                 </tr>
             </table>
