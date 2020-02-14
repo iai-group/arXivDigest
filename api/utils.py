@@ -5,7 +5,7 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 from functools import wraps
 from flask import render_template, g, request, make_response, jsonify
 from uuid import UUID
-from api.config import APIconfig
+from core.config import api_config
 import api.database as db
 
 
@@ -44,8 +44,8 @@ def getUserlist(f):
             return make_response(jsonify({'error': 'No IDs supplied.'}, 400))
         if not all([x.isdigit() and int(x) > 0 for x in ids]):  # checks that all ids are valid
             return make_response(jsonify({'error': 'Invalid ids.'}), 400)
-        if len(ids) > APIconfig['MAX_USERINFO_REQUEST']:
-            err = 'You cannot request more than %s users at a time.' % APIconfig[
+        if len(ids) > api_config['MAX_USERINFO_REQUEST']:
+            err = 'You cannot request more than %s users at a time.' % api_config[
                 'MAX_USERINFO_REQUEST']
             return make_response(jsonify({'error': err}), 400)
 

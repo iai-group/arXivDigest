@@ -14,10 +14,8 @@ import json
 from collections import defaultdict
 import argparse
 from datetime import datetime
+from core.config import evaluation_config, sql_config
 
-with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
-    config = json.load(f)
-    evalconfig = config.get('evaluation_config')
 
 
 def valid_date(date):
@@ -46,7 +44,7 @@ args = parser.parse_args()
 
 
 # retrive user interactions for requested period
-conn = connector.connect(**config.get('sql_config'))
+conn = connector.connect(**sql_config)
 cur = conn.cursor(dictionary=True)
 sql = '''SELECT user_ID, system_ID, DATE(recommendation_date) as date,clicked_email,clicked_web,liked
          FROM user_recommendations WHERE  DATE(recommendation_date) >= %s AND
@@ -59,9 +57,9 @@ data = cur.fetchall()
 scoreList = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 for item in data:
     # give weighted score to each user interaction
-    score = item['clicked_email'] * evalconfig.get('clicked_email_weight')
-    score += item['clicked_web'] * evalconfig.get('clicked_web_weight')
-    score += item['liked'] * evalconfig.get('liked_weight')
+    score = item['clicked_email'] * evaluation_config.get('clicked_email_weight')
+    score += item['clicked_web'] * evaluation_config.get('clicked_web_weight')
+    score += item['liked'] * evaluation_config.get('liked_weight')
 
     date = item['date']
     user = item['user_ID']

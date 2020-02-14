@@ -14,7 +14,7 @@ This evaluation framework consists of a front-end for *users* (researchers), a b
 
 All dependencies can be installed by running the command below:
 
- ```pip install -r .\requirements.txt```
+ ```pip install .```
 
 ### Front-end:
 

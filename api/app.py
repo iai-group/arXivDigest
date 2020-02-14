@@ -8,20 +8,14 @@ import os
 from flask import Flask, g, jsonify, request, make_response
 from datetime import datetime
 
-# API imports
-try:
-    import api
-except ImportError:
-    sys.path.append(os.path.abspath(''))
-
 import api.database as db
 from api.utils import validateApiKey, getUserlist
-from api.config import config
 import api.validator as validation
+from core.config import api_config
 
 app = Flask(__name__)
 
-app.config.update(**config.get('api_config'))
+app.config.update(**api_config)
 
 
 @app.route('/userfeedback', methods=['GET'])
@@ -136,4 +130,4 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
-    app.run(port=config.get('api_config').get('dev_port'), debug=True)
+    app.run(port=api_config.get('dev_port'), debug=True)

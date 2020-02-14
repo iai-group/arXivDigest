@@ -4,25 +4,21 @@
 """
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
-import os
-import json
+
 from uuid import uuid4
 from datetime import datetime
 import calendar
 from tdm import multiLeaver
 import database as db
 from mysql import connector
-import sys
 
-sys.path.append(os.path.dirname(__file__) + '/../')
-from scripts.mail import mailServer
+from core.mail.mail_server import MailServer
+from core.config import email_config, interleave_config, sql_config
 
-with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
-    config = json.load(f)
-    interleaveConfig = config.get('interleave_config')
-    recommendationsPerUser = interleaveConfig.get('recommendations_per_user')
-    systemsPerUser = interleaveConfig.get('systems_multileaved_per_user')
-    batchsize = interleaveConfig.get('users_per_batch')
+
+recommendationsPerUser = interleave_config.get('recommendations_per_user')
+systemsPerUser = interleave_config.get('systems_multileaved_per_user')
+batchsize = interleave_config.get('users_per_batch')
 
 
 def multiLeaveRecommendations(systemRecommendations):
@@ -61,9 +57,8 @@ def topN(articles, n):
 def sendMail():
     """Sends notification emails to users about new recommendations"""
     articleData = db.getArticleData(conn)
-    path = os.path.join(os.path.dirname(__file__), 'templates')
-    server = mailServer(**config.get('email_configuration'), templates=path)
-    link = interleaveConfig.get('webaddress')
+    server = MailServer(**email_config)
+    link = interleave_config.get('webaddress')
 
     for i in range(0, maxUserID + batchsize, batchsize):
         mails = []
@@ -124,7 +119,7 @@ def sendMail():
 
 if __name__ == '__main__':
     """Multileaves system recommendations and inserts the new lists into the database, then sends notification email to user."""
-    conn = connector.connect(**config.get('sql_config'))
+    conn = connector.connect(**sql_config)
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     ml = multiLeaver(recommendationsPerUser, systemsPerUser)
     maxUserID = db.getHighestUserID(conn)

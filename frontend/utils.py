@@ -3,27 +3,28 @@ __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import jwt
-import math
 import datetime
 import frontend.database.admin as admin
 from functools import wraps
 from flask import g, request, make_response, redirect, url_for
-from frontend.config import config, jwtKey
+from core.config import jwtKey
 
 
 def requiresLogin(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        '''Decorator to use before paths where users must be logged in to access. Checks if users are logged in.'''
+        """Decorator to use before paths where users must be logged in to access.
+         Checks if users are logged in and redirects to login page if not."""
         if g.loggedIn:
             return f(*args, **kwargs)
         else:
-            return make_response(redirect(url_for('general.loginPage', next=request.script_root+request.full_path)))
+            return make_response(redirect(url_for('general.loginPage',
+                                 next=request.script_root+request.full_path)))
     return wrapper
 
 
 def encode_auth_token(id, email):
-    '''Creates authToken for user with id and email with expire time of 10 days'''
+    """Creates authToken for user with id and email with expire time of 10 days"""
     payload = {
         'exp': datetime.datetime.now() + datetime.timedelta(days=10),
         'sub': id,
@@ -34,8 +35,8 @@ def encode_auth_token(id, email):
 
 
 def pageinate(page, maxPage, n):
-    '''Helperfunction for making a pageselector, page is the current page,
-    maxPage is the last page and n is the number of pages to show in the pageselector.'''
+    """Helperfunction for making a pageselector, page is the current page,
+    maxPage is the last page and n is the number of pages to show in the pageselector."""
     pages = [page]
     min = page-1
     max = page+1
