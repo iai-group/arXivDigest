@@ -7,3 +7,4 @@ nltk
 Flask-Assets
 jsmin
 elasticsearch
+bs4

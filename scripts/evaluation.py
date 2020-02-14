@@ -8,13 +8,14 @@ The script prints the result in a table when its done calculating.
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
+import os
 from mysql import connector
 import json
 from collections import defaultdict
 import argparse
-import sys
 from datetime import datetime
 from core.config import evaluation_config, sql_config
+
 
 
 def valid_date(date):

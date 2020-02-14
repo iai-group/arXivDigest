@@ -12,6 +12,7 @@ from mysql import connector
 from core.config import sql_config
 
 
+
 def insertIntoDB(metaData, conn):
     '''Inserts the supplied articles into the database. Duplicate articles are ignored.'''
     print('Trying to insert %d elements into the database.' % len(metaData))

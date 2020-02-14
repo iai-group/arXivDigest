@@ -29,6 +29,8 @@ All dependencies can be installed by running the command below:
     - For experimental recommender systems to upload personalized recommendations.
   * [Scraper](scraper/)
     - It continuously monitors the arXiv RSS feed for new articles, and downloads their metadata (authors, title, abstract, etc.)
+  * [Keyword_scraper](keyword_scraper/)
+    - It scrapes dblp for all atricle titles and calculates keywords from these titles. The resulting title-keyword-score triplets are inserted into the database, for use when recommending keywords to users based on their publications.
   * [Interleave processes](Interleave/)
     - It includes the interleaving mechanism for combining the recommendations of multiple experimental recommender systems. It also send the personalized recommendations to users in the form of daily digest emails.
   * [Database](db/)
