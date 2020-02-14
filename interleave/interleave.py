@@ -22,36 +22,27 @@ batchsize = interleave_config.get('users_per_batch')
 
 
 def multiLeaveRecommendations(systemRecommendations):
-    """Multileaves the given systemRecommendations and returns a list of userRecommendations. """
+    """Multileaves the given systemRecommendations and returns a list of userRecommendations."""
     userRecommendations = []
     for userID, lists in systemRecommendations.items():
-        # mulileave system recommendations
+        # multileave system recommendations
         recs, systems = ml.TDM(lists)
         # prepare results for database insertion
-        for i in range(0, len(recs)):
+        for i, rec in enumerate(recs):
             score = len(recs) - i
 
-            rec = (userID, recs[i]["article_ID"],
-                   systems[i], recs[i]["explanation"],  score, now)
+            rec = (userID, rec["article_ID"],
+                   systems[i], rec["explanation"],  score, now)
 
             userRecommendations.append(rec)
     return userRecommendations
 
 
-def topN(articles, n):
+def top_n(articles, n):
     """Returns the top n scored articleIDs and the explanation to why each
     article was recommended"""
-    if not articles:
-        return []
-    maxScore = []
-    for articleID in articles:
-        maxScore.append(articles[articleID]['score'])
-    maxScore = max(maxScore)
-    top = []
-    for articleID in articles:
-        if articles[articleID]['score'] > maxScore-n:
-            top.append([articleID, articles[articleID]['explanation']])
-    return top
+    sorted_articles = sorted(articles.items(), key=lambda a: a[1]['score'], reverse=True)
+    return [(k, v['explanation']) for k, v in sorted_articles][:n]
 
 
 def sendMail():
@@ -77,10 +68,10 @@ def sendMail():
             if user['notification_interval'] == 1:
                 date = datetime.utcnow().date()
                 recs = userRecommendations[userID][date]
-                topArticles[date.weekday()] = topN(recs, 3)
+                topArticles[date.weekday()] = top_n(recs, 3)
             elif datetime.utcnow().weekday() == 4:
                 for day, articles in userRecommendations[userID].items():
-                    topArticles[day.weekday()] = topN(articles, 3)
+                    topArticles[day.weekday()] = top_n(articles, 3)
             if not any(topArticles.values()):  # skip user if there user has no recommendations
                 continue
             # create mail data for each article
@@ -94,8 +85,8 @@ def sendMail():
                     articleInfo.append({'title': article.get('title'),
                                         'explanation': explanation,
                                         'authors': article.get('authors'),
-                                        'readlink': '%smail/read/%s/%s/%s' % (link, user, articleID, clickTrace),
-                                        'likelink': '%smail/like/%s/%s/%s' % (link, user, articleID, likeTrace)
+                                        'readlink': '%smail/read/%s/%s/%s' % (link, userID, articleID, clickTrace),
+                                        'likelink': '%smail/like/%s/%s/%s' % (link, userID, articleID, likeTrace)
                                         })
 
                     # mark added articles as seen in mail

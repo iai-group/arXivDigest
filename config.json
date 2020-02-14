@@ -25,7 +25,7 @@
         "systems_multileaved_per_user": 3,
         "recommendations_per_user": 30,
         "users_per_batch": 100,
-        "webaddress": "http://127.0.0.1:5000/"
+        "webaddress": "http://127.0.0.1/"
     },
     "frontend_config": {
         "dev_port": 80,
