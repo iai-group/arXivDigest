@@ -15,13 +15,11 @@ import sys
 import os
 from rake import Rake
 from rake import Metric
+from core.config import keyword_scraper_config,sql_config
 
-with open(os.path.dirname(__file__) + '/../config.json', 'r') as f:
-    config = json.load(f)
-    scraper_dblp_config = config.get('keyword_scraper_config')
-    dump_url = scraper_dblp_config.get('dblp_dump_link')
-    dump_file_path = scraper_dblp_config.get('dblp_save_path')
-    keyword_lenght = scraper_dblp_config.get('max_keyword_length')
+dump_url = keyword_scraper_config.get('dblp_dump_link')
+dump_file_path = keyword_scraper_config.get('dblp_save_path')
+keyword_lenght = keyword_scraper_config.get('max_keyword_length')
 
 
 def download_dump(dump_url, dump_path):
@@ -105,7 +103,7 @@ def clear_keyword_database(conn):
 
 
 if __name__ == '__main__':
-    conn = connector.connect(**config.get("sql_config"))
+    conn = connector.connect(**sql_config)
     clear_keyword_database(conn)
 
     download_dump(dump_url, dump_file_path)
