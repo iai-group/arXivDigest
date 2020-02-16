@@ -5,16 +5,18 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
-from uuid import uuid4
-from datetime import datetime
 import calendar
-from tdm import multiLeaver
-import database as db
+from datetime import datetime
+from uuid import uuid4
+
 from mysql import connector
 
-from core.mail.mail_server import MailServer
-from core.config import email_config, interleave_config, sql_config
-
+import database as db
+from arXivDigest.core.config import email_config
+from arXivDigest.core.config import interleave_config
+from arXivDigest.core.config import sql_config
+from arXivDigest.core.mail.mail_server import MailServer
+from tdm import multiLeaver
 
 recommendationsPerUser = interleave_config.get('recommendations_per_user')
 systemsPerUser = interleave_config.get('systems_multileaved_per_user')

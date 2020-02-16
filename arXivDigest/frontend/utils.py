@@ -2,12 +2,18 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-import jwt
 import datetime
-import frontend.database.admin as admin
 from functools import wraps
-from flask import g, request, make_response, redirect, url_for
-from core.config import jwtKey
+
+import jwt
+from flask import g
+from flask import make_response
+from flask import redirect
+from flask import request
+from flask import url_for
+
+import arXivDigest.frontend.database.admin as admin
+from arXivDigest.core.config import jwtKey
 
 
 def requiresLogin(f):

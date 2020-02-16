@@ -2,10 +2,9 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
-from mysql import connector
-from uuid import uuid4
-from frontend.database.db import getDb
 import datetime
+
+from arXivDigest.frontend.database.db import getDb
 
 
 def isAdmin(id):

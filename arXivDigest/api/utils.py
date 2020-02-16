@@ -3,10 +3,15 @@ __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 from functools import wraps
-from flask import render_template, g, request, make_response, jsonify
 from uuid import UUID
-from core.config import api_config
-import api.database as db
+
+from flask import g
+from flask import jsonify
+from flask import make_response
+from flask import request
+
+import arXivDigest.api.database as db
+from arXivDigest.core.config import api_config
 
 
 def validateApiKey(f):

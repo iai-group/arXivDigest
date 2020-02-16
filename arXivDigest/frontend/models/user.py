@@ -2,12 +2,10 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-import jwt
-import datetime
-import re
-import datetime
-from frontend.models.validate import validPassword, validEmail, validString
-from frontend.models.errors import ValidationError
+from arXivDigest.frontend.models.errors import ValidationError
+from arXivDigest.frontend.models.validate import validEmail
+from arXivDigest.frontend.models.validate import validPassword
+from arXivDigest.frontend.models.validate import validString
 
 
 class User():

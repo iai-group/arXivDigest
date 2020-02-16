@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
-import collections
 
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-import mysql.connector
 import datetime
-from frontend.models.user import User
+from collections import defaultdict
+from datetime import datetime
+from uuid import uuid4
+
+import mysql.connector
 from flask import g
 from mysql import connector
-from uuid import uuid4
-from passlib.hash import pbkdf2_sha256
-from frontend.database.db import getDb
 from mysql.connector import errorcode
-from datetime import datetime
-from collections import defaultdict
+from passlib.hash import pbkdf2_sha256
+
+from arXivDigest.frontend.database.db import getDb
 
 
 def getUser(id):

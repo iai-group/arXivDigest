@@ -2,20 +2,16 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2020, The ArXivDigest Project"
 
-from mysql import connector
 import gzip
 import re
+
 import requests
-import nltk
-import string
-from nltk.tokenize import word_tokenize
-import json
-from nltk.util import ngrams
-import sys
-import os
-from rake import Rake
+from mysql import connector
 from rake import Metric
-from core.config import keyword_scraper_config,sql_config
+from rake import Rake
+
+from arXivDigest.core.config import keyword_scraper_config
+from arXivDigest.core.config import sql_config
 
 dump_url = keyword_scraper_config.get('dblp_dump_link')
 dump_file_path = keyword_scraper_config.get('dblp_save_path')

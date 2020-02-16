@@ -2,11 +2,17 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
-from flask import Blueprint, render_template, request, g, make_response, abort, jsonify
-from frontend.database import admin as db
-from frontend.utils import requiresLogin
-from core.config import email_config
-from core.mail.mail_server import MailServer
+from flask import abort
+from flask import Blueprint
+from flask import g
+from flask import jsonify
+from flask import render_template
+from flask import request
+
+from arXivDigest.core.config import email_config
+from arXivDigest.core.mail.mail_server import MailServer
+from arXivDigest.frontend.database import admin as db
+from arXivDigest.frontend.utils import requiresLogin
 
 mod = Blueprint('admin', __name__)
 

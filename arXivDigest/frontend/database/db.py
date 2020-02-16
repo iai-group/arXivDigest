@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from flask import g
 from mysql import connector
-from core.config import sql_config
+
+from arXivDigest.core.config import sql_config
 
 
 def getDb():

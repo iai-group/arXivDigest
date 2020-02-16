@@ -2,14 +2,24 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
-from flask import Blueprint, request, make_response, g, jsonify, render_template, redirect, flash, url_for
-from frontend.models.user import User
-from frontend.models.system import System
-from frontend.models.validate import validPassword
-from frontend.models.errors import ValidationError
-from frontend.database import general as db
-from frontend.utils import encode_auth_token, requiresLogin
-from frontend.scrape_titles.find_titles import find_author_titles
+from flask import Blueprint
+from flask import flash
+from flask import g
+from flask import jsonify
+from flask import make_response
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import url_for
+
+from arXivDigest.frontend.database import general as db
+from arXivDigest.frontend.models.errors import ValidationError
+from arXivDigest.frontend.models.system import System
+from arXivDigest.frontend.models.user import User
+from arXivDigest.frontend.models.validate import validPassword
+from arXivDigest.frontend.scrape_titles.find_titles import find_author_titles
+from arXivDigest.frontend.utils import encode_auth_token
+from arXivDigest.frontend.utils import requiresLogin
 
 mod = Blueprint('general', __name__)
 
