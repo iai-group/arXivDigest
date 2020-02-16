@@ -2,11 +2,17 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
-from flask import Blueprint, render_template, request, g, make_response, abort, jsonify
-from frontend.database import admin as db
-from frontend.utils import requiresLogin
+from flask import abort
+from flask import Blueprint
+from flask import g
+from flask import jsonify
+from flask import render_template
+from flask import request
+
 from core.config import email_config
 from core.mail.mail_server import MailServer
+from frontend.database import admin as db
+from frontend.utils import requiresLogin
 
 mod = Blueprint('admin', __name__)
 
@@ -49,7 +55,7 @@ def toggleSystem(systemID, state):
         return jsonify(result='Fail')
     if state:
         sys = db.getSystem(systemID)
-        mail = {'toadd': sys['email'],
+        mail = {'to_address': sys['email'],
                 'subject': 'System Activation',
                 'template': 'systemActivation',
                 'data': {'name': sys['contact_name'],
@@ -58,7 +64,7 @@ def toggleSystem(systemID, state):
 
         Server = MailServer(**email_config)
         try:
-            Server.sendMail(**mail)
+            Server.send_mail(**mail)
         except Exception as e:
             return jsonify(result='Success', err='Email error')
         finally:

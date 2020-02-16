@@ -2,37 +2,37 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 import smtplib
-import os
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from jinja2 import Environment, FileSystemLoader
+
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
 
 
-def assembleMail(message, toadd, fromadd, subject):
-    '''Adds to and from address and subject to mail'''
+def assemble_mail(message, to_address, from_address, subject):
+    """Adds to and from address and subject to mail"""
     message = MIMEText(message, 'html')
-    message['From'] = fromadd
-    message['To'] = toadd
+    message['From'] = from_address
+    message['To'] = to_address
     message['Subject'] = subject
     return message.as_string()
 
 
-class MailServer():
+class MailServer:
 
-    def __init__(self, fromadd, password, host, port, templates):
-        '''Starts and logs into mail server'''
-        self.fromadd = fromadd
+    def __init__(self, from_address, password, host, port, templates):
+        """Starts and logs into mail server"""
+        self.from_address = from_address
         self.server = smtplib.SMTP(host, port)
         self.server.starttls()
-        self.server.login(self.fromadd, password)
+        self.server.login(self.from_address, password)
         self.env = Environment(loader=FileSystemLoader(templates))
 
     def close(self):
         self.server.quit()
 
-    def sendMail(self, toadd, subject, data, template):
-        '''Creates mail and sends it'''
+    def send_mail(self, to_address, subject, data, template):
+        """Creates mail and sends it"""
         template = self.env.get_template(template + '.tmpl')
         content = template.render(data)
-        mail = assembleMail(content, self.fromadd, toadd, subject)
-        return self.server.sendmail(self.fromadd, toadd, mail)
+        mail = assemble_mail(content, to_address, self.from_address, subject)
+        return self.server.sendmail(self.from_address, to_address, mail)

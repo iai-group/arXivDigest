@@ -1,125 +1,183 @@
 # -*- coding: utf-8 -*-
-"""This script that combines the recommendations from the experimental recommender systems and inserts the combined ranking, for each user, into the database.
- It also sends out the digest emails to users.
+"""This script interleaves the recommendations from the experimental
+   recommender systems and inserts the combined ranking, for each user,
+   into the database.
+   It also sends out the digest emails to users.
 """
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
-from uuid import uuid4
-from datetime import datetime
 import calendar
-from tdm import multiLeaver
-import database as db
+from datetime import datetime
+from uuid import uuid4
+
 from mysql import connector
 
+import database as db
+from core.config import email_config
+from core.config import interleave_config
+from core.config import sql_config
 from core.mail.mail_server import MailServer
-from core.config import email_config, interleave_config, sql_config
+from tdm import multiLeaver
+
+RECOMMENDATIONS_PER_USER = interleave_config.get('recommendations_per_user')
+SYSTEMS_PER_USER = interleave_config.get('systems_multileaved_per_user')
+BATCH_SIZE = interleave_config.get('users_per_batch')
+BASE_URL = interleave_config.get('webaddress')
+ARTICLES_PER_DATE_IN_MAIL = interleave_config.get('articles_per_date_in_email')
 
 
-recommendationsPerUser = interleave_config.get('recommendations_per_user')
-systemsPerUser = interleave_config.get('systems_multileaved_per_user')
-batchsize = interleave_config.get('users_per_batch')
-
-
-def multiLeaveRecommendations(systemRecommendations):
-    """Multileaves the given systemRecommendations and returns a list of userRecommendations."""
-    userRecommendations = []
-    for userID, lists in systemRecommendations.items():
+def multi_leave_recommendations(system_recommendations, multileaver, time):
+    """Multileaves the given systemRecommendations and returns
+       a list of user_recommendations."""
+    user_recommendations = []
+    for user_id, lists in system_recommendations.items():
         # multileave system recommendations
-        recs, systems = ml.TDM(lists)
+        recs, systems = multileaver.TDM(lists)
         # prepare results for database insertion
-        for i, rec in enumerate(recs):
-            score = len(recs) - i
+        for index, rec in enumerate(recs):
+            score = len(recs) - index
 
-            rec = (userID, rec["article_ID"],
-                   systems[i], rec["explanation"],  score, now)
+            rec = (user_id, rec["article_ID"], systems[index],
+                   rec["explanation"], score, time)
 
-            userRecommendations.append(rec)
-    return userRecommendations
-
-
-def top_n(articles, n):
-    """Returns the top n scored articleIDs and the explanation to why each
-    article was recommended"""
-    sorted_articles = sorted(articles.items(), key=lambda a: a[1]['score'], reverse=True)
-    return [(k, v['explanation']) for k, v in sorted_articles][:n]
+            user_recommendations.append(rec)
+    return user_recommendations
 
 
-def sendMail():
-    """Sends notification emails to users about new recommendations"""
-    articleData = db.getArticleData(conn)
+def sendMail(conn):
+    """Sends emails to users about new recommendations."""
+    article_data = db.getArticleData(conn)
     server = MailServer(**email_config)
-    link = interleave_config.get('webaddress')
 
-    for i in range(0, maxUserID + batchsize, batchsize):
-        mails = []
-        seenMail = []
-        users = db.getUsers(conn, i, batchsize)
-        userRecommendations = db.getUserRecommendations(conn, i, batchsize)
-        if not userRecommendations:
+    for i in range(0, db.getHighestUserID(conn) + BATCH_SIZE, BATCH_SIZE):
+        mail_batch, trace_batch = create_mail_batch(i, article_data, conn)
+        if not mail_batch:
             continue
-        for userID, user in users.items():
-            mail = {'toadd': user['email'],
-                    'subject': 'ArXiv Digest',
-                    'data': {'name': user['name'], 'articles': [], 'link': link},
-                    'template': 'weekly'}
-            # find the top articles for each user
-            topArticles = {}
-            if user['notification_interval'] == 1:
-                date = datetime.utcnow().date()
-                recs = userRecommendations[userID][date]
-                topArticles[date.weekday()] = top_n(recs, 3)
-            elif datetime.utcnow().weekday() == 4:
-                for day, articles in userRecommendations[userID].items():
-                    topArticles[day.weekday()] = top_n(articles, 3)
-            if not any(topArticles.values()):  # skip user if there user has no recommendations
-                continue
-            # create mail data for each article
-            mailData = []
-            for day, article in topArticles.items():
-                articleInfo = []
-                for articleID, explanation in article:
-                    article = articleData.get(articleID)
-                    clickTrace = str(uuid4())
-                    likeTrace = str(uuid4())
-                    articleInfo.append({'title': article.get('title'),
-                                        'explanation': explanation,
-                                        'authors': article.get('authors'),
-                                        'readlink': '%smail/read/%s/%s/%s' % (link, userID, articleID, clickTrace),
-                                        'likelink': '%smail/like/%s/%s/%s' % (link, userID, articleID, likeTrace)
-                                        })
 
-                    # mark added articles as seen in mail
-                    seenMail.append((clickTrace, likeTrace, userID, articleID))
-
-                mailData.append((calendar.day_name[day], articleInfo, day))
-            mailData.sort(key=lambda x: x[2])
-            mail['data']['articles'] = mailData
-            # add mail to send mail queue
-            mails.append(mail)
-
-        if not mails:
-            continue  # skip sending mail if none of the users should receive any mail
         # mark all articles as seen in database and send all mails
-        db.setSeenEmail(conn, seenMail)
-        for mail in mails:
-            server.sendMail(**mail)
+        db.setSeenEmail(conn, trace_batch)
+        for mail in mail_batch:
+            server.send_mail(**mail)
 
     server.close()
 
 
-if __name__ == '__main__':
-    """Multileaves system recommendations and inserts the new lists into the database, then sends notification email to user."""
-    conn = connector.connect(**sql_config)
-    now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-    ml = multiLeaver(recommendationsPerUser, systemsPerUser)
-    maxUserID = db.getHighestUserID(conn)
-    # range-stop is bigger than maxUserID to ensure all users are found
-    for i in range(0, maxUserID + batchsize, batchsize):
-        systemRecs = db.getSystemRecommendations(conn, i, batchsize)
-        if systemRecs:
-            userRecommendations = multiLeaveRecommendations(systemRecs)
-            db.insertUserRecommendations(conn, userRecommendations)
+def create_mail_content(user_id, user, top_articles, article_data):
+    """Creates a mail dictionary in the format accepted by 'MailServer'.
 
-    sendMail()
+    :param user_id: ID of user that will receive the mail.
+    :param user: Info about user that will receive the mail.
+    :param top_articles: Articles that
+    :param article_data: Info about the
+    :return:
+    """
+    mail_content = {'to_address': user['email'],
+                    'subject': 'ArXiv Digest',
+                    'data': {'name': user['name'], 'articles': [],
+                             'link': BASE_URL},
+                    'template': 'weekly'}
+    mail_trace = []
+    for day, daily_articles in sorted(top_articles.items()):
+        articles = []
+        for article_id, explanation in daily_articles:
+            article = article_data.get(article_id)
+            click_trace = str(uuid4())
+            like_trace = str(uuid4())
+
+            articles.append({'title': article.get('title'),
+                             'explanation': explanation,
+                             'authors': article.get('authors'),
+                             'readlink': '%smail/read/%s/%s/%s' % (
+                                 BASE_URL, user_id, article_id, click_trace),
+                             'likelink': '%smail/like/%s/%s/%s' % (
+                                 BASE_URL, user_id, article_id, like_trace)
+                             })
+            mail_trace.append((click_trace, like_trace, user_id, article_id))
+
+        mail_content['data']['articles'].append(
+            (calendar.day_name[day], articles, day))
+
+    return mail_content, mail_trace
+
+
+def create_mail_batch(start_id, article_data, conn):
+    """ Creates a batch of emails for users starting from 'start_id'.
+
+    :param start_id: The id to start from.
+    :param article_data: Data about all the articles that are recommended.
+    :param conn: Database connection.
+    :return:
+        A batch of emails that can be sent by a 'MailServer'
+        and a list of traces that should be inserted into the data base, used
+        for tracing mail interaction from users.
+    """
+    users = db.getUsers(conn, start_id, BATCH_SIZE)
+    user_recommendations = db.getUserRecommendations(conn, start_id, BATCH_SIZE)
+    mail_batch = []
+    trace_batch = []
+    for user_id, user in users.items():
+
+        top_articles = get_top_articles_each_date(user_recommendations[user_id])
+
+        articles = {}
+        if user['notification_interval'] == 1:
+            weekday = datetime.utcnow().date().weekday()
+            articles = {weekday: top_articles.get(weekday, [])}
+        elif datetime.utcnow().weekday() == 4:
+            articles = top_articles
+
+        if not any(articles.values()):  # No articles to notify user about
+            continue
+
+        mail, trace = create_mail_content(user_id, user, articles, article_data)
+        mail_batch.append(mail)
+        trace_batch.extend(trace)
+    return mail_batch, trace_batch
+
+
+def get_top_articles_each_date(user_recommendations):
+    """Creates lists of top articles for each date.
+
+    Creates dictionary with dates as keys and a list of top scoring articles for
+    each date as values.
+
+    :param user_recommendations: Articles that has been recommended for the user
+    in a nested dictionary with format:
+    {date:{ article_id:{'score' : 2, 'explanation' : "string"}}}
+    :return: Dictionary with dates as keys and a list of top scoring articles
+    for each date as values.
+    """
+    top_articles = {}
+    for day, articles in user_recommendations.items():
+        sorted_articles = sorted(articles.items(),
+                                 key=lambda a: a[1]['score'],
+                                 reverse=True)
+        article_list = [(k, v['explanation']) for k, v in sorted_articles]
+        top_articles[day.weekday()] = article_list[:ARTICLES_PER_DATE_IN_MAIL]
+
+    return top_articles
+
+
+def run():
+    """Multileaves system recommendations and inserts the new lists into the
+    database, then sends notification email to user."""
+    conn = connector.connect(**sql_config)
+
+    now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    ml = multiLeaver(RECOMMENDATIONS_PER_USER, SYSTEMS_PER_USER)
+    max_user_id = db.getHighestUserID(conn)
+
+    for i in range(0, max_user_id + BATCH_SIZE, BATCH_SIZE):
+        system_recs = db.getSystemRecommendations(conn, i, BATCH_SIZE)
+        if system_recs:
+            recommendations = multi_leave_recommendations(system_recs, ml, now)
+            db.insertUserRecommendations(conn, recommendations)
+
+    sendMail(conn)
     conn.close()
+
+
+if __name__ == '__main__':
+    run()
