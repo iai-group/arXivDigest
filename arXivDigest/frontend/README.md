@@ -129,7 +129,7 @@ Routes available:
 
 ## Setup
 
-How to deploy a flask application can be found [here](http://flask.pocoo.org/docs/0.12/deploying/)
+Read the [Setup guide](../../Setup.md).
 
 ## Dependencies
 

@@ -4,13 +4,14 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import json
 import os
-from pkg_resources import resource_filename, Requirement
+
+from pkg_resources import Requirement
+from pkg_resources import resource_filename
 
 __file_locations = [
     os.path.expanduser('~') + '/arXivDigest/config.json',
     '/etc/arXivDigest/config.json',
     os.curdir + '/config.json',
-    os.curdir + '/../../arXivDigest/config.json',
 ]
 
 
