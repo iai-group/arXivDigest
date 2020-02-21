@@ -19,6 +19,7 @@ import feedparser
 
 OAI = '{http://www.openarchives.org/OAI/2.0/}'
 ARXIV = '{http://arxiv.org/OAI/arXiv/}'
+semantic_scholar ='{https://api.semanticscholar.org/v1/paper/arXiv:}'
 
 
 def prepareRecord(record):

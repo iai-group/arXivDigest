@@ -22,10 +22,11 @@ def insertIntoDB(metaData, conn):
         i = 0
         insertCategories(metaData, cur)
         # if article already exists in the database it will be overwritten with the new version
-        articlestmt = 'insert ignore into articles values(%s,%s,%s,%s,%s,%s,%s,%s)'
-        articlecategorystmt = 'insert into article_categories values(%s,%s)'
-        authorstmt = 'insert into article_authors values(null,%s,%s,%s)'
+        articlestmt = 'insert ignore into articles values(%s,%s,%s,%s,%s,%s,%s,%s)' #TODO extend
+        articlecategorystmt = 'insert into article_categories values(%s,%s)' 
+        authorstmt = 'insert into article_authors values(null,%s,%s,%s)' #TODO extend
         affiliationstmt = 'insert into author_affiliations values(%s,%s)'
+        #TODO new statements
 
         for id, value in metaData.items():
             data = [id, value['title'], value['description'], value['doi'],
@@ -41,6 +42,7 @@ def insertIntoDB(metaData, conn):
                 authorId = cur.lastrowid
                 for affiliation in author['affiliations']:
                     cur.execute(affiliationstmt, (authorId, affiliation))
+                #TODO execute new statements
             conn.commit()
             i += 1
             print('\rInserted {} elements.'.format(i), end='')
@@ -49,6 +51,7 @@ def insertIntoDB(metaData, conn):
         cur.close()
         conn.close()
 
+#TODO topics insert function
 
 def insertCategories(metaData, cursor):
     ''' Inserts all categories from the metaData into the database'''
