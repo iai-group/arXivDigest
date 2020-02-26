@@ -12,7 +12,16 @@
     * ```~/arXivDigest/config.json```
     * ```etc/arXivDigest/config.json```
     * ```%cwd%/config.json```
-    
+
+Many of the scripts are recurrent processes that should be automated to run at specific times. This can be achieved by running the script with a cronjob.
+
+The scripts should be run in the following order:
+
+  * [Keyword scraper](keyword_scraper/): Should be run when a new [DBLP dump](https://dblp.uni-trier.de/faq/How+can+I+download+the+whole+dblp+dataset) is available.
+  * [Article scraper](scraper/): Should be run when ArXiv releases new articles. ArXiv release schedule can be found [here](https://arxiv.org/help/submit#availability).
+  * [Interleaver](interleave/): Should be run after the Article scraper, make sure that there is enough time for the recommender systems to generate recommendations between running the two scripts.
+  * [Evaluation](scripts/evaluation.py): Can be run at any time to evaluate the performance of the systems.
+     
 ### Frontend and API
 
 How to deploy a flask application can be found [here](http://flask.pocoo.org/docs/0.12/deploying/)
