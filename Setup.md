@@ -45,6 +45,10 @@ The API and frontend should be started by running 'app.py' in their respective f
 
 Make sure that port 80 is free for the frontend and 5000 is free for the API or configure the frontend and api dev_ports in [config.json](/config.json)
 
+### Core
+
+This package contains shared functionality between the different parts of the project.
+
 ### Scraper
 
 Is run by running storeMetadata.py: ``python storeMetadata.py``

@@ -55,7 +55,7 @@ def toggleSystem(systemID, state):
         return jsonify(result='Fail')
     if state:
         sys = db.getSystem(systemID)
-        mail = {'toadd': sys['email'],
+        mail = {'to_address': sys['email'],
                 'subject': 'System Activation',
                 'template': 'systemActivation',
                 'data': {'name': sys['contact_name'],
@@ -64,7 +64,7 @@ def toggleSystem(systemID, state):
 
         Server = MailServer(**email_config)
         try:
-            Server.sendMail(**mail)
+            Server.send_mail(**mail)
         except Exception as e:
             return jsonify(result='Success', err='Email error')
         finally:

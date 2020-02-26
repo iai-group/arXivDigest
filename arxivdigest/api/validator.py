@@ -92,7 +92,7 @@ def contains_ineligible_articles(json):
     article_ids = [article['article_id'] for user in json.values() for article
                    in user]
     if len(article_ids) is 0:
-        return 'No articles submitted.'
+        return 'No articles submitted.', 400
     not_found_articles = db.checkArticlesExists(article_ids)
     if len(not_found_articles) > 0:
         return 'Could not find articles with ids: %s.' % ', '.join(
@@ -101,7 +101,7 @@ def contains_ineligible_articles(json):
     today = datetime.utcnow().strftime('%Y/%m/%d')
     articles_today = db.getArticleIDs(today)['article_ids']
     articles_not_today = (
-            set(articles_today) & set(article_ids) ^ set(article_ids))
+        set(articles_today) & set(article_ids) ^ set(article_ids))
     if articles_not_today:
         return 'These articles are not from today\'s batch: %s.' % ', '.join(
             articles_not_today), 400

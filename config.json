@@ -6,7 +6,7 @@
         "database": "arxivdigest"
     },
     "email_config": {
-        "fromadd": "yourfavouriteapp@gmail.com",
+        "from_address": "yourfavouriteapp@gmail.com",
         "password": "3v4e576b87gnfm8904vcu324r2323r32twgee",
         "host": "smtp.gmail.com",
         "port": 587
@@ -25,7 +25,8 @@
         "systems_multileaved_per_user": 3,
         "recommendations_per_user": 30,
         "users_per_batch": 100,
-        "webaddress": "http://127.0.0.1:5000/"
+        "webaddress": "http://127.0.0.1/",
+        "articles_per_date_in_email": 3
     },
     "frontend_config": {
         "dev_port": 80,

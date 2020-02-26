@@ -189,7 +189,7 @@ def author_keywords(author_url):
     """Endpoint for fetching an authors keywords from their dblp article url.
     Returns list of keywords or an empty string for failure."""
     try:
-        author_titles = find_author_titles(author_url)
+        author_titles = find_author_titles('https://'+author_url)
         keywords = db.get_keywords_from_titles(author_titles)
     except ValueError as e:
         return jsonify(error=str(e))
