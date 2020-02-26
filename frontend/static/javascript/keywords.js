@@ -1,4 +1,5 @@
 function fetch_suggested_keywords(value) {
+    value = value.replace(/(^\w+:|^)\/\//, '');
     $("#keyword_error").html("");
     $("#keyword_info").html("Loading suggested keywords...");
     $.getJSON("/author_keywords/" + value, {},
