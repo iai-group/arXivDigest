@@ -13,9 +13,9 @@ from flask import render_template
 from flask import request
 from flask import url_for
 
-from arXivDigest.frontend.database import articles as db
-from arXivDigest.frontend.utils import pageinate
-from arXivDigest.frontend.utils import requiresLogin
+from arxivdigest.frontend.database import articles as db
+from arxivdigest.frontend.utils import pageinate
+from arxivdigest.frontend.utils import requiresLogin
 
 mod = Blueprint('articles', __name__)
 

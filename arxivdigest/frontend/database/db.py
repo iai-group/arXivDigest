@@ -2,7 +2,7 @@
 from flask import g
 from mysql import connector
 
-from arXivDigest.core.config import sql_config
+from arxivdigest.core.config import sql_config
 
 
 def getDb():

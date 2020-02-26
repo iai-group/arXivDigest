@@ -4,7 +4,7 @@ __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
 import datetime
 
-from arXivDigest.frontend.database.db import getDb
+from arxivdigest.frontend.database.db import getDb
 
 
 def isAdmin(id):

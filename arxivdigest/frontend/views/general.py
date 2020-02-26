@@ -12,14 +12,14 @@ from flask import render_template
 from flask import request
 from flask import url_for
 
-from arXivDigest.frontend.database import general as db
-from arXivDigest.frontend.models.errors import ValidationError
-from arXivDigest.frontend.models.system import System
-from arXivDigest.frontend.models.user import User
-from arXivDigest.frontend.models.validate import validPassword
-from arXivDigest.frontend.scrape_titles.find_titles import find_author_titles
-from arXivDigest.frontend.utils import encode_auth_token
-from arXivDigest.frontend.utils import requiresLogin
+from arxivdigest.frontend.database import general as db
+from arxivdigest.frontend.models.errors import ValidationError
+from arxivdigest.frontend.models.system import System
+from arxivdigest.frontend.models.user import User
+from arxivdigest.frontend.models.validate import validPassword
+from arxivdigest.frontend.scrape_titles.find_titles import find_author_titles
+from arxivdigest.frontend.utils import encode_auth_token
+from arxivdigest.frontend.utils import requiresLogin
 
 mod = Blueprint('general', __name__)
 

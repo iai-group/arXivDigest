@@ -9,8 +9,8 @@ from pkg_resources import Requirement
 from pkg_resources import resource_filename
 
 __file_locations = [
-    os.path.expanduser('~') + '/arXivDigest/config.json',
-    '/etc/arXivDigest/config.json',
+    os.path.expanduser('~') + '/arxivdigest/config.json',
+    '/etc/arxivdigest/config.json',
     os.curdir + '/config.json',
 ]
 
@@ -30,7 +30,7 @@ with open(find_config_file(__file_locations)) as file:
     config = json.load(file)
 
 config['email_config']['templates'] = resource_filename(
-    Requirement.parse('arXivDigest'), 'core/mail/templates')
+    Requirement.parse('arxivdigest'), 'core/mail/templates')
 
 sql_config = config.get('sql_config')
 email_config = config.get('email_config')

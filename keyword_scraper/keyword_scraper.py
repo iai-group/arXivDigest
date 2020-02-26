@@ -7,11 +7,11 @@ import re
 
 import requests
 from mysql import connector
+
+from arxivdigest.core.config import keyword_scraper_config
+from arxivdigest.core.config import sql_config
 from rake import Metric
 from rake import Rake
-
-from arXivDigest.core.config import keyword_scraper_config
-from arXivDigest.core.config import sql_config
 
 dump_url = keyword_scraper_config.get('dblp_dump_link')
 dump_file_path = keyword_scraper_config.get('dblp_save_path')

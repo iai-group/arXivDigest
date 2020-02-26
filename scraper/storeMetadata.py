@@ -8,7 +8,7 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 from mysql import connector
 
-from arXivDigest.core.config import sql_config
+from arxivdigest.core.config import sql_config
 from categories import subCategoryNames
 from scrapeMetadata import getCategories
 from scrapeMetadata import harvestMetadataRss

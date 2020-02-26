@@ -10,11 +10,11 @@ from flask import jsonify
 from flask import make_response
 from flask import request
 
-import arXivDigest.api.database as db
-import arXivDigest.api.validator as validation
-from arXivDigest.api.utils import getUserlist
-from arXivDigest.api.utils import validateApiKey
-from arXivDigest.core.config import api_config
+import arxivdigest.api.database as db
+import arxivdigest.api.validator as validation
+from arxivdigest.api.utils import getUserlist
+from arxivdigest.api.utils import validateApiKey
+from arxivdigest.core.config import api_config
 
 app = Flask(__name__)
 

@@ -14,8 +14,8 @@ from datetime import datetime
 
 from mysql import connector
 
-from arXivDigest.core.config import evaluation_config
-from arXivDigest.core.config import sql_config
+from arxivdigest.core.config import evaluation_config
+from arxivdigest.core.config import sql_config
 
 
 def valid_date(date):

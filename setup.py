@@ -6,11 +6,11 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name='arXivDigest',
+    name='arxivdigest',
     version='1.0',
     packages=find_packages(),
-    package_data={'arXivDigest.core.mail': ['templates/*.tmpl'],
-                  'arXivDigest.frontend': ['templates/*.html',
+    package_data={'arxivdigest.core.mail': ['templates/*.tmpl'],
+                  'arxivdigest.frontend': ['templates/*.html',
                                            'static/*',
                                            'static/icons/*',
                                            'static/javascript/*'

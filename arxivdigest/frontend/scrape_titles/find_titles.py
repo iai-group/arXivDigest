@@ -2,7 +2,7 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The ArXivDigest Project'
 
-from arXivDigest.frontend.scrape_titles.dblp import get_dblp_titles
+from arxivdigest.frontend.scrape_titles.dblp import get_dblp_titles
 
 def find_author_titles(author_url):
     """Checks the provided link and fetches keywords from the required

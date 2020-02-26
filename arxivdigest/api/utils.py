@@ -10,8 +10,8 @@ from flask import jsonify
 from flask import make_response
 from flask import request
 
-import arXivDigest.api.database as db
-from arXivDigest.core.config import api_config
+import arxivdigest.api.database as db
+from arxivdigest.core.config import api_config
 
 
 def validateApiKey(f):

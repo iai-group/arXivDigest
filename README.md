@@ -18,11 +18,11 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
 
   * Will (soon) be available at https://arxivdigest.org.
   * After signing up, users can view the articles that are recommended to them. Articles can be "liked" to improve recommendations and for easily finding these articles later.
-  * The front-end is implemented as Flask application ([source](arXivDigest/frontend/)).
+  * The front-end is implemented as Flask application ([source](arxivdigest/frontend/)).
 
 ### Back-end:
 
-  * [RESTful API](arXivDigest/api/) for experimental recommender systems
+  * [RESTful API](arxivdigest/api/) for experimental recommender systems
     - For accessing article and user data.
     - For experimental recommender systems to upload personalized recommendations.
   * [Scraper](scraper/)

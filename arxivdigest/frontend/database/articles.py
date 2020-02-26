@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from arXivDigest.frontend.database.db import getDb
+from arxivdigest.frontend.database.db import getDb
 
 
 def getLikedArticles(userid, interval, order, start, n):

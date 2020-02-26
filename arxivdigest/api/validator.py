@@ -10,7 +10,7 @@ from flask import jsonify
 from flask import make_response
 from flask import request
 
-import arXivDigest.api.database as db
+import arxivdigest.api.database as db
 
 
 def validate_json(validator_func):

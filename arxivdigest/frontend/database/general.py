@@ -14,7 +14,7 @@ from mysql import connector
 from mysql.connector import errorcode
 from passlib.hash import pbkdf2_sha256
 
-from arXivDigest.frontend.database.db import getDb
+from arxivdigest.frontend.database.db import getDb
 
 
 def getUser(id):

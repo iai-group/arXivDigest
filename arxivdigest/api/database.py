@@ -7,7 +7,7 @@ from collections import defaultdict
 import mysql.connector
 from flask import g
 
-from arXivDigest.core.config import sql_config
+from arxivdigest.core.config import sql_config
 
 """This module implements methods which the api uses to interface with the database"""
 

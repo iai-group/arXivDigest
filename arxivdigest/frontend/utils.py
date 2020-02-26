@@ -12,8 +12,8 @@ from flask import redirect
 from flask import request
 from flask import url_for
 
-import arXivDigest.frontend.database.admin as admin
-from arXivDigest.core.config import jwtKey
+import arxivdigest.frontend.database.admin as admin
+from arxivdigest.core.config import jwtKey
 
 
 def requiresLogin(f):

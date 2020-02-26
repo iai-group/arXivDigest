@@ -9,12 +9,12 @@ from flask import g
 from flask import request
 from flask_assets import Environment
 
-from arXivDigest.core.config import frontend_config
-from arXivDigest.core.config import jwtKey
-from arXivDigest.core.config import secret_key
-from arXivDigest.frontend.views import admin
-from arXivDigest.frontend.views import articles
-from arXivDigest.frontend.views import general
+from arxivdigest.core.config import frontend_config
+from arxivdigest.core.config import jwtKey
+from arxivdigest.core.config import secret_key
+from arxivdigest.frontend.views import admin
+from arxivdigest.frontend.views import articles
+from arxivdigest.frontend.views import general
 
 app = Flask(__name__)
 app.secret_key = secret_key

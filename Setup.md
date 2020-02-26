@@ -9,8 +9,8 @@
 5. Run the command  ```pip install .``` while inside the repository to install the project and dependencies, if installing for development use the command ```pip install -e .``` to allow editing of the installed package.
 6. Check permissions for the installed packages.
 7. Make sure to put [config.json](/config.json) in any of the below directories and update the settings specific to your system:
-    * ```~/arXivDigest/config.json```
-    * ```etc/arXivDigest/config.json```
+    * ```~/arxivdigest/config.json```
+    * ```etc/arxivdigest/config.json```
     * ```%cwd%/config.json```
 
 Many of the scripts are recurrent processes that should be automated to run at specific times. This can be achieved by running the script with a cronjob.
@@ -35,7 +35,7 @@ import logging
 logging.basicConfig(stream=sys.stderr)
 sys.path.insert(0,"/opt/anaconda3/lib/python3.6/site-packages/")
 
-from arXivDigest.frontend.app import app as application
+from arxivdigest.frontend.app import app as application
 application.secret_key = SOME_SECRET_KEY
 ```
 
@@ -63,6 +63,7 @@ Is run by running interleave.py: ``python interleave.py``
 Is run by running evaluation.py: ``python evaluation.py``
 
 ### Sample system
+
 1. Download and run an [Elasticsearch](https://www.elastic.co/) server.
 2. Update the constants in [system.py](sample/system.py) such that the system uses the correct API-key and API-url.
 3. Run  ``python system.py``
