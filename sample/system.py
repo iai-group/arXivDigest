@@ -1,9 +1,13 @@
-from urllib import request
 import json
-from elasticsearch import Elasticsearch
+import sys
+import urllib
 from collections import defaultdict
-from init_index import init_index
+from urllib import request
+
+from elasticsearch import Elasticsearch
+
 from index import run_indexing
+from init_index import init_index
 
 API_KEY = '4c02e337-c94b-48b6-b30e-0c06839c81e6'
 API_URL = 'http://127.0.0.1:5000/'
@@ -68,7 +72,12 @@ def send_recommendations(recommendations, api_key, api_url, batch_size=100):
             recommendations[i:i + batch_size])}).encode('utf8')
         req = request.Request(api_url + "recommendation", data=data, headers={
             'Content-Type': 'application/json', "api_key": api_key})
-        request.urlopen(req)
+        try:
+            request.urlopen(req)
+        except urllib.error.HTTPError as e:
+            print('Response:', e.read().decode())
+            print('System exiting.')
+            sys.exit(1)
 
 
 def make_user_recommendation(keywords, index, n_keywords_explanation=3):

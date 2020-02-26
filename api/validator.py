@@ -2,11 +2,15 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 
-from functools import wraps
-from flask import Flask, g, jsonify, request, make_response
-from flask import current_app as app
-import api.database as db
 from datetime import datetime
+from functools import wraps
+
+from flask import current_app as app
+from flask import jsonify
+from flask import make_response
+from flask import request
+
+import api.database as db
 
 
 def validate_json(validator_func):
@@ -88,7 +92,7 @@ def contains_ineligible_articles(json):
     article_ids = [article['article_id'] for user in json.values() for article
                    in user]
     if len(article_ids) is 0:
-        return 'No articles submitted.'
+        return 'No articles submitted.', 400
     not_found_articles = db.checkArticlesExists(article_ids)
     if len(not_found_articles) > 0:
         return 'Could not find articles with ids: %s.' % ', '.join(
