@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
-import os.path
 
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-from flask import Flask, request,  g
 import jwt
+from flask import Flask
+from flask import g
+from flask import request
 from flask_assets import Environment
 
-from core.config import jwtKey, secret_key, frontend_config
-from frontend.views import general, admin, articles
-
+from arxivdigest.core.config import frontend_config
+from arxivdigest.core.config import jwtKey
+from arxivdigest.core.config import secret_key
+from arxivdigest.frontend.views import admin
+from arxivdigest.frontend.views import articles
+from arxivdigest.frontend.views import general
 
 app = Flask(__name__)
 app.secret_key = secret_key

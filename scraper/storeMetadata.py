@@ -6,11 +6,12 @@ it will be ignored.'''
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-from scrapeMetadata import getCategories, harvestMetadataRss, getRecordsFromLastnDays
-from categories import subCategoryNames
 from mysql import connector
-from core.config import sql_config
 
+from arxivdigest.core.config import sql_config
+from categories import subCategoryNames
+from scrapeMetadata import getCategories
+from scrapeMetadata import harvestMetadataRss
 
 
 def insertIntoDB(metaData, conn):

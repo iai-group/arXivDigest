@@ -10,7 +10,7 @@ from flask import jsonify
 from flask import make_response
 from flask import request
 
-import api.database as db
+import arxivdigest.api.database as db
 
 
 def validate_json(validator_func):
@@ -101,7 +101,7 @@ def contains_ineligible_articles(json):
     today = datetime.utcnow().strftime('%Y/%m/%d')
     articles_today = db.getArticleIDs(today)['article_ids']
     articles_not_today = (
-            set(articles_today) & set(article_ids) ^ set(article_ids))
+        set(articles_today) & set(article_ids) ^ set(article_ids))
     if articles_not_today:
         return 'These articles are not from today\'s batch: %s.' % ', '.join(
             articles_not_today), 400

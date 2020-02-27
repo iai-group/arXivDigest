@@ -15,10 +15,10 @@ from uuid import uuid4
 from mysql import connector
 
 import database as db
-from core.config import email_config
-from core.config import interleave_config
-from core.config import sql_config
-from core.mail.mail_server import MailServer
+from arxivdigest.core.config import email_config
+from arxivdigest.core.config import interleave_config
+from arxivdigest.core.config import sql_config
+from arxivdigest.core.mail.mail_server import MailServer
 from tdm import multiLeaver
 
 RECOMMENDATIONS_PER_USER = interleave_config.get('recommendations_per_user')

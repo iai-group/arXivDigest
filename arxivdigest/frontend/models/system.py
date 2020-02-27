@@ -2,8 +2,9 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-from frontend.models.validate import validEmail, validString
-from frontend.models.errors import ValidationError
+from arxivdigest.frontend.models.errors import ValidationError
+from arxivdigest.frontend.models.validate import validEmail
+from arxivdigest.frontend.models.validate import validString
 
 
 class System():

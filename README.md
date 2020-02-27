@@ -12,26 +12,24 @@ ArXivDigest provides an broker infrastructure that connects researchers that hav
 
 This evaluation framework consists of a front-end for *users* (researchers), a back-end, which includes a RESTful API for *experimental recommender systems*.
 
-All dependencies can be installed by running the command below:
-
- ```pip install .```
+Check the [Setup guide](/Setup.md) for information on how to run the system.
 
 ### Front-end:
 
   * Will (soon) be available at https://arxivdigest.org.
   * After signing up, users can view the articles that are recommended to them. Articles can be "liked" to improve recommendations and for easily finding these articles later.
-  * The front-end is implemented as Flask application ([source](frontend/)).
+  * The front-end is implemented as Flask application ([source](arxivdigest/frontend/)).
 
 ### Back-end:
 
-  * [RESTful API](api/) for experimental recommender systems
+  * [RESTful API](arxivdigest/api/) for experimental recommender systems
     - For accessing article and user data.
     - For experimental recommender systems to upload personalized recommendations.
   * [Scraper](scraper/)
     - It continuously monitors the arXiv RSS feed for new articles, and downloads their metadata (authors, title, abstract, etc.)
   * [Keyword_scraper](keyword_scraper/)
     - It scrapes dblp for all atricle titles and calculates keywords from these titles. The resulting title-keyword-score triplets are inserted into the database, for use when recommending keywords to users based on their publications.
-  * [Interleave processes](Interleave/)
+  * [Interleave processes](interleave/)
     - It includes the interleaving mechanism for combining the recommendations of multiple experimental recommender systems. It also send the personalized recommendations to users in the form of daily digest emails.
   * [Database](db/)
     - All data is stored in a MySQL database.

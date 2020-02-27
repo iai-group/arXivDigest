@@ -2,10 +2,13 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
+from collections import defaultdict
+
 import mysql.connector
 from flask import g
-from collections import defaultdict
-from core.config import sql_config
+
+from arxivdigest.core.config import sql_config
+
 """This module implements methods which the api uses to interface with the database"""
 
 

@@ -2,16 +2,19 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-import mysql.connector
-import sys
-import os
-from flask import Flask, g, jsonify, request, make_response
 from datetime import datetime
 
-import api.database as db
-from api.utils import validateApiKey, getUserlist
-import api.validator as validation
-from core.config import api_config
+from flask import Flask
+from flask import g
+from flask import jsonify
+from flask import make_response
+from flask import request
+
+import arxivdigest.api.database as db
+import arxivdigest.api.validator as validation
+from arxivdigest.api.utils import getUserlist
+from arxivdigest.api.utils import validateApiKey
+from arxivdigest.core.config import api_config
 
 app = Flask(__name__)
 
