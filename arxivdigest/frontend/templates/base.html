@@ -56,9 +56,6 @@
                             <a href="{{ url_for('admin.admin') }}">Administrate</a>
                         </li>
                     {% endif %} {% endif %}
-                <li>
-                    <a href="{{ url_for('general.registerSystemPage') }}">Register new system</a>
-                </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if g.loggedIn %}
@@ -91,7 +88,15 @@
 
 <footer>
     <div class="container ">
-        <a href="{{ url_for('general.feedbackPage') }}" id="footer_feedback">Give us feedback on our system.</a>
+        <a href="{{ url_for('general.feedbackPage') }}" class="footer_item">Give us feedback on our system</a>
+        <p class="footer_item">|</p>
+        <a href="{{ url_for('general.feedbackPage') }}" class="footer_item">Terms and conditions</a>
+        <p class="footer_item">|</p>
+        <a href="{{ url_for('general.registerSystemPage') }}" class="footer_item">Living Labs</a>
+        <p class="footer_item">|</p>
+        <a href="https://www.uis.no/frontpage/#Studies" class="footer_item">uis.no</a>
+        <p class="footer_item">|</p>
+        <p class="footer_item">Copyright (c) IAI group, University of Stavanger, 2020</p>
     </div>
 </footer>
 <!-- Libraries - Placed at the end of the page so it loads faster-->
