@@ -633,3 +633,12 @@ code {
   margin-left: 10px;
   text-align: center;
 }
+
+#tc_text{
+  text-align: center;
+}
+
+#tc_checkbox{
+  max-width: 12px;
+  margin-left: 40%;
+}

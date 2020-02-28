@@ -189,6 +189,7 @@ def author_keywords(author_url):
     """Endpoint for fetching an authors keywords from their dblp article url.
     Returns list of keywords or an empty string for failure."""
     try:
+        print(author_url)
         author_titles = find_author_titles('https://'+author_url)
         keywords = db.get_keywords_from_titles(author_titles)
     except ValueError as e:
@@ -235,6 +236,11 @@ def submitFeedback():
 
     flash('Successfully sent feedback.', 'success')
     return redirect('/')
+
+@mod.route('/termsandconditions/', methods=['GET'])
+def termsandconditions():
+    """Returns terms and conditions page."""
+    return render_template('termsAndConditions.html')
 
 def makeAuthTokenResponse(id, email, next):
     """creates an authToken for a user with id and email. Then redirects to next"""
