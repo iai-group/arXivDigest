@@ -132,6 +132,18 @@
                     <td></td>
                 </tr>
                 <tr>
+                    <td>
+                        <label for="termsandconditions" class="signupLabel">Terms and Conditions:</label>
+                    </td>
+                    <td>
+                        <br>
+                        <p>I have read and accepted the terms and conditions 
+                        <a href="{{ url_for('general.termsandconditions') }}">here</a></p>
+                        <input type="checkbox" name="termsandconditions" value="accepted" required id="tc_checkbox">
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
                     <td></td>
                     <td>
                         <br>

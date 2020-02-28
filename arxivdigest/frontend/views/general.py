@@ -109,13 +109,13 @@ def passwordChange():
     data = request.form
     if not data['password'] == data['confirmPassword']:
         flash('Passwords must match.', 'danger')
-        return render_template('passwordChange.html')
+        return render_template('password_change.html')
     if not validPassword(data['password']):
         flash('New password is invalid', 'danger')
-        return render_template('passwordChange.html')
+        return render_template('password_change.html')
     if not db.validatePassword(g.email, data['oldPassword']):
         flash('Old password is wrong.', 'danger')
-        return render_template('passwordChange.html')
+        return render_template('password_change.html')
     db.updatePassword(g.user, data['password'])
     return redirect(url_for('general.profile'))
 
@@ -124,7 +124,7 @@ def passwordChange():
 @requiresLogin
 def passwordChangePage():
     """Returns password change template"""
-    return render_template('passwordChange.html')
+    return render_template('password_change.html')
 
 
 @mod.route('/modify', methods=['POST'])
@@ -170,25 +170,26 @@ def registerSystem():
         system = System(form)
     except ValidationError as e:
         flash(e.message, 'danger')
-        return render_template('registerSystem.html')
+        return render_template('register_system.html')
     err = db.insertSystem(system)
     if err:
         flash(err, 'danger')
-        return render_template('registerSystem.html')
+        return render_template('register_system.html')
     flash('Successfully sent the system registration.', 'success')
-    return render_template('registerSystem.html')
+    return render_template('register_system.html')
 
 
 @mod.route('/system/register', methods=['GET'])
 def registerSystemPage():
     """Returns page for registering a new system"""
-    return render_template('registerSystem.html')
+    return render_template('register_system.html')
 
 @mod.route('/author_keywords/<path:author_url>', methods=['GET'])
 def author_keywords(author_url):
     """Endpoint for fetching an authors keywords from their dblp article url.
     Returns list of keywords or an empty string for failure."""
     try:
+        print(author_url)
         author_titles = find_author_titles('https://'+author_url)
         keywords = db.get_keywords_from_titles(author_titles)
     except ValueError as e:
@@ -235,6 +236,11 @@ def submitFeedback():
 
     flash('Successfully sent feedback.', 'success')
     return redirect('/')
+
+@mod.route('/terms-and-conditions/', methods=['GET'])
+def termsandconditions():
+    """Returns terms and conditions page."""
+    return render_template('terms_and_conditions.html')
 
 def makeAuthTokenResponse(id, email, next):
     """creates an authToken for a user with id and email. Then redirects to next"""
