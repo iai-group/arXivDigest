@@ -7,8 +7,9 @@
 
     <title>ArXivDigest</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    {% assets "css_base" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
     <link rel="stylesheet " href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css ">
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -99,8 +100,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js "></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js'></script>
-{% assets filters="jsmin", output="gen/packed.js", "javascript/forms.js",
- "javascript/autocomplete.js","javascript/articlelist.js","javascript/admin.js", "javascript/keywords.js" %}
+{% assets "js_base" %}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 </body>

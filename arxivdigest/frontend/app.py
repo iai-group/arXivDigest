@@ -7,6 +7,7 @@ import jwt
 from flask import Flask
 from flask import g
 from flask import request
+from flask_assets import Bundle
 from flask_assets import Environment
 
 from arxivdigest.core.config import frontend_config
@@ -23,6 +24,24 @@ app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
 app.config['MAX_CONTENT_LENGTH'] = frontend_config.get('MAX_CONTENT_LENGTH')
 assets = Environment(app)
+# Do not automatically build assets in deployment for performance
+assets.auto_build = False
+
+js_bundle = Bundle('javascript/autocomplete.js',
+                   'javascript/forms.js',
+                   'javascript/articlelist.js',
+                   'javascript/admin.js',
+                   'javascript/keywords.js',
+                   filters='jsmin',
+                   output='gen/js/base.%(version)s.js')
+
+css_bundle = Bundle('style.css',
+                    filters='cssmin',
+                    output='gen/css/base.%(version)s.css')
+
+assets.register('js_base', js_bundle)
+assets.register('css_base', css_bundle)
+
 
 @app.before_request
 def before_request():
@@ -50,4 +69,5 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
+    assets.auto_build = True
     app.run(port=frontend_config.get('dev_port'), debug=True)
