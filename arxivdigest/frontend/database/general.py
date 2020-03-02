@@ -21,7 +21,7 @@ def getUser(id):
     """Return user as a dictionary. Include webpages and categories as sub dictionaries"""
     cur = getDb().cursor()
     sql = '''SELECT user_ID, email, salted_hash, firstname, lastname, keywords, 
-    notification_interval, registered
+    notification_interval, registered, company
     FROM users WHERE user_ID = %s'''
     cur.execute(sql, (id,))
     userData = cur.fetchone()
@@ -37,6 +37,7 @@ def getUser(id):
         'keywords': userData[5],
         'notificationInterval': userData[6],
         'registered': userData[7],
+        'company': userData[8],
     }
 
     cur.execute('SELECT url FROM user_webpages WHERE user_ID = %s',
@@ -67,7 +68,7 @@ def insertUser(user):
     """Insert user object, webpages and categories into database. Return error or users id"""
     conn = getDb()
     cur = conn.cursor()
-    usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,DEFAULT,%s,false)'
+    usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,DEFAULT,%s,false,%s)'
     webpagesql = 'INSERT INTO user_webpages VALUES(%s,%s)'
     categoriesql = 'INSERT INTO user_categories VALUES(%s,%s)'
 
@@ -79,7 +80,7 @@ def insertUser(user):
     curdate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     cur.execute(usersql, (user.email, user.hashedPassword,
                           user.firstName, user.lastName, user.keywords,
-                          user.digestfrequency, curdate))
+                          user.digestfrequency, curdate, user.company))
     id = cur.lastrowid
     userCategories = [(id, x) for x in user.categories]
     userWebpages = [(id, x) for x in user.webpages]
@@ -117,7 +118,7 @@ def updateUser(userid, user):
     """Update user with userid. User object contains new info for this user. Returns True on Success"""
     conn = getDb()
     cur = conn.cursor()
-    usersql = 'UPDATE users SET email = %s, firstname = %s, lastname = %s, keywords = %s, notification_interval = %s WHERE user_ID = %s'
+    usersql = 'UPDATE users SET email = %s, firstname = %s, lastname = %s, keywords = %s, notification_interval = %s, company = %s WHERE user_ID = %s'
     webpagesql = 'INSERT INTO user_webpages VALUES(%s,%s)'
     categoriesql = 'INSERT INTO user_categories VALUES(%s,%s)'
 
@@ -125,7 +126,7 @@ def updateUser(userid, user):
     userWebpages = [(user.email, x) for x in user.webpages]
 
     cur.execute(usersql, (user.email, user.firstName,
-                          user.lastName, user.keywords, user.digestfrequency,
+                          user.lastName, user.keywords, user.digestfrequency, user.company,
                           userid))
     cur.execute('DELETE FROM user_webpages WHERE user_ID = %s', (userid,))
     cur.execute('DELETE FROM user_categories WHERE user_ID = %s', (userid,))

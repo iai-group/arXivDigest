@@ -19,6 +19,12 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Company:</td>
+                        <td>
+                            {{user.company}}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Webpages:</td>
                         <td>{% for page in user.webpages %}
                             <a target="_blank" href=//{{page}}>{{page}}</a>
