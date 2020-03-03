@@ -5,6 +5,7 @@ __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 from flask import Blueprint
 from flask import flash
 from flask import g
+from flask import json
 from flask import jsonify
 from flask import make_response
 from flask import redirect
@@ -18,6 +19,7 @@ from arxivdigest.frontend.models.system import System
 from arxivdigest.frontend.models.user import User
 from arxivdigest.frontend.models.validate import validPassword
 from arxivdigest.frontend.scrape_titles.find_titles import find_author_titles
+from arxivdigest.frontend.utils import create_gzip_response
 from arxivdigest.frontend.utils import encode_auth_token
 from arxivdigest.frontend.utils import requiresLogin
 
@@ -141,7 +143,7 @@ def modify():
         user = User(data)
     except ValidationError as e:
         flash(e.message, 'danger')
-        return render_template('modify.html', user=db.getUser(g.user))
+        return render_template('modify.html', user=db.get_user(g.user))
     db.updateUser(g.user, user)
     return redirect(url_for('general.profile'))
 
@@ -150,7 +152,7 @@ def modify():
 @requiresLogin
 def modifyPage():
     """Returns user modification template with user data filled out"""
-    user = db.getUser(g.user)
+    user = db.get_user(g.user)
     return render_template('modify.html', user=user, categoryList=db.getCategoryNames())
 
 
@@ -158,7 +160,7 @@ def modifyPage():
 @requiresLogin
 def profile():
     """Returns user profile page with user info"""
-    user = db.getUser(g.user)
+    user = db.get_user(g.user)
     return render_template('profile.html', user=user)
 
 
@@ -184,6 +186,7 @@ def registerSystemPage():
     """Returns page for registering a new system"""
     return render_template('register_system.html')
 
+
 @mod.route('/author_keywords/<path:author_url>', methods=['GET'])
 def author_keywords(author_url):
     """Endpoint for fetching an authors keywords from their dblp article url.
@@ -196,6 +199,7 @@ def author_keywords(author_url):
         return jsonify(error=str(e))
     return jsonify(keywords=keywords)
 
+
 @mod.route('/keyword_feedback/<keyword>/<feedback>', methods=['GET'])
 def user_keyword_feedback(keyword, feedback):
     """Endpoint for saving a users feedback on a suggested keyword.
@@ -205,6 +209,7 @@ def user_keyword_feedback(keyword, feedback):
         return jsonify(result='success')
     else:
         return jsonify(results='fail')
+
 
 @mod.route('/feedback/', methods=['GET'])
 @requiresLogin
@@ -237,10 +242,23 @@ def submitFeedback():
     flash('Successfully sent feedback.', 'success')
     return redirect('/')
 
-@mod.route('/terms-and-conditions/', methods=['GET'])
+
+@mod.route('/terms_and_conditions/', methods=['GET'])
 def termsandconditions():
     """Returns terms and conditions page."""
     return render_template('terms_and_conditions.html')
+
+
+@mod.route('/personal_data/', methods=['GET'])
+@requiresLogin
+def download_personal_data():
+    """Returns all the data collected about the currently logged in user.
+    :return: gzipped json of user data.
+    """
+    user_data = db.get_all_userdata(g.user)
+    user_data = json.dumps(user_data, sort_keys=True).encode('utf-8')
+    return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')
+
 
 def makeAuthTokenResponse(id, email, next):
     """creates an authToken for a user with id and email. Then redirects to next"""
