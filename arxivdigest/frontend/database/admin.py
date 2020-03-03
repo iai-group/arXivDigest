@@ -19,9 +19,11 @@ def isAdmin(id):
 def getSystems():
     '''Returns list of all recommending systems'''
     cur = getDb().cursor(dictionary=True)
-    cur.execute('SELECT * FROM systems')
+    cur.execute('''select system_ID, system_name, api_key, active, email, firstname, 
+                lastname, company from systems natural join users;''')
     systems = cur.fetchall()
     cur.close()
+    print(systems)
     return systems
 
 
@@ -114,13 +116,3 @@ def getAdmins():
     admindata = cur.fetchall()
     cur.close()
     return admindata
-
-def get_system_user_data(user_id):
-    """Gets data for a user that is needed to complete information about
-    a system"""
-    cur = getDb().cursor(dictionary=True)
-    sql = 'select firstName, lastName, email, company from users where user_ID = %s'
-    cur.execute(sql, (user_id, ))
-    userdata = cur.fetchone()
-    cur.close()
-    return userdata

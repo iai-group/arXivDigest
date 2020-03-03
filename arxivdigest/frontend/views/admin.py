@@ -35,21 +35,7 @@ def admin():
 @requiresLogin
 def getSystems():
     """Returns list of systems from db"""
-    systems = db.getSystems()
-    full_systems = []
-    for system in systems:
-        user = db.get_system_user_data(g.user)
-        system = {
-            'system_ID': system['system_ID'],
-            'system_name': system['system_name'],
-            'contact_name': user['firstName'] + ' '+ user['lastName'],
-            'company_name': user['company'],
-            'email': user['email'],
-            'api_key': system['api_key'],
-            'active': system['active']
-        }
-        full_systems.append(system)
-    return jsonify({'success': True, 'systems': full_systems})
+    return jsonify({'success': True, 'systems': db.getSystems()})
 
 
 @mod.route('/admins/get', methods=['GET'])
