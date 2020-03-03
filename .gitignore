@@ -2,4 +2,4 @@
 __pycache__
 .webassets-cache
 /arXivDigest.egg-info/
-/arxivdigest/frontend/static/gen/
+/arxivdigest/frontend/static/generated/
