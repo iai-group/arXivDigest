@@ -1,5 +1,5 @@
 ALTER TABLE systems
-ADD user_ID int not null default 1; 
+ADD user_ID int default NULL; 
 
 ALTER TABLE systems
 ADD FOREIGN KEY (user_ID) REFERENCES users(user_ID);
