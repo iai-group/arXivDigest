@@ -73,7 +73,7 @@ class User():
     def company(self,company):
         """Checks if company name seems valid"""
         if not validString(company, 1, 255):
-            raise ValidationError('Invalid  company name fromat.')
+            raise ValidationError('Invalid  company name format.')
         self._company = company
 
     @property
