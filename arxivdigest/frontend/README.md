@@ -110,6 +110,16 @@ Routes available:
 
 >Decorator that checks if you are logged in before accessing the route it is used on. If you are not logged in it returns login page and error message.
 
+## Configurations
+
+These are the values that can be configured in the frontend-section of config.json.
+
+- `data_path`: Path where the application will store caches and compiled static files, and other data needed by the application. Will try to create files inside of package install location if left empty.
+- `dev_port`: Port the server while be launched on while running in development mode.
+- `MAX_CONTENT_LENGTH`: Maximum request size.
+- `jwt_key`: Secret key for signing JWTs.
+- `secret_key`: Secret key used by flask.
+
 ## Database
 
 | Tables | Fields |

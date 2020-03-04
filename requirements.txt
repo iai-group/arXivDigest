@@ -6,6 +6,7 @@ passlib
 nltk
 Flask-Assets
 jsmin
+cssmin
 elasticsearch
 bs4
 requests
