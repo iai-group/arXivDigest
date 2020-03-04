@@ -166,12 +166,7 @@ def profile():
 def registerSystem():
     """Registers a system or returns an error if something went wrong."""
     form = request.form.to_dict()
-    try:
-        system = System(form)
-    except ValidationError as e:
-        flash(e.message, 'danger')
-        return render_template('register_system.html')
-    err = db.insertSystem(system)
+    err = db.insertSystem(form['name'], g.user)
     if err:
         flash(err, 'danger')
         return render_template('register_system.html')
@@ -180,6 +175,7 @@ def registerSystem():
 
 
 @mod.route('/system/register', methods=['GET'])
+@requiresLogin
 def registerSystemPage():
     """Returns page for registering a new system"""
     return render_template('register_system.html')
