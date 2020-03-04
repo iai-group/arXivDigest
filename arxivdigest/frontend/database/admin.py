@@ -17,11 +17,11 @@ def isAdmin(id):
 
 
 def getSystems():
-    '''Returns list of all recommending systems with null values if
-    the systems are not connected to a user'''
+    """Returns list of all recommending systems with null values if
+    the systems are not connected to a user."""
     cur = getDb().cursor(dictionary=True)
     cur.execute('''select system_ID, api_key, active, email, firstname, lastname, 
-                company, system_name from systems left join users
+                organization, system_name from systems left join users
                 on users.user_ID = systems.user_ID;''')
     systems = cur.fetchall()
     cur.close()

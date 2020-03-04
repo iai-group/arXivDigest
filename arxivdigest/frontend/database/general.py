@@ -97,7 +97,7 @@ def insertSystem(system_name, user_id):
     and using uuid a random API-key is generated. Returns None if successfull and an error if not."""
     conn = getDb()
     cur = conn.cursor()
-    sql = 'INSERT INTO systems VALUES(null,%s,%s,False,%s)'
+    sql = 'INSERT INTO systems VALUES(null, %s, %s, False, %s)'
     key = str(uuid4())
     try:
         cur.execute(sql, (key, system_name, user_id))
