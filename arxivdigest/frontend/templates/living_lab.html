@@ -1,0 +1,59 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container">
+    <div class="row">
+        <div style="width:80%; margin-left:10%;">
+            
+            <div id="living_lab_info">
+                <h2>Living Lab</h2>
+                <p>Living labs explanation</p>
+                <p>
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
+                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
+                    exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute 
+                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla 
+                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia 
+                    deserunt mollit anim id est laborum."
+                </p>
+            </div>
+            <br>
+            <h2 style="text-align: center;">Your systems:</h2>
+            <div id="user_system_list">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Contact name</th>
+                            <th>Organization name</th>
+                            <th>Email</th>
+                            <th>API-key</th>
+                            <th>Activated</th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {%for system in systems%}
+                        <tr>
+                            <td>{{system.system_ID}}</td>
+                            <td>{{system.system_name}}</td>
+                            <td>{{system.firstname}} {{system.firstname}}</td>
+                            <td>{{system.organization}}</td>
+                            <td>{{system.email}}</td>
+                            <td>{{system.api_key}}</td>
+                            {%if system.active == 1%}
+                            <td>Yes</td>
+                            {%else%}
+                            <td>No</td>
+                            {%endif%}
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <a href="{{ url_for('general.registerSystemPage') }}" id="create_system_button">Add a new system</a>
+        </div>
+    </div>
+</div>
+
+{%endblock%}

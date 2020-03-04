@@ -184,6 +184,11 @@ def registerSystemPage():
     """Returns page for registering a new system"""
     return render_template('register_system.html')
 
+@mod.route('/livinglab', methods=['GET'])
+def livinglab():
+    """Returns page for livinglabs with systems belonging to a user"""
+    return render_template('living_lab.html', systems=db.get_user_systems(g.user))
+
 @mod.route('/author_keywords/<path:author_url>', methods=['GET'])
 def author_keywords(author_url):
     """Endpoint for fetching an authors keywords from their dblp article url.

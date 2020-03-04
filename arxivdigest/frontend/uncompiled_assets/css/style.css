@@ -256,6 +256,16 @@ input[type=submit] {
   width: 300px;
 }
 
+#create_system_button{
+  width: 300px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+  padding: 10px;
+  margin-left: 43%;
+}
+
 input[type=submit]:hover {
   background-color: #45a049;
 }
@@ -635,4 +645,8 @@ code {
 #tc_checkbox{
   max-width: 12px;
   margin-left: 40%;
+}
+
+#living_lab_info{
+  text-align: center;
 }
