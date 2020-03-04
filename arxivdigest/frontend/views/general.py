@@ -44,8 +44,9 @@ def login():
         return render_template('login.html', )
     next = request.args.get('next', '')
     if next is not '':
-        return makeAuthTokenResponse(user, data.get('email'), next)
-    return makeAuthTokenResponse(user, data.get('email'), url_for('articles.index'))
+        return make_auth_token_response(user, data.get('email'), next)
+    return make_auth_token_response(user, data.get('email'),
+                                    url_for('articles.index'))
 
 
 @mod.route('/login', methods=['GET'])
@@ -92,7 +93,8 @@ def signup():
 
     id = db.insertUser(user)
 
-    return makeAuthTokenResponse(id, user.email, url_for('general.signupPage'))
+    return make_auth_token_response(id, user.email,
+                                    url_for('general.signupPage'))
 
 
 @mod.route('/signup', methods=['GET'])
@@ -260,9 +262,16 @@ def download_personal_data():
     return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')
 
 
-def makeAuthTokenResponse(id, email, next):
-    """creates an authToken for a user with id and email. Then redirects to next"""
-    authToken = encode_auth_token(id, email)
-    resp = make_response(redirect(next))
-    resp.set_cookie('auth', authToken, max_age=60 * 60 * 24 * 10)
+def make_auth_token_response(user_id, email, next_page):
+    """Creates a Response object that redirects to 'next_page' with
+    an authorization token containing the current users info.
+
+    :param user_id: ID of the logged in user.
+    :param email: Email of the logged in user.
+    :param next_page: Url_path for page to redirect to.
+    :return: Response object that redirects to 'next_page', with an auth_token.
+    """
+    auth_token = encode_auth_token(user_id, email)
+    resp = make_response(redirect(next_page))
+    resp.set_cookie('auth', auth_token, max_age=60 * 60 * 24 * 10)
     return resp

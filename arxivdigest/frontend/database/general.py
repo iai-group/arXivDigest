@@ -294,8 +294,9 @@ def get_feedback(user_id):
 
 
 def get_system_recommendations(user_id):
-    """Get system recommendations for given user. Includes user interactiondata
-    if the
+    """Get system recommendations for given user. Includes user interaction data
+    if the recommendation has been shown to the user.
+
     :param user_id: User to get feedback for.
     :return: List of system recommendation instances.
     """
