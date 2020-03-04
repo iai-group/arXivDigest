@@ -470,15 +470,21 @@ code {
   color: rgb(78, 78, 78);
 }
 
-.footer_item{
+#footer_feedback{
+  color: white;
   text-decoration: none;
+  position: absolute;
+  top:25%;
+  border: 1px solid rgb(80, 80, 80);
+  background-color: #868585;
   border-radius: 10px;
   padding: 5px;
-  float: left;
-  margin-left: 20px;
-  margin-top: 10px;
+  left: 43%;
 }
 
+#footer_feedback:hover{
+  background-color: #696969;
+}
 
 .showMore{
   position: absolute;

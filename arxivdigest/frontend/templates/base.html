@@ -7,9 +7,8 @@
 
     <title>ArXivDigest</title>
 
-    {% assets "css_base" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}">
-    {% endassets %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
     <link rel="stylesheet " href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css ">
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -57,6 +56,9 @@
                             <a href="{{ url_for('admin.admin') }}">Administrate</a>
                         </li>
                     {% endif %} {% endif %}
+                <li>
+                    <a href="{{ url_for('general.registerSystemPage') }}">Register new system</a>
+                </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if g.loggedIn %}
@@ -89,13 +91,7 @@
 
 <footer>
     <div class="container ">
-        <a href="{{ url_for('general.feedbackPage') }}" class="footer_item">Give us feedback on our system</a>
-        <p class="footer_item">|</p>
-        <a href="{{ url_for('general.termsandconditions') }}" class="footer_item">Terms and conditions</a>
-        <p class="footer_item">|</p>
-        <a href="{{ url_for('general.registerSystemPage') }}" class="footer_item">Living Labs</a>
-        <p class="footer_item">|</p>
-        <p class="footer_item">Copyright (c) <a href="http://iai.group/">IAI group</a>, <a href="https://www.uis.no/frontpage/#Studies">University of Stavanger</a>, 2020</p>
+        <a href="{{ url_for('general.feedbackPage') }}" id="footer_feedback">Give us feedback on our system.</a>
     </div>
 </footer>
 <!-- Libraries - Placed at the end of the page so it loads faster-->
@@ -103,7 +99,8 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js "></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js'></script>
-{% assets "js_base" %}
+{% assets filters="jsmin", output="gen/packed.js", "javascript/forms.js",
+ "javascript/autocomplete.js","javascript/articlelist.js","javascript/admin.js", "javascript/keywords.js" %}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 </body>

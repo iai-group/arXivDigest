@@ -28,7 +28,7 @@ How to deploy a flask application can be found [here](http://flask.pocoo.org/doc
 
 An example frontend.wsgi file, for the api just switch frontend with api:
 
-```py
+```
 #!/opt/anaconda3/bin/python
 import sys
 import logging
@@ -36,11 +36,8 @@ logging.basicConfig(stream=sys.stderr)
 sys.path.insert(0,"/opt/anaconda3/lib/python3.6/site-packages/")
 
 from arxivdigest.frontend.app import app as application
+application.secret_key = SOME_SECRET_KEY
 ```
-
-Remember to configure the settings in [config.json](config.json) especially the secret_keys. More info at [Frontend configuration](arxivdigest/frontend/README.md#configurations) and  [API configuration](arxivdigest/api/README.md#configurations)
-
-Static files should be served by a webserver for best performance, to achieve this a 'data_path' must be configured in the config. Then the webserver needs to be configured to reroute calls to '/static' to the folder named static that gets generated inside this location after the first launch. If not rerouted these files will be served through Flask.
 
 #### Development
 

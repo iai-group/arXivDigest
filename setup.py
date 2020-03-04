@@ -11,10 +11,9 @@ setup(
     packages=find_packages(),
     package_data={'arxivdigest.core.mail': ['templates/*.tmpl'],
                   'arxivdigest.frontend': ['templates/*.html',
-                                           'uncompiled_assets/css/*',
-                                           'uncompiled_assets/javascript/*',
                                            'static/*',
                                            'static/icons/*',
+                                           'static/javascript/*'
                                            ],
                   },
     url='https://github.com/iai-group/arXivDigest',

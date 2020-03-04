@@ -29,7 +29,6 @@
         "articles_per_date_in_email": 3
     },
     "frontend_config": {
-        "data_path": "",
         "dev_port": 80,
         "MAX_CONTENT_LENGTH": 10000000,
         "jwt_key": "mn643745hb6436l,75687kj37hb26vg3wazsefewms5474.,m4nb4q23vqcxwazsmw46n3bvqcawzwab3241vcawqz,6lk4mj3hbavesww",

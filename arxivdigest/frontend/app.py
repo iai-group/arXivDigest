@@ -3,14 +3,10 @@
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
-import os
-import pathlib
-import shutil
 import jwt
 from flask import Flask
 from flask import g
 from flask import request
-from flask_assets import Bundle
 from flask_assets import Environment
 
 from arxivdigest.core.config import frontend_config
@@ -26,44 +22,7 @@ app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
 app.config['MAX_CONTENT_LENGTH'] = frontend_config.get('MAX_CONTENT_LENGTH')
-
 assets = Environment(app)
-if frontend_config.get('data_path', None):
-    data_path = os.path.join(frontend_config['data_path'], 'arxivdigest')
-    cache_path = os.path.join(data_path, 'cache', '.webassets-cache')
-    static_path = os.path.abspath(os.path.join(data_path, 'static'))
-
-    pathlib.Path(cache_path).mkdir(parents=True, exist_ok=True)
-
-    assets.cache = os.path.abspath(cache_path)
-    assets.directory = os.path.abspath(static_path)
-    app.static_folder = static_path
-
-    if os.path.exists(static_path):
-        shutil.rmtree(static_path)
-    shutil.copytree(os.path.join(app.root_path, 'static'), static_path)
-
-# Do not automatically build assets in deployment for performance
-assets.auto_build = False
-assets.append_path(os.path.join(app.root_path, 'uncompiled_assets'))
-
-js_bundle = Bundle('javascript/autocomplete.js',
-                   'javascript/forms.js',
-                   'javascript/articlelist.js',
-                   'javascript/admin.js',
-                   'javascript/keywords.js',
-                   filters='jsmin',
-                   output='generated/js/base.%(version)s.js')
-
-css_bundle = Bundle('css/style.css',
-                    filters='cssmin',
-                    output='generated/css/base.%(version)s.css')
-
-assets.register('js_base', js_bundle)
-assets.register('css_base', css_bundle)
-js_bundle.build()
-css_bundle.build()
-
 
 @app.before_request
 def before_request():
@@ -91,5 +50,4 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
-    assets.auto_build = True
     app.run(port=frontend_config.get('dev_port'), debug=True)
