@@ -160,19 +160,19 @@ def profile():
     return render_template('profile.html', user=user)
 
 
-@mod.route('/system/register', methods=['POST'])
+@mod.route('/livinglab/register', methods=['POST'])
 def registerSystem():
     """Registers a system or returns an error if something went wrong."""
     form = request.form.to_dict()
-    err = db.insertSystem(form['name'], g.user)
+    err, key = db.insertSystem(form['name'], g.user)
     if err:
         flash(err, 'danger')
         return render_template('register_system.html')
-    flash('Successfully sent the system registration.', 'success')
-    return render_template('register_system.html')
+    flash('Successfully regstered the system with key: ' + key, 'success')
+    return redirect(url_for('general.livinglab'))
 
 
-@mod.route('/system/register', methods=['GET'])
+@mod.route('/livinglab/register', methods=['GET'])
 @requiresLogin
 def registerSystemPage():
     """Returns page for registering a new system"""
