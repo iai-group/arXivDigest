@@ -105,6 +105,8 @@ def insertSystem(system_name, user_id):
         print(col)
         if col == "'system_name'":
             return "System name already in use by another system.", None
+        else:
+            return "Error, can not connect to server. Try again later", None
     conn.commit()
     return None, key
 
