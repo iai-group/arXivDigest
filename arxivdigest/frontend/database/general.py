@@ -24,8 +24,9 @@ def get_user(user_id):
     """
     cur = getDb().cursor()
     sql = '''SELECT user_ID, email, firstname, lastname, keywords, organization,
-    notification_interval, registered, last_email_date, last_recommendation_date
-    FROM users WHERE user_ID = %s'''
+             notification_interval, registered, last_email_date,
+             last_recommendation_date
+             FROM users WHERE user_ID = %s'''
     cur.execute(sql, (user_id,))
     user_data = cur.fetchone()
     if not user_data:
