@@ -16,6 +16,7 @@ class User():
         self.password = user.get('password')
         self.firstName = user.get('firstName')
         self.lastName = user.get('lastName')
+        self.organization = user.get('organization')
         self.webpages = user.get('website', [])
         self.keywords = user.get('keywords')
         self.categories = user.get('categories')
@@ -63,6 +64,17 @@ class User():
         if not validString(lastName, 1, 255):
             raise ValidationError('Invalid  lastname fromat.')
         self._lastName = lastName
+
+    @property
+    def organization(self):
+        return self._organization
+
+    @organization.setter
+    def organization(self,organization):
+        """Checks if organization name seems valid"""
+        if not validString(organization, 1, 255):
+            raise ValidationError('Invalid organization name format.')
+        self._organization = organization
 
     @property
     def webpages(self):

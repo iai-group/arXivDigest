@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
+from contextlib import closing
 
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import datetime
-from collections import defaultdict
 from datetime import datetime
 from uuid import uuid4
 
 import mysql.connector
-from flask import g
 from mysql import connector
 from mysql.connector import errorcode
 from passlib.hash import pbkdf2_sha256
@@ -24,7 +23,7 @@ def get_user(user_id):
     :return: User data as dictionary.
     """
     cur = getDb().cursor()
-    sql = '''SELECT user_ID, email, firstname, lastname, keywords, 
+    sql = '''SELECT user_ID, email, firstname, lastname, keywords, organization,
     notification_interval, registered, last_email_date, last_recommendation_date
     FROM users WHERE user_ID = %s'''
     cur.execute(sql, (user_id,))
@@ -38,10 +37,11 @@ def get_user(user_id):
         'firstName': user_data[2],
         'lastName': user_data[3],
         'keywords': user_data[4],
-        'notificationInterval': user_data[5],
-        'registered': user_data[6],
-        'last_email_date': user_data[7],
-        'last_recommendation_date': user_data[8],
+        'organization': user_data[5],
+        'notificationInterval': user_data[6],
+        'registered': user_data[7],
+        'last_email_date': user_data[8],
+        'last_recommendation_date': user_data[9],
     }
 
     cur.execute('SELECT url FROM user_webpages WHERE user_ID = %s',
@@ -74,7 +74,7 @@ def insertUser(user):
     """Insert user object, webpages and categories into database. Return error or users id"""
     conn = getDb()
     cur = conn.cursor()
-    usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,DEFAULT,%s,false)'
+    usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,DEFAULT,%s,false,%s)'
     webpagesql = 'INSERT INTO user_webpages VALUES(%s,%s)'
     categoriesql = 'INSERT INTO user_categories VALUES(%s,%s)'
 
@@ -86,7 +86,7 @@ def insertUser(user):
     curdate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     cur.execute(usersql, (user.email, user.hashedPassword,
                           user.firstName, user.lastName, user.keywords,
-                          user.digestfrequency, curdate))
+                          user.digestfrequency, curdate, user.organization))
     id = cur.lastrowid
     userCategories = [(id, x) for x in user.categories]
     userWebpages = [(id, x) for x in user.webpages]
@@ -99,16 +99,15 @@ def insertUser(user):
     return id
 
 
-def insertSystem(system):
+def insertSystem(system_name, user_id):
     """Inserts a new system into the database, name will be used as Name for the system,
     and using uuid a random API-key is generated. Returns None if successfull and an error if not."""
     conn = getDb()
     cur = conn.cursor()
-    sql = 'INSERT INTO systems VALUES(null,%s,%s,%s,%s,%s,False)'
+    sql = 'INSERT INTO systems VALUES(null, %s, %s, False, %s)'
     key = str(uuid4())
     try:
-        cur.execute(sql, (key, system.name, system.contact,
-                          system.organization, system.email))
+        cur.execute(sql, (key, system_name, user_id))
     except connector.errors.IntegrityError as e:
         col = str(e).split("key ", 1)[1]
         if col == "'system_name_UNIQUE'":
@@ -124,7 +123,7 @@ def updateUser(userid, user):
     """Update user with userid. User object contains new info for this user. Returns True on Success"""
     conn = getDb()
     cur = conn.cursor()
-    usersql = 'UPDATE users SET email = %s, firstname = %s, lastname = %s, keywords = %s, notification_interval = %s WHERE user_ID = %s'
+    usersql = 'UPDATE users SET email = %s, firstname = %s, lastname = %s, keywords = %s, notification_interval = %s, organization = %s WHERE user_ID = %s'
     webpagesql = 'INSERT INTO user_webpages VALUES(%s,%s)'
     categoriesql = 'INSERT INTO user_categories VALUES(%s,%s)'
 
@@ -133,6 +132,7 @@ def updateUser(userid, user):
 
     cur.execute(usersql, (user.email, user.firstName,
                           user.lastName, user.keywords, user.digestfrequency,
+                          user.organization,
                           userid))
     cur.execute('DELETE FROM user_webpages WHERE user_ID = %s', (userid,))
     cur.execute('DELETE FROM user_categories WHERE user_ID = %s', (userid,))
@@ -179,44 +179,6 @@ def getCategoryNames():
     data = cur.fetchall()
     cur.close()
     return [[x[0], x[1]] for x in data]
-
-
-def get_keywords_from_titles(titles, num=1000):
-    """Returns a list of keywords for a list of scientific paper titles.
-    Can also specify the number of keywords to return."""
-    cur = getDb().cursor(dictionary=True)
-
-    sql = f'''SELECT o.feedback, k.title, k.keyword, k.score FROM keywords k 
-              NATURAL LEFT JOIN keyword_feedback o
-              WHERE title IN ({','.join(['%s'] * len(titles))}) 
-              AND (o.user_ID = %s OR o.user_ID IS NULL) 
-              UNION 
-              SELECT null, k.title, k.keyword, k.score FROM keywords k   
-              WHERE title IN ({','.join(['%s'] * len(titles))})
-              ORDER BY score DESC LIMIT %s;'''
-
-    cur.execute(sql, (*titles, g.user, *titles, num))
-    data = cur.fetchall()
-    cur.close()
-
-    if not data:
-        raise ValueError('No matching publications in database')
-
-    rows = defaultdict(list)
-    for row in data:  # Some keyword-title pairs has two rows
-        rows[(row['title'], row['keyword'])].append(row)
-
-    keywords = defaultdict(int)
-    for row in rows.values():
-        if len(row) > 1:  # Only keep the row containing 'feedback'
-            row = row[0] if row[0]['feedback'] else row[1]
-        else:
-            row = row[0]
-        if row['feedback'] == 'discarded':
-            continue
-        keywords[row['keyword']] += row['score']
-
-    return keywords
 
 
 def store_keyword_feedback(userid, keyword, feedback):
@@ -281,8 +243,8 @@ def get_keyword_feedback_user(user_id):
     return cur.fetchall()
 
 
-def get_feedback(user_id):
-    """Get feedback from given user.
+def get_freetext_feedback(user_id):
+    """Get freetext feedback from given user.
     :param user_id: User to get feedback for.
     :return: List of feedback instances.
     """
@@ -293,7 +255,7 @@ def get_feedback(user_id):
     return cur.fetchall()
 
 
-def get_system_recommendations(user_id):
+def get_article_recommendations(user_id):
     """Get system recommendations for given user. Includes user interaction data
     if the recommendation has been shown to the user.
 
@@ -318,6 +280,19 @@ def get_system_recommendations(user_id):
     return cur.fetchall()
 
 
+def get_systems(user_id):
+    """Gets systems belonging to a user.
+
+    :param user_id: User to get feedback for.
+    :return: List of system dictionaries.
+    """
+    with closing(getDb().cursor(dictionary=True)) as cur:
+        sql = '''SELECT system_ID, system_name, api_key, active
+                 FROM systems WHERE user_ID = %s'''
+        cur.execute(sql, (user_id,))
+        return cur.fetchall()
+
+
 def get_all_userdata(user_id):
     """Get all data for the given user as a dictionary.
 
@@ -326,6 +301,20 @@ def get_all_userdata(user_id):
     """
 
     return {'user': get_user(user_id),
-            'keyword_feedback': get_keyword_feedback_user(user_id),
-            'feedback': get_feedback(user_id),
-            'recommendations': get_system_recommendations(user_id)}
+            'freetext_feedback': get_freetext_feedback(user_id),
+            'topic_recommendations': get_keyword_feedback_user(user_id),
+            'article_recommendations': get_article_recommendations(user_id),
+            'systems': get_systems(user_id)}
+
+
+def get_user_systems(user_id):
+    """Gets systems belonging to a user."""
+    conn = getDb()
+    cur = conn.cursor(dictionary=True)
+    sql = '''select system_ID, api_key, active, email, firstname, lastname,
+          organization, system_name from systems left join users on 
+          users.user_ID = systems.user_ID where users.user_ID = %s'''
+    cur.execute(sql, (user_id,))
+    systems = cur.fetchall()
+    cur.close()
+    return systems

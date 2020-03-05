@@ -58,13 +58,9 @@ Routes available:
 
 >Likes or unlikes articles from web, depending on current state. Returns "Success" or "Fail".
 
-``/author_keywords/<author_url> [GET]``
-
->Scrapes the url provided for paper titles and looks up titles in database to find matching keywords. Returns "" or list of keywords.
-
 ``/keyword_opinion/<keyword>/<opinion> [GET]``
 
->Stores the suggested keyword for an user along with the users opinion on that keywors (discarded or approved). Returns "fail" or "success".
+>Stores the suggested keyword for an user along with the users opinion on that keywors (discarded or approved).
 
 ``/mail/like/<int:userID>/<string:articleID>/<uuid:trace> [GET]``
 
@@ -110,11 +106,21 @@ Routes available:
 
 >Decorator that checks if you are logged in before accessing the route it is used on. If you are not logged in it returns login page and error message.
 
+## Configurations
+
+These are the values that can be configured in the frontend-section of config.json.
+
+- `data_path`: Path where the application will store caches and compiled static files. There will be created folders named 'static' and 'cache' in this location, or if these folders already exist the content will be deleted. Files will be created inside of package install location if left empty.
+- `dev_port`: Port the server while be launched on while running in development mode.
+- `MAX_CONTENT_LENGTH`: Maximum request size.
+- `jwt_key`: Secret key for signing JWTs.
+- `secret_key`: Secret key used by flask.
+
 ## Database
 
 | Tables | Fields |
 | ------------- | ------------- |
-| users | user_ID, email, salted_hash, firstname, lastname, keywords, notification_interval, registered, admin, last_recommendation_date |
+| users | user_ID, email, salted_hash, firstname, lastname, keywords, notification_interval, registered, admin, last_recommendation_date, company|
 | user_categories | user_ID, category_ID |
 | user_webpages | user_ID, url |
 | articles | article_ID, title, abstract, doi, comments, licence, journal, datestamp |
@@ -126,6 +132,7 @@ Routes available:
 | systems | system_ID, api_key, system_name, active |
 | user_recommendations | user_ID, article_ID, system_ID, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email |
 | keywords | title, keyword, score |
+| keyword feedback | user_id, keyword, feedback, datestamp |
 
 ## Setup
 

@@ -1,5 +1,6 @@
 .idea
-__pycache__
 .webassets-cache
-*/static/gen/*
+_server/
+__pycache__
 /arXivDigest.egg-info/
+/arxivdigest/frontend/static/generated/

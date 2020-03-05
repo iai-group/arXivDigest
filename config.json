@@ -29,6 +29,7 @@
         "articles_per_date_in_email": 3
     },
     "frontend_config": {
+        "data_path": "",
         "dev_port": 80,
         "MAX_CONTENT_LENGTH": 10000000,
         "jwt_key": "mn643745hb6436l,75687kj37hb26vg3wazsefewms5474.,m4nb4q23vqcxwazsmw46n3bvqcawzwab3241vcawqz,6lk4mj3hbavesww",
@@ -38,10 +39,5 @@
         "liked_weight": 5,
         "clicked_web_weight": 3,
         "clicked_email_weight": 3
-    },
-    "keyword_scraper_config": {
-        "max_keyword_length": 6,
-        "dblp_dump_link": "https://dblp.uni-trier.de/xml/dblp.xml.gz",
-        "dblp_save_path": "dblp.xml.gz"
     }
 }

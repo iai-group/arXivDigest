@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
@@ -26,7 +28,15 @@ def find_config_file(file_locations):
     return None
 
 
-with open(find_config_file(__file_locations)) as file:
+config_file = find_config_file(__file_locations)
+if not config_file:
+    print('No config-file found in any of the following locations:')
+    for location in __file_locations:
+        print(os.path.abspath(location))
+    print('Exiting.')
+    sys.exit()
+
+with open(config_file) as file:
     config = json.load(file)
 
 config['email_config']['templates'] = resource_filename(
@@ -38,7 +48,6 @@ api_config = config.get('api_config')
 interleave_config = config.get('interleave_config')
 frontend_config = config.get('frontend_config')
 evaluation_config = config.get('evaluation_config')
-keyword_scraper_config = config.get('keyword_scraper_config')
 
 jwtKey = frontend_config.get('jwt_key')
 secret_key = frontend_config.get('secret_key')
