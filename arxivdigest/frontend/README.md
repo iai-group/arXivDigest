@@ -60,7 +60,7 @@ Routes available:
 
 ``/keyword_opinion/<keyword>/<opinion> [GET]``
 
->Stores the suggested keyword for an user along with the users opinion on that keywors (discarded or approved). Returns "fail" or "success".
+>Stores the suggested keyword for an user along with the users opinion on that keywors (discarded or approved).
 
 ``/mail/like/<int:userID>/<string:articleID>/<uuid:trace> [GET]``
 
@@ -120,7 +120,7 @@ These are the values that can be configured in the frontend-section of config.js
 
 | Tables | Fields |
 | ------------- | ------------- |
-| users | user_ID, email, salted_hash, firstname, lastname, keywords, notification_interval, registered, admin, last_recommendation_date |
+| users | user_ID, email, salted_hash, firstname, lastname, keywords, notification_interval, registered, admin, last_recommendation_date, company|
 | user_categories | user_ID, category_ID |
 | user_webpages | user_ID, url |
 | articles | article_ID, title, abstract, doi, comments, licence, journal, datestamp |
@@ -132,6 +132,7 @@ These are the values that can be configured in the frontend-section of config.js
 | systems | system_ID, api_key, system_name, active |
 | user_recommendations | user_ID, article_ID, system_ID, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email |
 | keywords | title, keyword, score |
+| keyword feedback | user_id, keyword, feedback, datestamp |
 
 ## Setup
 

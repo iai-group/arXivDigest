@@ -48,6 +48,16 @@
                 </tr>
                 <tr>
                     <td>
+                        <label for="organization">Organization:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="organization" name="organization" value="{{user.organization}}" required onblur="inputTouched(this);" size="60"
+                            onfocus="removeTouched(this)">
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
                         <label for="websiteInput" class="signupLabel">Websites: *</label>
                     </td>
                     <td>
