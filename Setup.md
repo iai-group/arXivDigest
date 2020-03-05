@@ -28,17 +28,6 @@ This document contains instructions on how to install and deploy the arXivDigest
   4. Update your local `config.json` file with any new configuration options introduced in [config.json](/config.json).
 
 
-## Batch processes
-
-There is a number of recurrent processes that should be automated to run at specific times.  This can be achieved by running these scripts with a cronjob.
-
-The scripts should be run in the following order:
-
-  * [Article scraper](scraper/): Should be run when arXiv releases new articles. The arXiv release schedule can be found [here](https://arxiv.org/help/submit#availability).  Note that articles are not released every day, so this script will not always insert any articles.
-  * [Interleaver](interleave/): Should be run after the Article scraper.  Make sure that there is enough time for the recommender systems to generate recommendations between running the two scripts.
-  * [Evaluation](scripts/evaluation.py): Can be run at any time to evaluate the performance of the systems.
-
-
 ## Frontend and API
 
 ### Development mode
@@ -67,3 +56,14 @@ from arxivdigest.frontend.app import app as application
 Remember to configure the settings in [config.json](config.json), especially the secret_keys. For more details, see [Frontend configuration](arxivdigest/frontend/README.md#configurations) and [API configuration](arxivdigest/api/README.md#configurations).
 
 For best performance, static files should be served by the web server directly. To achieve this, `data_path` must be set in the config file. Then, the web server needs to be configured to reroute calls to `/static` to the folder named `static` that gets generated inside this location after the first launch. If not rerouted, these files will be served through Flask.
+
+
+## Batch processes
+
+There is a number of recurrent processes that should be automated to run at specific times.  This can be achieved by running these scripts with a cronjob.
+
+The scripts should be run in the following order:
+
+  * [Article scraper](scraper/): Should be run when arXiv releases new articles. The arXiv release schedule can be found [here](https://arxiv.org/help/submit#availability).  Note that articles are not released every day, so this script will not always insert any articles.
+  * [Interleaver](interleave/): Should be run after the Article scraper.  Make sure that there is enough time for the recommender systems to generate recommendations between running the two scripts.
+  * [Evaluation](scripts/evaluation.py): Can be run at any time to evaluate the performance of the systems.
