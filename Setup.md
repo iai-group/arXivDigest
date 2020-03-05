@@ -6,17 +6,17 @@ This document contains instructions on how to install and deploy the arXivDigest
 ## Initial setup
 
   0. Prerequisites:
-    * [Python 3.6+](https://www.python.org/downloads/)
-    * [MySQL server](https://www.mysql.com/)
+      * [Python 3.6+](https://www.python.org/downloads/)
+      * [MySQL server](https://www.mysql.com/)
   1. Clone this repository to a location of your choice (will be referred to as `REPO_PATH` below).
   2. Execute all SQL scripts under [db/](db/) in sequential order, starting with [db/database.sql](db/database.sql) then V1, V2, etc.
   3. Run `pip install .` while inside `REPO_PATH` to install the `arxivdigest` Python package and its dependencies.
-    * If installing with the purpose of development, use the command `pip install -e .` instead, to allow editing of the installed package.
-    * If running the service under an Apache Web Server, you may need to grant access to the respective user (e.g., www-data on Ubuntu) to the installed package.
+      * If installing with the purpose of development, use the command `pip install -e .` instead, to allow editing of the installed package.
+      * If running the service under an Apache Web Server, you may need to grant access to the respective user (e.g., www-data on Ubuntu) to the installed package.
   4. Make sure to put [config.json](/config.json) in any of the below directories and update the settings specific to your system:
-    * `~/arxivdigest/config.json`
-    * `/etc/arxivdigest/config.json`
-    * `%cwd%/config.json`
+      * `~/arxivdigest/config.json`
+      * `/etc/arxivdigest/config.json`
+      * `%cwd%/config.json`
 
 
 ## Installing updates
@@ -24,7 +24,7 @@ This document contains instructions on how to install and deploy the arXivDigest
   1. Pull changes from this repository.
   2. Execute any new SQL scripts in [db/](db/).
   3. Run `pip install .` while inside `REPO_PATH` to update the package and its dependencies.
-    * If needed, check permissions for the installed package.
+      * If needed, check permissions for the installed package.
   4. Update your local `config.json` file with any new configuration options introduced in [config.json](/config.json).
 
 

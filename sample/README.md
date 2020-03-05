@@ -9,7 +9,7 @@ The system has several stages of execution:
   * First, it makes sure an Elasticsearch index with the correct mappings exist.  If not it will be created.
   * Then, it queries the arXivDigest API for articles to add to the index.  These are the articles that will serve as candidate recommendations later.
   * Next, the system queries the arXivDigest API for user information.  This is the information that the system bases its personalized recommendations on.
-  * The system then creates personalized recommendations for each user.  Specifically, it searches the Elasticsearch index for the best matching articlesm using the user's topics as queries.  Then, it aggregates, for each article, the relevance scores of all topics.
+  * The system then creates personalized recommendations for each user.  Specifically, it searches the Elasticsearch index for the best matching articles, using the user's topics as queries.  Then, it aggregates, for each article, the relevance scores of all topics.
   * Finally the articles with the highest overall score for each user are submitted to the arXivDigest API as recommendations.
 
 
