@@ -48,7 +48,8 @@ def getUsers(ids):
     of data about the users requested."""
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
-    sql = "SELECT user_ID, firstname, lastname, keywords, registered, company FROM users WHERE user_ID IN (%s)" % format_strings
+    sql = '''SELECT user_ID, firstname, lastname, keywords, registered,
+          organization FROM users WHERE user_ID IN (%s)''' % format_strings
     cur.execute(sql, ids)
     userList = cur.fetchall()
     users = {}
@@ -60,7 +61,7 @@ def getUsers(ids):
             'registered': userData[4],
             'homepages': [],
             'categories': [],
-            'company': userData[5],
+            'organization': userData[5],
         }
     sql = "SELECT * FROM user_categories WHERE user_ID IN (%s)" % format_strings
     cur.execute(sql, ids)

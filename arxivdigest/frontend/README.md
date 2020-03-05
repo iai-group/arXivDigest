@@ -120,7 +120,7 @@ These are the values that can be configured in the frontend-section of config.js
 
 | Tables | Fields |
 | ------------- | ------------- |
-| users | user_ID, email, salted_hash, firstname, lastname, keywords, notification_interval, registered, admin, last_recommendation_date, company|
+| users | user_ID, email, salted_hash, firstname, lastname, keywords, notification_interval, registered, admin, last_recommendation_date, organization|
 | user_categories | user_ID, category_ID |
 | user_webpages | user_ID, url |
 | articles | article_ID, title, abstract, doi, comments, licence, journal, datestamp |

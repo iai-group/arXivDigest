@@ -81,7 +81,7 @@ Fields returned for each user:
   - `homepages`: list of homepages
   - `keywords`: list of self-supplied keywords
   - `categories` : list of arXiv categories user is interested in
-  - `company`: the company the user registered with
+  - `organization`: the organization the user registered with
 
 Other fields:
   - `error`: if something went wrong
