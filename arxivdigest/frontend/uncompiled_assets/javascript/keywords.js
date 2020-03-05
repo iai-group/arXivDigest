@@ -1,17 +1,19 @@
 function fetch_suggested_keywords(value) {
+    //TODO Change or remove function when new keyword system is implemented
     value = value.replace(/(^\w+:|^)\/\//, '');
     $("#keyword_error").html("");
     $("#keyword_info").html("Loading suggested keywords...");
-    $.getJSON("/author_keywords/" + value, {},
-        function (data) {
-            if (data.error == null) { 
-                $.each(data.keywords, append_keywords); //ajax result contains a dict of keywords:scores (top 8 shown on website)
-            }else{
-                $("#keyword_error").html(data.error);
-            }
-            ;
-            $("#keyword_info").html("");
-        });
+    /*    $.getJSON("/author_keywords/" + value, {},
+            function (data) {
+                if (data.error == null) {
+                    $.each(data.keywords, append_keywords); //ajax result contains a dict of keywords:scores (top 8 shown on website)
+                }else{
+                    $("#keyword_error").html(data.error);
+                }
+                ;
+                $("#keyword_info").html("");
+            });*/
+    $("#keyword_info").html("");
 };
 
 function send_keyword_feedback(div, feedback) {

@@ -4,12 +4,10 @@ __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import datetime
-from collections import defaultdict
 from datetime import datetime
 from uuid import uuid4
 
 import mysql.connector
-from flask import g
 from mysql import connector
 from mysql.connector import errorcode
 from passlib.hash import pbkdf2_sha256
@@ -171,44 +169,6 @@ def getCategoryNames():
     data = cur.fetchall()
     cur.close()
     return [[x[0], x[1]] for x in data]
-
-
-def get_keywords_from_titles(titles, num=1000):
-    """Returns a list of keywords for a list of scientific paper titles.
-    Can also specify the number of keywords to return."""
-    cur = getDb().cursor(dictionary=True)
-
-    sql = f'''SELECT o.feedback, k.title, k.keyword, k.score FROM keywords k 
-              NATURAL LEFT JOIN keyword_feedback o
-              WHERE title IN ({','.join(['%s'] * len(titles))}) 
-              AND (o.user_ID = %s OR o.user_ID IS NULL) 
-              UNION 
-              SELECT null, k.title, k.keyword, k.score FROM keywords k   
-              WHERE title IN ({','.join(['%s'] * len(titles))})
-              ORDER BY score DESC LIMIT %s;'''
-
-    cur.execute(sql, (*titles, g.user, *titles, num))
-    data = cur.fetchall()
-    cur.close()
-
-    if not data:
-        raise ValueError('No matching publications in database')
-
-    rows = defaultdict(list)
-    for row in data:  # Some keyword-title pairs has two rows
-        rows[(row['title'], row['keyword'])].append(row)
-
-    keywords = defaultdict(int)
-    for row in rows.values():
-        if len(row) > 1:  # Only keep the row containing 'feedback'
-            row = row[0] if row[0]['feedback'] else row[1]
-        else:
-            row = row[0]
-        if row['feedback'] == 'discarded':
-            continue
-        keywords[row['keyword']] += row['score']
-
-    return keywords
 
 
 def store_keyword_feedback(userid, keyword, feedback):
