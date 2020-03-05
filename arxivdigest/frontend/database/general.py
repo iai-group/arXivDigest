@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from contextlib import closing
 
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
@@ -15,35 +16,43 @@ from passlib.hash import pbkdf2_sha256
 from arxivdigest.frontend.database.db import getDb
 
 
-def getUser(id):
-    """Return user as a dictionary. Include webpages and categories as sub dictionaries"""
+def get_user(user_id):
+    """Get userdata, include webpages and categories as sub dictionaries.
+
+    :param user_id: Id of user to get.
+    :return: User data as dictionary.
+    """
     cur = getDb().cursor()
-    sql = '''SELECT user_ID, email, salted_hash, firstname, lastname, keywords, 
-    notification_interval, registered, organization
-    FROM users WHERE user_ID = %s'''
-    cur.execute(sql, (id,))
-    userData = cur.fetchone()
-    if not userData:
+    sql = '''SELECT user_ID, email, firstname, lastname, keywords, organization,
+             notification_interval, registered, last_email_date,
+             last_recommendation_date
+             FROM users WHERE user_ID = %s'''
+    cur.execute(sql, (user_id,))
+    user_data = cur.fetchone()
+    if not user_data:
         return None
 
     user = {
-        'id': userData[0],
-        'email': userData[1],
-        'password': userData[2],
-        'firstName': userData[3],
-        'lastName': userData[4],
-        'keywords': userData[5],
-        'notificationInterval': userData[6],
-        'registered': userData[7],
-        'organization': userData[8],
+        'id': user_data[0],
+        'email': user_data[1],
+        'firstName': user_data[2],
+        'lastName': user_data[3],
+        'keywords': user_data[4],
+        'organization': user_data[5],
+        'notificationInterval': user_data[6],
+        'registered': user_data[7],
+        'last_email_date': user_data[8],
+        'last_recommendation_date': user_data[9],
     }
 
     cur.execute('SELECT url FROM user_webpages WHERE user_ID = %s',
                 (user['id'],))
-    user['webpages'] = [x[0] for x in cur.fetchall()]
-    sql = 'SELECT u.category_id,c.category_name FROM user_categories u join categories c on u.category_ID=c.category_ID WHERE u.user_id = %s'
+    user['webpages'] = sorted([x[0] for x in cur.fetchall()])
+    sql = '''SELECT u.category_id,c.category_name FROM user_categories u 
+             join categories c on u.category_ID=c.category_ID 
+             WHERE u.user_id = %s'''
     cur.execute(sql, (user['id'],))
-    user['categories'] = [[x[0], x[1]] for x in cur.fetchall()]
+    user['categories'] = sorted([[x[0], x[1]] for x in cur.fetchall()])
     cur.close()
 
     return user
@@ -123,7 +132,8 @@ def updateUser(userid, user):
     userWebpages = [(user.email, x) for x in user.webpages]
 
     cur.execute(usersql, (user.email, user.firstName,
-                          user.lastName, user.keywords, user.digestfrequency, user.organization,
+                          user.lastName, user.keywords, user.digestfrequency,
+                          user.organization,
                           userid))
     cur.execute('DELETE FROM user_webpages WHERE user_ID = %s', (userid,))
     cur.execute('DELETE FROM user_categories WHERE user_ID = %s', (userid,))
@@ -221,10 +231,87 @@ def insertFeedback(user_id, article_id, type, feedback_text):
         raise
     conn.commit()
 
+
+def get_keyword_feedback_user(user_id):
+    """ Gets all the feedback on keywords from given user.
+    :param user_id: User to get feedback for.
+    :return: List of feedback instances.
+    """
+    cur = getDb().cursor(dictionary=True)
+    sql = '''SELECT keyword, feedback, datestamp FROM  keyword_feedback 
+             WHERE user_ID = %s'''
+    cur.execute(sql, (user_id,))
+    return cur.fetchall()
+
+
+def get_freetext_feedback(user_id):
+    """Get freetext feedback from given user.
+    :param user_id: User to get feedback for.
+    :return: List of feedback instances.
+    """
+    cur = getDb().cursor(dictionary=True)
+    sql = '''SELECT article_ID, type, feedback_text 
+             FROM feedback WHERE user_ID = %s'''
+    cur.execute(sql, (user_id,))
+    return cur.fetchall()
+
+
+def get_article_recommendations(user_id):
+    """Get system recommendations for given user. Includes user interaction data
+    if the recommendation has been shown to the user.
+
+    :param user_id: User to get feedback for.
+    :return: List of system recommendation instances.
+    """
+    cur = getDb().cursor(dictionary=True)
+    sql = '''SELECT sr.article_ID, s.system_name, sr.explanation, 
+             sr.score AS system_score, ur.score AS recommendation_order,
+             ur.seen_email, ur.seen_web, ur.clicked_email, ur.clicked_web,
+             ur.liked, sr.recommendation_date
+             FROM system_recommendations sr 
+             NATURAL JOIN systems s
+             LEFT JOIN user_recommendations ur 
+             ON sr.article_ID = ur.article_ID 
+             AND sr.user_ID = ur.user_ID
+             AND sr.system_ID = ur.system_ID
+             WHERE sr.user_ID = %s
+             ORDER BY sr.recommendation_date desc,
+             s.system_name desc, sr.score desc'''
+    cur.execute(sql, (user_id,))
+    return cur.fetchall()
+
+
+def get_systems(user_id):
+    """Gets systems belonging to a user.
+
+    :param user_id: User to get feedback for.
+    :return: List of system dictionaries.
+    """
+    with closing(getDb().cursor(dictionary=True)) as cur:
+        sql = '''SELECT system_ID, system_name, api_key, active
+                 FROM systems WHERE user_ID = %s'''
+        cur.execute(sql, (user_id,))
+        return cur.fetchall()
+
+
+def get_all_userdata(user_id):
+    """Get all data for the given user as a dictionary.
+
+    :param user_id: Id of the user to retrieve data for.
+    :return: Dictionary of userdata.
+    """
+
+    return {'user': get_user(user_id),
+            'freetext_feedback': get_freetext_feedback(user_id),
+            'topic_recommendations': get_keyword_feedback_user(user_id),
+            'article_recommendations': get_article_recommendations(user_id),
+            'systems': get_systems(user_id)}
+
+
 def get_user_systems(user_id):
     """Gets systems belonging to a user."""
     conn = getDb()
-    cur = conn.cursor(dictionary = True)
+    cur = conn.cursor(dictionary=True)
     sql = '''select system_ID, api_key, active, email, firstname, lastname,
           organization, system_name from systems left join users on 
           users.user_ID = systems.user_ID where users.user_ID = %s'''

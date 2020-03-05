@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+
+
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import datetime
+import gzip
 from functools import wraps
 
 import jwt
@@ -25,7 +28,7 @@ def requiresLogin(f):
             return f(*args, **kwargs)
         else:
             return make_response(redirect(url_for('general.loginPage',
-                                 next=request.script_root+request.full_path)))
+                                                  next=request.script_root + request.full_path)))
     return wrapper
 
 
@@ -64,3 +67,17 @@ def pageinate(page, maxPage, n):
             pages[-1] = maxPage
             pages[-2] = -1
     return pages
+
+
+def create_gzip_response(content_bytes, filename):
+    """Creates gzip-file from the 'content_bytes' with the name 'filename'
+    inside a flask response object.
+
+    :param content_bytes: Bytes that will be gziped.
+    :param filename: The name of the downloadable gzip file.
+    :return: Response object with downloadable gzip-file.
+    """
+    response = make_response()
+    response.set_data(gzip.compress(content_bytes))
+    response.headers['Content-Disposition'] = 'attachment;filename=' + filename
+    return response

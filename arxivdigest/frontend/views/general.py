@@ -5,6 +5,7 @@ __copyright__ = 'Copyright 2018, The ArXivDigest Project'
 from flask import Blueprint
 from flask import flash
 from flask import g
+from flask import json
 from flask import jsonify
 from flask import make_response
 from flask import redirect
@@ -16,6 +17,7 @@ from arxivdigest.frontend.database import general as db
 from arxivdigest.frontend.models.errors import ValidationError
 from arxivdigest.frontend.models.user import User
 from arxivdigest.frontend.models.validate import validPassword
+from arxivdigest.frontend.utils import create_gzip_response
 from arxivdigest.frontend.utils import encode_auth_token
 from arxivdigest.frontend.utils import requiresLogin
 
@@ -40,8 +42,9 @@ def login():
         return render_template('login.html', )
     next = request.args.get('next', '')
     if next is not '':
-        return makeAuthTokenResponse(user, data.get('email'), next)
-    return makeAuthTokenResponse(user, data.get('email'), url_for('articles.index'))
+        return make_auth_token_response(user, data.get('email'), next)
+    return make_auth_token_response(user, data.get('email'),
+                                    url_for('articles.index'))
 
 
 @mod.route('/login', methods=['GET'])
@@ -88,7 +91,8 @@ def signup():
 
     id = db.insertUser(user)
 
-    return makeAuthTokenResponse(id, user.email, url_for('general.signupPage'))
+    return make_auth_token_response(id, user.email,
+                                    url_for('general.signupPage'))
 
 
 @mod.route('/signup', methods=['GET'])
@@ -139,7 +143,7 @@ def modify():
         user = User(data)
     except ValidationError as e:
         flash(e.message, 'danger')
-        return render_template('modify.html', user=db.getUser(g.user))
+        return render_template('modify.html', user=db.get_user(g.user))
     db.updateUser(g.user, user)
     return redirect(url_for('general.profile'))
 
@@ -148,7 +152,7 @@ def modify():
 @requiresLogin
 def modifyPage():
     """Returns user modification template with user data filled out"""
-    user = db.getUser(g.user)
+    user = db.get_user(g.user)
     return render_template('modify.html', user=user, categoryList=db.getCategoryNames())
 
 
@@ -156,7 +160,7 @@ def modifyPage():
 @requiresLogin
 def profile():
     """Returns user profile page with user info"""
-    user = db.getUser(g.user)
+    user = db.get_user(g.user)
     return render_template('profile.html', user=user)
 
 
@@ -182,7 +186,8 @@ def registerSystemPage():
 @mod.route('/livinglab', methods=['GET'])
 def livinglab():
     """Returns page for livinglabs with systems belonging to a user"""
-    return render_template('living_lab.html', systems=db.get_user_systems(g.user))
+    return render_template('living_lab.html',
+                           systems=db.get_user_systems(g.user))
 
 
 @mod.route('/keyword_feedback/<keyword>/<feedback>', methods=['GET'])
@@ -227,14 +232,34 @@ def submitFeedback():
     flash('Successfully sent feedback.', 'success')
     return redirect('/')
 
-@mod.route('/terms-and-conditions/', methods=['GET'])
+
+@mod.route('/terms_and_conditions/', methods=['GET'])
 def termsandconditions():
     """Returns terms and conditions page."""
     return render_template('terms_and_conditions.html')
 
-def makeAuthTokenResponse(id, email, next):
-    """creates an authToken for a user with id and email. Then redirects to next"""
-    authToken = encode_auth_token(id, email)
-    resp = make_response(redirect(next))
-    resp.set_cookie('auth', authToken, max_age=60 * 60 * 24 * 10)
+
+@mod.route('/personal_data/', methods=['GET'])
+@requiresLogin
+def download_personal_data():
+    """Returns all the data collected about the currently logged in user.
+    :return: gzipped json of user data.
+    """
+    user_data = db.get_all_userdata(g.user)
+    user_data = json.dumps(user_data, sort_keys=True).encode('utf-8')
+    return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')
+
+
+def make_auth_token_response(user_id, email, next_page):
+    """Creates a Response object that redirects to 'next_page' with
+    an authorization token containing the current users info.
+
+    :param user_id: ID of the logged in user.
+    :param email: Email of the logged in user.
+    :param next_page: Url_path for page to redirect to.
+    :return: Response object that redirects to 'next_page', with an auth_token.
+    """
+    auth_token = encode_auth_token(user_id, email)
+    resp = make_response(redirect(next_page))
+    resp.set_cookie('auth', auth_token, max_age=60 * 60 * 24 * 10)
     return resp
