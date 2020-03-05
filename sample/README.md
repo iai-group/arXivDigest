@@ -15,7 +15,7 @@ The system has several stages of execution:
 
 ## Usage
 
-  1. Download and run an [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) server at version 7.5.1 or above.
+  1. Download and run an [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) server (version 7.5.1 or above).
   2. Download and install the [Python Elasticsearch Client](https://elasticsearch-py.readthedocs.io/en/master/).
   3. Update the constants in [system.py](sample/system.py) such that the system uses the correct API-key and API-url.
   4. Run `python system.py`.
