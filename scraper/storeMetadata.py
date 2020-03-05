@@ -70,16 +70,14 @@ def insertCategories(metaData, cursor):
                 subcategoryName = subCategoryNames[category]
             except KeyError:
                 subcategoryName = category
-                print(
-                    'Update subcategorynames: could not find name for %s' % category)
+                print('Could not find name for category: %s.' % category)
             name = categoryName
             name += '.' + subcategoryName if len(c) > 1 else ''
             # add both main category and sub category to database
             categories.add((category, c[0], (c[1:] + [None])[0], name))
             categories.add((c[0], c[0], None, categoryName))
-    # fails silently on duplicate primary key, because there is
-    #  no need to add the same category twice
-    sql = 'insert ignore into categories values(%s,%s,%s,%s)'
+
+    sql = 'replace into categories values(%s,%s,%s,%s)'
     cursor.executemany(sql, list(categories))
 
 
