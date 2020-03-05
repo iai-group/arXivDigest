@@ -219,3 +219,15 @@ def insertFeedback(user_id, article_id, type, feedback_text):
             return "Unknown article id."
         raise
     conn.commit()
+
+def get_user_systems(user_id):
+    """Gets systems belonging to a user."""
+    conn = getDb()
+    cur = conn.cursor(dictionary = True)
+    sql = '''select system_ID, api_key, active, email, firstname, lastname,
+          organization, system_name from systems left join users on 
+          users.user_ID = systems.user_ID where users.user_ID = %s'''
+    cur.execute(sql, (user_id,))
+    systems = cur.fetchall()
+    cur.close()
+    return systems

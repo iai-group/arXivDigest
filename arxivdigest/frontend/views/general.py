@@ -179,6 +179,12 @@ def registerSystemPage():
     return render_template('register_system.html')
 
 
+@mod.route('/livinglab', methods=['GET'])
+def livinglab():
+    """Returns page for livinglabs with systems belonging to a user"""
+    return render_template('living_lab.html', systems=db.get_user_systems(g.user))
+
+
 @mod.route('/keyword_feedback/<keyword>/<feedback>', methods=['GET'])
 def user_keyword_feedback(keyword, feedback):
     """Endpoint for saving a users feedback on a suggested keyword.
