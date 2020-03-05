@@ -12,6 +12,7 @@ from init_index import init_index
 API_KEY = '4c02e337-c94b-48b6-b30e-0c06839c81e6'
 API_URL = 'http://127.0.0.1:5000/'
 INDEX = 'main_index'
+ELASTICSEARCH_HOST = {'host': '127.0.0.1', 'port': 9200}
 
 
 def get_user_ids(start, api_key, api_url):
@@ -140,7 +141,7 @@ def run(api_key, api_url, index):
         - Fetches user info for all users
         - Creates and sends recommendations for each user
         """
-    es = Elasticsearch()
+    es = Elasticsearch(hosts=[ELASTICSEARCH_HOST])
     if not es.indices.exists(index=index):
         init_index(index)
     run_indexing(index, api_key, api_url)
