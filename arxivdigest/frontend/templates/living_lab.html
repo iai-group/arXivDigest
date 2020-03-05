@@ -18,15 +18,14 @@
             </div>
             <br>
             <h2 style="text-align: center;">Your systems:</h2>
+            <p style="text-align: center; color:rgb(104, 104, 104);">Contact name: {{systems[0].firstname}} {{systems[0].lastname}}. | 
+                Organization: {{systems[0].organization}}. | Email: {{systems[0].email}}</p>
             <div id="user_system_list">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
-                            <th>Contact name</th>
-                            <th>Organization name</th>
-                            <th>Email</th>
                             <th>API-key</th>
                             <th>Activated</th>
                         </tr>
@@ -36,9 +35,6 @@
                         <tr>
                             <td>{{system.system_ID}}</td>
                             <td>{{system.system_name}}</td>
-                            <td>{{system.firstname}} {{system.firstname}}</td>
-                            <td>{{system.organization}}</td>
-                            <td>{{system.email}}</td>
                             <td>{{system.api_key}}</td>
                             {%if system.active == 1%}
                             <td>Yes</td>
