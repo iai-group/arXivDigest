@@ -4,12 +4,10 @@ __author__ = "Øyvind Jekteberg and Kristian Gingstad"
 __copyright__ = "Copyright 2018, The ArXivDigest Project"
 
 import datetime
-from collections import defaultdict
 from datetime import datetime
 from uuid import uuid4
 
 import mysql.connector
-from flask import g
 from mysql import connector
 from mysql.connector import errorcode
 from passlib.hash import pbkdf2_sha256
@@ -93,16 +91,15 @@ def insertUser(user):
     return id
 
 
-def insertSystem(system):
+def insertSystem(system_name, user_id):
     """Inserts a new system into the database, name will be used as Name for the system,
     and using uuid a random API-key is generated. Returns None if successfull and an error if not."""
     conn = getDb()
     cur = conn.cursor()
-    sql = 'INSERT INTO systems VALUES(null,%s,%s,%s,%s,%s,False)'
+    sql = 'INSERT INTO systems VALUES(null, %s, %s, False, %s)'
     key = str(uuid4())
     try:
-        cur.execute(sql, (key, system.name, system.contact,
-                          system.organization, system.email))
+        cur.execute(sql, (key, system_name, user_id))
     except connector.errors.IntegrityError as e:
         col = str(e).split("key ", 1)[1]
         if col == "'system_name_UNIQUE'":
@@ -175,44 +172,6 @@ def getCategoryNames():
     return [[x[0], x[1]] for x in data]
 
 
-def get_keywords_from_titles(titles, num=1000):
-    """Returns a list of keywords for a list of scientific paper titles.
-    Can also specify the number of keywords to return."""
-    cur = getDb().cursor(dictionary=True)
-
-    sql = f'''SELECT o.feedback, k.title, k.keyword, k.score FROM keywords k 
-              NATURAL LEFT JOIN keyword_feedback o
-              WHERE title IN ({','.join(['%s'] * len(titles))}) 
-              AND (o.user_ID = %s OR o.user_ID IS NULL) 
-              UNION 
-              SELECT null, k.title, k.keyword, k.score FROM keywords k   
-              WHERE title IN ({','.join(['%s'] * len(titles))})
-              ORDER BY score DESC LIMIT %s;'''
-
-    cur.execute(sql, (*titles, g.user, *titles, num))
-    data = cur.fetchall()
-    cur.close()
-
-    if not data:
-        raise ValueError('No matching publications in database')
-
-    rows = defaultdict(list)
-    for row in data:  # Some keyword-title pairs has two rows
-        rows[(row['title'], row['keyword'])].append(row)
-
-    keywords = defaultdict(int)
-    for row in rows.values():
-        if len(row) > 1:  # Only keep the row containing 'feedback'
-            row = row[0] if row[0]['feedback'] else row[1]
-        else:
-            row = row[0]
-        if row['feedback'] == 'discarded':
-            continue
-        keywords[row['keyword']] += row['score']
-
-    return keywords
-
-
 def store_keyword_feedback(userid, keyword, feedback):
     """Stores the users feedback on a keyword to the db.
     Returns true on success and false on failure"""
@@ -261,3 +220,15 @@ def insertFeedback(user_id, article_id, type, feedback_text):
             return "Unknown article id."
         raise
     conn.commit()
+
+def get_user_systems(user_id):
+    """Gets systems belonging to a user."""
+    conn = getDb()
+    cur = conn.cursor(dictionary = True)
+    sql = '''select system_ID, api_key, active, email, firstname, lastname,
+          organization, system_name from systems left join users on 
+          users.user_ID = systems.user_ID where users.user_ID = %s'''
+    cur.execute(sql, (user_id,))
+    systems = cur.fetchall()
+    cur.close()
+    return systems

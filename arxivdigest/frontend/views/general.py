@@ -14,10 +14,8 @@ from flask import url_for
 
 from arxivdigest.frontend.database import general as db
 from arxivdigest.frontend.models.errors import ValidationError
-from arxivdigest.frontend.models.system import System
 from arxivdigest.frontend.models.user import User
 from arxivdigest.frontend.models.validate import validPassword
-from arxivdigest.frontend.scrape_titles.find_titles import find_author_titles
 from arxivdigest.frontend.utils import encode_auth_token
 from arxivdigest.frontend.utils import requiresLogin
 
@@ -166,12 +164,7 @@ def profile():
 def registerSystem():
     """Registers a system or returns an error if something went wrong."""
     form = request.form.to_dict()
-    try:
-        system = System(form)
-    except ValidationError as e:
-        flash(e.message, 'danger')
-        return render_template('register_system.html')
-    err = db.insertSystem(system)
+    err = db.insertSystem(form['name'], g.user)
     if err:
         flash(err, 'danger')
         return render_template('register_system.html')
@@ -180,21 +173,17 @@ def registerSystem():
 
 
 @mod.route('/system/register', methods=['GET'])
+@requiresLogin
 def registerSystemPage():
     """Returns page for registering a new system"""
     return render_template('register_system.html')
 
-@mod.route('/author_keywords/<path:author_url>', methods=['GET'])
-def author_keywords(author_url):
-    """Endpoint for fetching an authors keywords from their dblp article url.
-    Returns list of keywords or an empty string for failure."""
-    try:
-        print(author_url)
-        author_titles = find_author_titles('https://'+author_url)
-        keywords = db.get_keywords_from_titles(author_titles)
-    except ValueError as e:
-        return jsonify(error=str(e))
-    return jsonify(keywords=keywords)
+
+@mod.route('/livinglab', methods=['GET'])
+def livinglab():
+    """Returns page for livinglabs with systems belonging to a user"""
+    return render_template('living_lab.html', systems=db.get_user_systems(g.user))
+
 
 @mod.route('/keyword_feedback/<keyword>/<feedback>', methods=['GET'])
 def user_keyword_feedback(keyword, feedback):
@@ -205,6 +194,7 @@ def user_keyword_feedback(keyword, feedback):
         return jsonify(result='success')
     else:
         return jsonify(results='fail')
+
 
 @mod.route('/feedback/', methods=['GET'])
 @requiresLogin

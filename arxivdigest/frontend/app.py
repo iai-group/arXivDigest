@@ -6,6 +6,7 @@ __copyright__ = "Copyright 2018, The ArXivDigest Project"
 import os
 import pathlib
 import shutil
+
 import jwt
 from flask import Flask
 from flask import g
@@ -29,7 +30,7 @@ app.config['MAX_CONTENT_LENGTH'] = frontend_config.get('MAX_CONTENT_LENGTH')
 
 assets = Environment(app)
 if frontend_config.get('data_path', None):
-    data_path = os.path.join(frontend_config['data_path'], 'arxivdigest')
+    data_path = frontend_config['data_path']
     cache_path = os.path.join(data_path, 'cache', '.webassets-cache')
     static_path = os.path.abspath(os.path.join(data_path, 'static'))
 

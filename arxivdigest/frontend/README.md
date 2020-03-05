@@ -58,11 +58,7 @@ Routes available:
 
 >Likes or unlikes articles from web, depending on current state. Returns "Success" or "Fail".
 
-``/author_keywords/<author_url> [GET]``
-
->Scrapes the url provided for paper titles and looks up titles in database to find matching keywords. Returns "" or list of keywords.
-
-``/keyword_feedback/<keyword>/<opinion> [GET]``
+``/keyword_opinion/<keyword>/<opinion> [GET]``
 
 >Stores the suggested keyword for an user along with the users opinion on that keywors (discarded or approved).
 
@@ -114,7 +110,7 @@ Routes available:
 
 These are the values that can be configured in the frontend-section of config.json.
 
-- `data_path`: Path where the application will store caches and compiled static files, and other data needed by the application. Will try to create files inside of package install location if left empty.
+- `data_path`: Path where the application will store caches and compiled static files. There will be created folders named 'static' and 'cache' in this location, or if these folders already exist the content will be deleted. Files will be created inside of package install location if left empty.
 - `dev_port`: Port the server while be launched on while running in development mode.
 - `MAX_CONTENT_LENGTH`: Maximum request size.
 - `jwt_key`: Secret key for signing JWTs.
