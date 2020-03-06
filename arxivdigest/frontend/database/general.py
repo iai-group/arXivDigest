@@ -17,42 +17,28 @@ from arxivdigest.frontend.database.db import getDb
 
 
 def get_user(user_id):
-    """Get userdata, include webpages and categories as sub dictionaries.
+    """Gets userdata.
 
     :param user_id: Id of user to get.
     :return: User data as dictionary.
     """
-    cur = getDb().cursor()
+    cur = getDb().cursor(dictionary=True)
     sql = '''SELECT user_ID, email, firstname, lastname, keywords, organization,
              notification_interval, registered, last_email_date,
-             last_recommendation_date
+             last_recommendation_date, dblp_profile, google_scholar_profile,
+             semantic_scholar_profile, personal_website
              FROM users WHERE user_ID = %s'''
     cur.execute(sql, (user_id,))
-    user_data = cur.fetchone()
-    if not user_data:
+    user = cur.fetchone()
+    if not user:
         return None
 
-    user = {
-        'id': user_data[0],
-        'email': user_data[1],
-        'firstName': user_data[2],
-        'lastName': user_data[3],
-        'keywords': user_data[4],
-        'organization': user_data[5],
-        'notificationInterval': user_data[6],
-        'registered': user_data[7],
-        'last_email_date': user_data[8],
-        'last_recommendation_date': user_data[9],
-    }
-
-    cur.execute('SELECT url FROM user_webpages WHERE user_ID = %s',
-                (user['id'],))
-    user['webpages'] = sorted([x[0] for x in cur.fetchall()])
     sql = '''SELECT u.category_id,c.category_name FROM user_categories u 
-             join categories c on u.category_ID=c.category_ID 
+             JOIN categories c on u.category_ID=c.category_ID 
              WHERE u.user_id = %s'''
-    cur.execute(sql, (user['id'],))
-    user['categories'] = sorted([[x[0], x[1]] for x in cur.fetchall()])
+    cur.execute(sql, (user_id,))
+    user['categories'] = sorted([[c['category_id'], c['category_name']]
+                                 for c in cur.fetchall()])
     cur.close()
 
     return user
@@ -72,32 +58,35 @@ def updatePassword(id, password):
 
 
 def insertUser(user):
-    """Insert user object, webpages and categories into database. Return error or users id"""
+    """Inserts user object into database.
+
+    :param user: User-object to insert.
+    :return: ID of inserted user.
+    """
+    user.hashed_password = pbkdf2_sha256.hash(user.password.encode('utf-8'))
+    user.registered = datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
+
     conn = getDb()
-    cur = conn.cursor()
-    usersql = 'INSERT INTO users VALUES(null,%s,%s,%s,%s,%s,%s,DEFAULT,DEFAULT,%s,false,%s)'
-    webpagesql = 'INSERT INTO user_webpages VALUES(%s,%s)'
-    categoriesql = 'INSERT INTO user_categories VALUES(%s,%s)'
+    with closing(conn.cursor()) as cur:
+        sql = '''INSERT INTO users(email, salted_hash, firstname, lastname,
+                 keywords, notification_interval, registered, organization, 
+                 dblp_profile, google_scholar_profile, 
+                 semantic_scholar_profile, personal_website) 
+                 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 
-    userCategories = [(user.email, x) for x in user.categories]
-    userWebpages = [(user.email, x) for x in user.webpages]
+        cur.execute(sql, (user.email, user.hashed_password, user.first_name,
+                          user.last_name, user.keywords, user.digestfrequency,
+                          user.registered, user.organization, user.dblp_profile,
+                          user.google_scholar_profile,
+                          user.semantic_scholar_profile, user.personal_website))
 
-    password = user.password.encode('utf-8')
-    user.hashedPassword = pbkdf2_sha256.hash(password)
-    curdate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    cur.execute(usersql, (user.email, user.hashedPassword,
-                          user.firstName, user.lastName, user.keywords,
-                          user.digestfrequency, curdate, user.organization))
-    id = cur.lastrowid
-    userCategories = [(id, x) for x in user.categories]
-    userWebpages = [(id, x) for x in user.webpages]
-    cur.executemany(webpagesql, userWebpages)
-    cur.executemany(categoriesql, userCategories)
+        user_id = cur.lastrowid
 
-    cur.close()
+        sql = 'INSERT INTO user_categories(user_ID, category_ID) VALUES(%s,%s)'
+        cur.executemany(sql, [(user_id, cat_id) for cat_id in user.categories])
+
     conn.commit()
-
-    return id
+    return user_id
 
 
 def insertSystem(system_name, user_id):
@@ -120,31 +109,26 @@ def insertSystem(system_name, user_id):
     return None, key
 
 
-def updateUser(userid, user):
-    """Update user with userid. User object contains new info for this user. Returns True on Success"""
+def update_user(user_id, user):
+    """Update user with user_id. User object contains new info for this user."""
     conn = getDb()
-    cur = conn.cursor()
-    usersql = 'UPDATE users SET email = %s, firstname = %s, lastname = %s, keywords = %s, notification_interval = %s, organization = %s WHERE user_ID = %s'
-    webpagesql = 'INSERT INTO user_webpages VALUES(%s,%s)'
-    categoriesql = 'INSERT INTO user_categories VALUES(%s,%s)'
+    with closing(conn.cursor()) as cur:
+        sql = '''UPDATE users SET email = %s, firstname = %s, lastname = %s, 
+                 organization = %s, personal_website = %s, dblp_profile = %s,
+                 google_scholar_profile = %s, semantic_scholar_profile = %s,  
+                 keywords = %s, notification_interval = %s 
+                 WHERE user_ID = %s'''
+        cur.execute(sql, (user.email, user.first_name, user.last_name,
+                          user.organization, user.personal_website,
+                          user.dblp_profile, user.google_scholar_profile,
+                          user.semantic_scholar_profile, user.keywords,
+                          user.digestfrequency, user_id))
 
-    userCategories = [(user.email, x) for x in user.categories]
-    userWebpages = [(user.email, x) for x in user.webpages]
+        cur.execute('DELETE FROM user_categories WHERE user_ID = %s', [user_id])
 
-    cur.execute(usersql, (user.email, user.firstName,
-                          user.lastName, user.keywords, user.digestfrequency,
-                          user.organization,
-                          userid))
-    cur.execute('DELETE FROM user_webpages WHERE user_ID = %s', (userid,))
-    cur.execute('DELETE FROM user_categories WHERE user_ID = %s', (userid,))
-    userCategories = [(userid, x) for x in user.categories]
-    userWebpages = [(userid, x) for x in user.webpages]
-    cur.executemany(webpagesql, userWebpages)
-    cur.executemany(categoriesql, userCategories)
-
-    cur.close()
+        data = [(user_id, category_id) for category_id in user.categories]
+        cur.executemany('INSERT INTO user_categories VALUES(%s, %s)', data)
     conn.commit()
-    return True
 
 
 def validatePassword(email, password):
