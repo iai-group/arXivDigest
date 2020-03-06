@@ -1,6 +1,6 @@
 # Scraper
 
-Scraping is facilitated by the [OAI-api](https://arxiv.org/help/oa/index) provided by [arXiv](https://arxiv.org/) and the RSS stream.  The [OAI-api](https://arxiv.org/help/oa/index) was chosen because it contains well-formatted metadata, and it also provided easy mechanisms for bulk harvesting.
+Scraping is facilitated by the [OAI-api](https://arXiv.org/help/oa/index) provided by [arXiv](https://arXiv.org/) and the RSS stream.  The [OAI-api](https://arXiv.org/help/oa/index) was chosen because it contains well-formatted metadata, and it also provided easy mechanisms for bulk harvesting.
 
 
 ## Overview
@@ -49,7 +49,7 @@ Before running the script make sure to install the dependencies and configure th
 python storeMetadata.py
 ```
 
-If the script can't find a name for a category on Arxiv or in its configured category names it will use the categoryID as its name. This should be manually resolved,by updating the configured categories and the name in the database, to give the best user experience.
+If the script can't find a name for a category on arXiv or in its configured category names it will use the categoryID as its name. This should be manually resolved,by updating the configured categories and the name in the database, to give the best user experience.
 ## Dependencies
 
 - [Feedparser](https://github.com/kurtmckee/feedparser)
