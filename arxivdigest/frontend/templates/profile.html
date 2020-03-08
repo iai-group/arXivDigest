@@ -1,53 +1,73 @@
 {% extends "base.html" %} {% block content %}
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg-6 col-lg-offset-3">
-            <table class="table table-user-information">
-                <tbody>
-                    <h3>{{user.firstName}}&nbsp{{user.lastName}}'s profile information:</h3>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">
+                <table class="table table-user-information">
+                    <tbody>
+                    <h3>{{ user.firstname }}&nbsp{{ user.lastname }}'s profile information:</h3>
                     <tr>
                         <td>Name:</td>
                         <td>
-                            {{user.firstName}} {{user.lastName}}
+                            {{ user.firstname }} {{ user.lastname }}
                         </td>
                     </tr>
                     <tr>
                         <td>Email:</td>
                         <td>
-                            <a href="mailto:{{user.email}}">{{user.email}}</a>
+                            <a href="mailto:{{ user.email }}">{{ user.email }}</a>
                         </td>
                     </tr>
                     <tr>
                         <td>Organization:</td>
                         <td>
-                            {{user.organization}}
+                            {{ user.organization }}
                         </td>
                     </tr>
                     <tr>
-                        <td>Webpages:</td>
-                        <td>{% for page in user.webpages %}
-                            <a target="_blank" href=//{{page}}>{{page}}</a>
-                            <br> {% endfor %}
+                        <td>Personal/organizational website:</td>
+                        <td>
+                            <a target="_blank" href=//{{ user.personal_website }}>{{ user.personal_website }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>DBLP profile:</td>
+                        <td>
+                            <a target="_blank" href=//{{ user.dblp_profile }}>{{ user.dblp_profile }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Google Scholar profile:</td>
+                        <td>
+                            <a target="_blank"
+                               href=//{{ user.google_scholar_profile }}>{{ user.google_scholar_profile }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Semantic Scholar profile:</td>
+                        <td>
+                            <a target="_blank"
+                               href=//{{ user.semantic_scholar_profile }}>{{ user.semantic_scholar_profile }}</a>
                         </td>
                     </tr>
                     <tr>
                         <td>Keywords:</td>
                         <td>
-                            {{user.keywords}}
+                            {{ user.keywords }}
                         </td>
                     </tr>
                     <tr>
                         <td>Interests:</td>
                         <td>
                             {% for category in user.categories %}
-                            <a href="https://arxiv.org/list/{{category[0]}}/recent" target="_blank">{{category[1]}}</a>
-                            <br> {% endfor %}
+                                <a href="https://arxiv.org/list/{{ category[0] }}/recent"
+                                   target="_blank">{{ category[1] }}</a>
+                                <br> {% endfor %}
                         </td>
                     </tr>
                     <tr>
                         <td>Notification Interval:</td>
-                        <td>{{user.notificationInterval}}</td>
+                        <td>{{ user.notification_interval }}</td>
                     </tr>
                     <tr>
                         <td>
@@ -76,9 +96,9 @@
                             </a>
                         </td>
                     </tr>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-{%endblock%}
+{% endblock %}

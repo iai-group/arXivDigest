@@ -79,7 +79,6 @@ def signup():
         return redirect(url_for('articles.index'))
     form = request.form
     data = form.to_dict()
-    data['website'] = form.getlist('website')
     try:
         user = User(data)
     except ValidationError as e:
@@ -134,17 +133,13 @@ def passwordChangePage():
 def modify():
     """Gets new user data from form. creates user object and sends old user data and new user data to database update
     user function. Returns user modify template with relevant error or user profile template."""
-    form = request.form
-    data = form.to_dict()
-    data['website'] = form.getlist('website')
-    # just to get through user object creation, is not used
-    data['password'] = 'ASD!"#asd123'
+    data = request.form.to_dict()
     try:
-        user = User(data)
+        user = User(data, require_password=False)
     except ValidationError as e:
         flash(e.message, 'danger')
         return render_template('modify.html', user=db.get_user(g.user))
-    db.updateUser(g.user, user)
+    db.update_user(g.user, user)
     return redirect(url_for('general.profile'))
 
 
@@ -152,16 +147,15 @@ def modify():
 @requiresLogin
 def modifyPage():
     """Returns user modification template with user data filled out"""
-    user = db.get_user(g.user)
-    return render_template('modify.html', user=user, categoryList=db.getCategoryNames())
+    return render_template('modify.html', user=db.get_user(g.user),
+                           categoryList=db.getCategoryNames())
 
 
 @mod.route('/profile', methods=['GET'])
 @requiresLogin
 def profile():
     """Returns user profile page with user info"""
-    user = db.get_user(g.user)
-    return render_template('profile.html', user=user)
+    return render_template('profile.html', user=db.get_user(g.user))
 
 
 @mod.route('/livinglab/register', methods=['POST'])
