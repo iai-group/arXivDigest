@@ -16,7 +16,7 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
 
 ### Front-end:
 
-  * Will (soon) be available at https://arXivDigest.org.
+  * Is available at https://arxivdigest.org.
   * After signing up, users can view the articles that are recommended to them. Articles can be "liked" to improve recommendations and for easily finding these articles later.
   * The front-end is implemented as Flask application ([source](arxivdigest/frontend/)).
 
@@ -42,7 +42,7 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
 
 ### HOW-TO for Experimental Recommender Systems
 
-Experimental recommender systems need to follow the following steps for submitting recommendations.  The API is available at https://api.arXivDigest.org.
+Experimental recommender systems need to follow the following steps for submitting recommendations.  The API is available at https://api.arxivdigest.org.
 
   1. Call [`GET /users`](/api#list-of-users) to get a list of user IDs.
   1. Call [`GET /userinfo?ids`](/api#user-information) with user IDs as a parameter to get information about the users.

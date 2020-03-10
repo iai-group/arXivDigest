@@ -1,6 +1,6 @@
 # ArXivDigest front-end
 
-The front-end (running at http://arXivDigest.org) is implemented as a Flask application.  It provides users with a website for viewing and interacting with the recommendations created for them. The recommendated science papers can be sorted on time intervals such as today, this week, this month and all time. They can also be sorted by title or score. It also includes an admin panel for managing experimental recommender systems.
+The front-end (running at http://arxivdigest.org) is implemented as a Flask application.  It provides users with a website for viewing and interacting with the recommendations created for them. The recommendated science papers can be sorted on time intervals such as today, this week, this month and all time. They can also be sorted by title or score. It also includes an admin panel for managing experimental recommender systems.
 
 ## Overview
 

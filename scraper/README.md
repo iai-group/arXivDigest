@@ -1,6 +1,6 @@
 # Scraper
 
-Scraping is facilitated by the [OAI-api](https://arXiv.org/help/oa/index) provided by [arXiv](https://arXiv.org/) and the RSS stream.  The [OAI-api](https://arXiv.org/help/oa/index) was chosen because it contains well-formatted metadata, and it also provided easy mechanisms for bulk harvesting.
+Scraping is facilitated by the [OAI-api](https://arxiv.org/help/oa/index) provided by [arXiv](https://arxiv.org/) and the RSS stream.  The [OAI-api](https://arxiv.org/help/oa/index) was chosen because it contains well-formatted metadata, and it also provided easy mechanisms for bulk harvesting.
 
 
 ## Overview
