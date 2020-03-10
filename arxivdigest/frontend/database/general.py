@@ -2,7 +2,7 @@
 from contextlib import closing
 
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__copyright__ = "Copyright 2020, The arXivDigest project"
 
 import datetime
 from datetime import datetime
