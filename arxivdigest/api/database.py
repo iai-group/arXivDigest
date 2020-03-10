@@ -46,37 +46,31 @@ def getUserIDs(fromID, max):
 def getUsers(ids):
     """Takes in a list of userIDs and returns a nested dictionary
     of data about the users requested."""
-    cur = getDb().cursor()
+    cur = getDb().cursor(dictionary=True)
     format_strings = ','.join(['%s'] * len(ids))
-    sql = '''SELECT user_ID, firstname, lastname, keywords, registered,
-          organization FROM users WHERE user_ID IN (%s)''' % format_strings
+    sql = '''SELECT user_ID, firstname as first_name, lastname as last_name, 
+             keywords, registered, organization, dblp_profile, 
+             google_scholar_profile, semantic_scholar_profile, personal_website
+             FROM users WHERE user_ID IN (%s)''' % format_strings
     cur.execute(sql, ids)
-    userList = cur.fetchall()
+
     users = {}
-    for userData in userList:
-        users[userData[0]] = {
-            'first_name': userData[1],
-            'last_name': userData[2],
-            'keywords': [x.strip() for x in userData[3].split(",")] if userData[3] else [],
-            'registered': userData[4],
-            'homepages': [],
-            'categories': [],
-            'organization': userData[5],
-        }
+    for user in cur.fetchall():
+        user['categories'] = []
+        if user['keywords']:
+            user['keywords'] = [k.strip() for k in user['keywords'].split(',')]
+        else:
+            user['keywords'] = []
+
+        users[user.pop('user_ID')] = user
+
     sql = "SELECT * FROM user_categories WHERE user_ID IN (%s)" % format_strings
-    cur.execute(sql, ids)
-    usercategories = cur.fetchall()
 
-    for c in usercategories:
-        users[c[0]]['categories'].append(c[1])
-    sql = "SELECT * FROM user_webpages WHERE user_ID IN (%s)" % format_strings
     cur.execute(sql, ids)
-    userwebpages = cur.fetchall()
+    for category in cur.fetchall():
+        users[category['user_ID']]['categories'].append(category['category_ID'])
 
-    for c in userwebpages:
-        users[c[0]]['homepages'].append(c[1])
     cur.close()
-
     return users
 
 

@@ -78,7 +78,10 @@ Fields returned for each user:
   - `first_name`: first name
   - `last_name`: last name
   - `registered`: date of sign-up
-  - `homepages`: list of homepages
+  - `dblp_profile`: DBLP profile
+  - `google_scholar_profile`: Google Scholar profile
+  - `semantic_scholar_profile`: Semantic Scholar profile
+  - `personal_website`: personal/organizational website
   - `keywords`: list of self-supplied keywords
   - `categories` : list of arXiv categories user is interested in
   - `organization`: the organization the user registered with
@@ -101,11 +104,11 @@ Example:
           "first_name": "John",
           "last_name": "Smith",
           "registered": "2018-02-20",
-          "homepages": [
-            "http://dblp...",
-            "http://scholar.google.com/..."
-          ],
-          "categories": ["math","cs","cs.AI","astro-ph.CO"]
+          "dblp_profile": "dblp.org/...",
+          "google_scholar_profile": "scholar.google.com/...",
+          "semantic_scholar_profile": "semanticscholar.org/author/..",
+          "personal_website": "www.example.com",
+          "categories": ["math","cs","cs.AI","astro-ph.CO"],
           "keywords": [
             "information retrieval",
             "retrieval models"

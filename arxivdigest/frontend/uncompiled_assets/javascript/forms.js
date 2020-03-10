@@ -1,29 +1,13 @@
 function inputTouched(input) {
-    if (input.value == "" || input.value == null) {
+    if (input.value === "" || input.value === null) {
         input.classList.remove("touched");
     } else {
         input.classList.add("touched");
-        if($(input).attr('id') === "websiteInput"){
-            fetch_suggested_keywords(input.value)
-        }
     }
 }
 
 function removeTouched(input) {
     input.classList.remove("touched");
-}
-
-
-function websiteField(input) {
-    var ex = /[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
-    var regex = new RegExp(ex);
-    if (input.value.match(regex)) {
-        input.setCustomValidity("");
-    } else {
-        input.setCustomValidity("Please enter a valid webaddress.");
-    }
-
-    $("websiteInput:last-of-type").focus();
 }
 
 function parseCategoryList(data) {
@@ -44,20 +28,6 @@ function parseCategoryList(data) {
 
 
 $(document).ready(function () {
-    $("#signupForm").on("blur", "input[name=website]", function () {
-        if ($(this).is(":last-of-type") && !(this.value == "" || this.value == null)) {
-            input = $("<input id='websiteInput' type='text' name='website' placeholder='Your website..' onblur='inputTouched(this);'onfocus='removeTouched(this)' required size='1024'>");
-            $(this).after(input);
-            input.focus();
-        } else if (!$(this).is(":last-of-type") && (this.value == '' || this.value == null)) {
-            $(this).remove();
-        }
-        inputlist = $("input[name=website]");
-        inputlist.prop("required", true);
-        if (inputlist.length > 1) {
-            inputlist.last().prop("required", false);
-        }
-    });
 
     var intinput = $("#interestsInput")
     if (intinput.length) {
@@ -70,5 +40,32 @@ $(document).ready(function () {
         intinput.sl.hide();
     }
 
+    let websiteInputs = [
+        {"id": "#dblpInput", "prefix": "dblp.org/"},
+        {"id": "#google_scholarInput", "prefix": "scholar.google.com/"},
+        {"id": "#semantic_scholarInput", "prefix": "semanticscholar.org/author/"},
+    ];
+
+    for (const websiteInput of websiteInputs) {
+        const input = $(websiteInput["id"]);
+        input.on("blur focus", function () {
+            let text = input.val();
+            if (!text.length) {
+                input.get(0).nextElementSibling.textContent = "";
+                input.get(0).setCustomValidity("")
+            } else if (text.startsWith(websiteInput["prefix"])) {
+                input.get(0).nextElementSibling.textContent = "";
+                input.get(0).setCustomValidity("")
+            } else {
+                let msg = "Address must start with: " + websiteInput["prefix"];
+                input.get(0).nextElementSibling.textContent = msg;
+                input.get(0).setCustomValidity(msg)
+            }
+        });
+    }
+
+
 });
+
+
 

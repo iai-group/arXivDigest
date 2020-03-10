@@ -52,7 +52,7 @@ input.touched:invalid+.formhint {
   display: block;
 }
 
-input:required:valid,
+input[type=text]:required:valid,
 .touched:valid {
   background: #fff url(icons/checkmark.png) no-repeat 98% center;
   box-shadow: 0 0 5px #5cd053;
@@ -129,8 +129,8 @@ width:200px;
 }
 
 #websiteInput{
-  margin-top: 3px;
-  margin-bottom: 3px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 
@@ -636,6 +636,11 @@ code {
   color: rgb(134, 134, 134);
   margin-left: 10px;
   text-align: center;
+}
+
+.form_error {
+  font-size: 0.9em;
+  color: rgb(255, 0, 0);
 }
 
 #tc_text{
