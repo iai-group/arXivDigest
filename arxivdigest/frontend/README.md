@@ -72,7 +72,7 @@ Routes available:
 
 ``/click/<string:articleId> [GET] @requiresLogin``
 
->Records if article was clicked from web. Returns redirect to arxiv info page or article pdf depending on where user clicked.
+>Records if article was clicked from web. Returns redirect to arXiv info page or article pdf depending on where user clicked.
 
 ``/admin [GET] @requiresLogin``
 

@@ -3,7 +3,7 @@
 It will need to be updated if there are added more subcategories to Arxiv'''
 
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__copyright__ = "Copyright 2020, The arXivDigest project"
 
 import re
 

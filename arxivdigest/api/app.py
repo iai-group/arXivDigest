@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__copyright__ = "Copyright 2020, The arXivDigest project"
 
 from datetime import datetime
 
@@ -122,7 +122,7 @@ def recommendations(users):
 @app.route('/', methods=['GET'])
 def info():
     """Info response."""
-    return make_response(jsonify({'info': "This is the ArXivDigest API"}), 200)
+    return make_response(jsonify({'info': "This is the arXivDigest API"}), 200)
 
 
 @app.teardown_appcontext
