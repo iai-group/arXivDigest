@@ -5,7 +5,7 @@ It's also possible to scrape articles from any date until today, to accomplish t
 getRecordsFromLastnDays method.'''
 
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
-__copyright__ = 'Copyright 2018, The ArXivDigest Project'
+__copyright__ = 'Copyright 2020, The arXivDigest project
 
 try:
     import xml.etree.cElementTree as ET
