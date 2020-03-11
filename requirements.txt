@@ -10,4 +10,3 @@ cssmin
 elasticsearch
 bs4
 requests
-awscli

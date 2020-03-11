@@ -4,4 +4,3 @@ _server/
 __pycache__
 /arXivDigest.egg-info/
 /arxivdigest/frontend/static/generated/
-/scripts/data/
