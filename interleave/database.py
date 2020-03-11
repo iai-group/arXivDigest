@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 '''This module implements methods which the interleave process uses to interface with the database'''
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
+
 from collections import defaultdict
 
 

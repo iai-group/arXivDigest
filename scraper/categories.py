@@ -2,8 +2,8 @@
 '''This is a dictionary of all the categories and their names, this list was generated from: https://arxiv.org/help/api/user-manual#subject_classifications
 It will need to be updated if there are added more subcategories to Arxiv'''
 
-__author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2020, The arXivDigest project"
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2020, The arXivDigest project'
 
 import re
 

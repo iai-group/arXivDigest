@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
-__copyright__ = 'Copyright 2018, 2020, The arXivDigest project
+__copyright__ = 'Copyright 2018, 2020, The arXivDigest project'
 
 from urllib import request
 import json

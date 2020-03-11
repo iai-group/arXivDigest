@@ -6,7 +6,7 @@ The script prints the result in a table when its done calculating.
 '''
 
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
-__copyright__ = 'Copyright 2020, The arXivDigest project
+__copyright__ = 'Copyright 2020, The arXivDigest project'
 
 import argparse
 from collections import defaultdict
