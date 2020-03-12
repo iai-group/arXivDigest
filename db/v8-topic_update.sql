@@ -8,8 +8,8 @@ create table topics
 
 CREATE TABLE user_topics
 (
-    user_id          int,
-    topic_id         int,
+    user_id          int not null,
+    topic_id         int not null,
     state            enum ('USER_ADDED', 'SYSTEM_RECOMMENDED_ACCEPTED', 'SYSTEM_RECOMMENDED_REJECTED') not null,
     interaction_time datetime                                                                          not null,
     foreign key (user_id) references users (user_ID) on delete cascade,
