@@ -1,3 +1,6 @@
+rename table system_recommendations to article_recommendations;
+rename table user_recommendations to article_feedback;
+
 alter table categories
 change column category_ID category_id varchar(50) not null;
 

@@ -177,7 +177,7 @@ def insertRecommendations(recommendations):
     conn = getDb()
     cur = conn.cursor()
 
-    sql = '''REPLACE INTO system_recommendations 
+    sql = '''REPLACE INTO article_recommendations 
              (user_id, article_id, system_id, explanation, score, recommendation_date) 
              VALUES (%s, %s, %s, %s, %s, %s)'''
     cur.executemany(sql, recommendations)
@@ -202,7 +202,7 @@ def getUserRecommendations(ids):
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
 
-    sql = "SELECT * FROM system_recommendations WHERE user_id IN (%s)" % format_strings
+    sql = "SELECT * FROM article_recommendations WHERE user_id IN (%s)" % format_strings
     cur.execute(sql, ids)
     users = defaultdict(lambda: defaultdict(list))
     for u in cur.fetchall():
@@ -224,7 +224,7 @@ def getUserFeedback(ids):
 
     sql = "SELECT user_id, article_id, DATE(recommendation_date) AS date, " \
           "seen_email, seen_web, clicked_email, clicked_web, liked, score " \
-          "FROM user_recommendations WHERE user_id IN (%s) ORDER BY score DESC" % format_strings
+          "FROM article_feedback WHERE user_id IN (%s) ORDER BY score DESC" % format_strings
     cur.execute(sql, ids)
     result = defaultdict(lambda: defaultdict(list))
     for feedback in cur.fetchall():

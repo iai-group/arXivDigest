@@ -47,7 +47,7 @@ args = parser.parse_args()
 conn = connector.connect(**sql_config)
 cur = conn.cursor(dictionary=True)
 sql = '''SELECT user_id, system_id, DATE(recommendation_date) as date,clicked_email,clicked_web,liked
-         FROM user_recommendations WHERE  DATE(recommendation_date) >= %s AND
+         FROM article_feedback WHERE  DATE(recommendation_date) >= %s AND
          DATE(recommendation_date) <= %s AND system_id is not null'''
 cur.execute(sql, (args.startdate, args.enddate))
 

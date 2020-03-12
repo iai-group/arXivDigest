@@ -13,7 +13,7 @@ def getSystemRecommendations(db, startUserID, n):
     '''
     cur = db.cursor()
     sql = '''SELECT user_id,System_id, article_id, explanation 
-    FROM system_recommendations NATURAL JOIN users WHERE user_id between %s AND %s
+    FROM article_recommendations NATURAL JOIN users WHERE user_id between %s AND %s
     AND DATE(recommendation_date) = UTC_DATE()
     AND last_recommendation_date < UTC_DATE() ORDER BY score DESC'''
     cur.execute(sql, (startUserID, startUserID + n - 1))
@@ -27,7 +27,7 @@ def getSystemRecommendations(db, startUserID, n):
 def insertUserRecommendations(db, recommendations):
     '''Inserts the recommended articles into database'''
     cur = db.cursor()
-    sql = '''INSERT INTO user_recommendations 
+    sql = '''INSERT INTO article_feedback 
             (user_id, article_id, system_id, explanation, score, recommendation_date)      
             VALUES(%s, %s, %s, %s, %s, %s)'''
     cur.executemany(sql, recommendations)
@@ -48,7 +48,7 @@ def getUserRecommendations(db, startUserID, n):
     {user_id:{date:{article_ids:score}}.
     '''
     cur = db.cursor()
-    sql = '''SELECT user_id, DATE(recommendation_date), article_id, score, explanation FROM user_recommendations NATURAL JOIN users 
+    sql = '''SELECT user_id, DATE(recommendation_date), article_id, score, explanation FROM article_feedback NATURAL JOIN users 
     WHERE user_id between %s AND %s
     AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY) 
     AND last_email_date < UTC_DATE()'''
@@ -105,7 +105,7 @@ def getArticleData(db):
 def setSeenEmail(db, articles):
     '''Updates database field if user sees the email'''
     cur = db.cursor()
-    sql = 'UPDATE user_recommendations SET seen_email=true,trace_click_email=%s, trace_like_email=%s WHERE user_id=%s and article_id=%s'
+    sql = 'UPDATE article_feedback SET seen_email=true,trace_click_email=%s, trace_like_email=%s WHERE user_id=%s and article_id=%s'
     cur.executemany(sql, articles)
 
     users = {str(x[2]) for x in articles}

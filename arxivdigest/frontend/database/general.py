@@ -252,9 +252,9 @@ def get_article_recommendations(user_id):
              sr.score AS system_score, ur.score AS recommendation_order,
              ur.seen_email, ur.seen_web, ur.clicked_email, ur.clicked_web,
              ur.liked, sr.recommendation_date
-             FROM system_recommendations sr 
+             FROM article_recommendations sr 
              NATURAL JOIN systems s
-             LEFT JOIN user_recommendations ur 
+             LEFT JOIN article_feedback ur 
              ON sr.article_id = ur.article_id 
              AND sr.user_id = ur.user_id
              AND sr.system_id = ur.system_id
