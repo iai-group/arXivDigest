@@ -2,7 +2,7 @@ from mysql import connector
 from arxivdigest.core.config import sql_config
 
 def insert_topics(conn, topics):
-    """inserts the topics into the database topics table"""
+    """inserts the topics into the database topics table."""
     sql = 'insert into topics values(null,%s,0)'
     cur = conn.cursor()
     cur.executemany(sql,topics)
@@ -10,7 +10,8 @@ def insert_topics(conn, topics):
     conn.commit()
 
 def load_topics(topic_path):
-    """Loads a list of topics from the csv file at the provided path"""
+    """Loads a list of topics from the csv file at the provided path.
+    Filters out topics that are to long."""
     topics = []
     with open(topic_path, 'r') as topic_file:
         for line in topic_file:
