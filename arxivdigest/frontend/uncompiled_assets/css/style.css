@@ -34,35 +34,9 @@ footer {
   background-color: lightcoral;
 }
 
-input:focus+.formhint {
-  display: block;
-}
-
-.formhint {
-  background: rgb(68, 68, 68);
-  border-radius: 3px 3px 3px 3px;
-  color: white;
-  padding: 1px 6px;
-  z-index: 9999;
-  display: none;
-}
-
-input.touched:invalid+.formhint {
-  background: #d45252;
-  display: block;
-}
-
 input[type=text]:required:valid,
 .touched:valid {
-  background: #fff url(icons/checkmark.png) no-repeat 98% center;
   box-shadow: 0 0 5px #5cd053;
-  border-color: #28921f;
-  background-size: 20px;
-  padding-right: 30px;
-}
-
-form label {
-  padding: 12px 12px 12px 0;
 }
 
 form td {
@@ -72,7 +46,6 @@ form td {
 
 .touched:invalid {
   border: 1px solid red;
-  background-color: #ffaaaa;
   box-shadow: 0 0 5px #ffaaaa;
 }
 
@@ -86,20 +59,7 @@ input~.glyphicon-ok {
   visibility: hidden;
 }
 
- #interestsList{
-  list-style-type: none;
-  list-style-position: outside;
-}
 
-#interestsList li{
-  background-color: #c0c0c0;
-  color: rgb(63, 63, 63);
-  border: none;
-  border-radius: 5px;
-  margin: 3px;
-  margin-right: 5px;
-  text-align: center;
-}
 .systemList{
   width: 1000px;
   margin: 0 auto;
@@ -121,40 +81,29 @@ input~.glyphicon-ok {
 width:200px;
 }
 
-
-
 .signupLabel{
   position: absolute;
   top:0;
 }
 
-#websiteInput{
-  padding-top: 5px;
-  padding-bottom: 5px;
+.form_list li {
+  position: relative;
 }
 
-
-#addCategory{
-  color: white;
-  background-color: #4CAF50;
-  border: none;
-  border-radius: 4px;
-  text-align: center;
-  width:15%;
-  height:46px;
-}
-
-#interestsInput{
-  width:84%
-} 
-
-#addCategory:hover {
-  background-color: #45a049;
+.form_list li .list_text {
+  display: block;
+  position: relative;
+  max-width: 95%;
 }
 
 .glyphicon.glyphicon-remove {
-  margin-left: 5px;
-  color: coral;
+  color: lightgrey;
+  position: absolute;
+  right: 0.5em;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  font-size: 1.3em;
 }
 
 td input[type=radio]{
@@ -207,20 +156,17 @@ td input[type=radio]{
   background: #f0f0f0;
 }
 
+table input,
 input,
 select,
 textarea {
   width: 100%;
-  padding: 12px;
+  margin: 0.3em 0;
+  padding: 1em;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
   resize: vertical;
-}
-
-#loginEmail,
-#loginPassword {
-  width: 70%
 }
 
 label {
@@ -228,46 +174,32 @@ label {
   display: inline-block;
 }
 
-input[type=submit] {
-  background-color: #4CAF50;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  float: left;
+.flexContainer {
+  position: relative;
 }
 
-.profileButton{
-  background-color: #4CAF50;
-  color: white;
-  padding: 6px 0px;
-  border: none;
-  border-radius: 4px;
-  text-align: center;
-  margin: 0 auto;
+.flexContainer input,
+.flexContainer .autocomplete-suggestions {
+  width: 84%;
+
 }
 
-.profileButton:hover{
-  background-color: #45a049;
+.flexContainer .autocomplete-suggestions {
+  position: absolute;
+  top: 3.82em;
 }
 
-#largeLoginButton {
-  width: 300px;
+form .flexContainer .btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0.3em 0;
+  width: 15%;
 }
 
-#create_system_button{
-  width: 300px;
-  background-color: #4CAF50;
-  color: white;
-  border-radius: 4px;
-  text-align: center;
-  padding: 10px;
-  margin-left: 43%;
-}
-
-input[type=submit]:hover {
-  background-color: #45a049;
+form .btn, div.btn {
+  width: 100%;
+  padding: 1em 0;
 }
 
 .inactiveLink {
@@ -301,6 +233,7 @@ code {
 }
 
 .flex-container {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   padding: 5px;
@@ -415,7 +348,7 @@ code {
   padding:0px;
   padding-right: 40px;
   margin:0px;
-  max-width: 800;
+  max-width: 800px;
 }
 .articleIcons{
   position: absolute;
@@ -603,44 +536,10 @@ code {
   padding:3px;
 }
 
-#keywords{ 
-  height:270px;
-  max-height: 270px;
-  margin-left: 30px;
-  margin-top: 20px;
-}
-
-.keyword{ 
-  height: 24px;
-  margin-bottom: 7px;
-  display: flex;
-  border-bottom: 1px solid grey;
-}
-
-.keyword:last-of-type{
-  border: none;
-}
-
-.keyword p{
-  float:right;
-  margin-left: 5px;
-}
-.keyword div{
-  float: right;
-  margin-right: 5px;
-  margin-top: 1px;
-}
-
-#keyword_info, #keyword_error{
-  font-size: 0.9em;
-  color: rgb(134, 134, 134);
-  margin-left: 10px;
-  text-align: center;
-}
-
 .form_error {
   font-size: 0.9em;
   color: rgb(255, 0, 0);
+  margin: 0;
 }
 
 #tc_text{
