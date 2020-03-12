@@ -1,6 +1,6 @@
 # ArXivDigest API
 
-The ArXivDigest API provides a set of endpoints for experimental recommender systems to get access to articles and user profiles, and to upload personalized recommendations for online evaluation.
+The arXivDigest API provides a set of endpoints for experimental recommender systems to get access to articles and user profiles, and to upload personalized recommendations for online evaluation.
 
 Systems must have an active API key to access these endpoints.
 
@@ -266,7 +266,7 @@ Fields returned for each article:
   - `license`: license
   - `date`: date article was added to arXivDigest
   - `doi`: the doi of the article (if available)
-  - `comments`: arxiv comments on article (if available)
+  - `comments`: arXiv comments on article (if available)
   - `journal-ref` : journal references (if available)
   - `authors`: list of authors
     - `firstname`: firstname of author (if available)

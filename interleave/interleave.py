@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""This script interleaves the recommendations from the experimental
+'''This script interleaves the recommendations from the experimental
    recommender systems and inserts the combined ranking, for each user,
    into the database.
    It also sends out the digest emails to users.
-"""
+'''
 
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
-__copyright__ = 'Copyright 2018, The ArXivDigest Project'
+__copyright__ = 'Copyright 2020, The arXivDigest project'
 
 import calendar
 from datetime import datetime

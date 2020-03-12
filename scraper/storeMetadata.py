@@ -3,8 +3,8 @@
 InsertIntoDB() will insert all the articles in the supplied data, if an article already exists in the database
 it will be ignored.'''
 
-__author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2020, The arXivDigest project'
 
 from mysql import connector
 

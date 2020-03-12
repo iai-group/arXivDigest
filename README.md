@@ -1,4 +1,4 @@
-# ArXivDigest: Personalized ArXiv Digest
+# ArXivDigest: Personalized arXiv Digest
 
 Motivated by the accelerating pace at which scientific knowledge is being produced, we aim to provide a recommendation service that helps researchers to keep up with scientific literature. Based on their interest profiles, researchers can receive an email digest of the most recent papers published at arXiv at regular intervals. Further, users can give explicit feedback (likes/dislikes) to improve future recommendations.
 
@@ -16,7 +16,7 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
 
 ### Front-end:
 
-  * Will (soon) be available at https://arxivdigest.org.
+  * Is available at https://arxivdigest.org.
   * After signing up, users can view the articles that are recommended to them. Articles can be "liked" to improve recommendations and for easily finding these articles later.
   * The front-end is implemented as Flask application ([source](arxivdigest/frontend/)).
 
@@ -37,7 +37,7 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
 ## Evaluation Methodology
 
   * By using the service, users agree that their interest profiles, including the article recommendations they have been presented with and the implicit/explicit feedback they provided on each, would be made available to systems.
-  * Systems are given a 2.5 hour window each day to download new content once it has been published on arXiv and generate recommendations for all registered ArXivDigest users.
+  * Systems are given a 2.5 hour window each day to download new content once it has been published on arXiv and generate recommendations for all registered arXivDigest users.
   * System performance is monitored continuously over time. For system comparison, performance is measured during a designated evaluation period.
 
 ### HOW-TO for Experimental Recommender Systems
@@ -55,7 +55,7 @@ Experimental recommender systems need to follow the following steps for submitti
 
 According to [arXiv's release schedule](https://arxiv.org/help/submit#availability), new articles are released Monday to Friday 00:00 UTC.
 
-The ArXivDigest Project accepts recommendations between 00:30 UTC and 03:00 UTC Monday til Friday.
+The arXivDigest project accepts recommendations between 00:30 UTC and 03:00 UTC Monday til Friday.
 
 
 ### Contributors

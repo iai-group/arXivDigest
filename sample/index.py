@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
-__copyright__ = 'Copyright 2018, The ArXivDigest Project'
+__copyright__ = 'Copyright 2018, 2020, The arXivDigest project'
 
 from urllib import request
 import json
@@ -9,7 +9,7 @@ from elasticsearch.helpers import bulk
 
 
 def get_article_ids(api_key, api_url, date):
-    """Get a list of the article_ids from the ArXivDigest API for the date object supplied, defaults to the current date."""
+    """Get a list of the article_ids from the arXivDigest API for the date object supplied, defaults to the current date."""
     url = '{}articles'.format(api_url)
     url = url + '?date=' + date.strftime("%Y-%m-%d") if date else url
     req = request.Request(url, headers={'api_key': api_key})
@@ -19,7 +19,7 @@ def get_article_ids(api_key, api_url, date):
 
 def get_article_data(api_key, api_url, article_ids, batch_size=100):
     """Return a nested dictionary of data about the supplied article_ids,
-     by querying the ArXivDigest API for the article data.
+     by querying the arXivDigest API for the article data.
      Batch_size is the limit of number of articles to retrieve data for in one request."""
     article_data = {}
     for i in range(0, len(article_ids), batch_size):

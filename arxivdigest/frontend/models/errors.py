@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-__author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2020, The arXivDigest project'
 
 
 class ValidationError(Exception):

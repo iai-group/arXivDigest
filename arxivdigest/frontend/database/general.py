@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from contextlib import closing
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2020, The arXivDigest project'
 
-__author__ = "Øyvind Jekteberg and Kristian Gingstad"
-__copyright__ = "Copyright 2018, The ArXivDigest Project"
+from contextlib import closing
 
 import datetime
 from datetime import datetime
