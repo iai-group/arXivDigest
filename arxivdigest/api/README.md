@@ -82,7 +82,9 @@ Fields returned for each user:
   - `google_scholar_profile`: Google Scholar profile
   - `semantic_scholar_profile`: Semantic Scholar profile
   - `personal_website`: personal/organizational website
-  - `keywords`: list of self-supplied keywords
+  - `topics`: list of topics user is interested in
+     - `topic`: topic string
+     - `topic_id`: id of topic
   - `categories` : list of arXiv categories user is interested in
   - `organization`: the organization the user registered with
 
@@ -104,15 +106,22 @@ Example:
           "first_name": "John",
           "last_name": "Smith",
           "registered": "2018-02-20",
+          "organization": "arXivDigest",
           "dblp_profile": "dblp.org/...",
           "google_scholar_profile": "scholar.google.com/...",
           "semantic_scholar_profile": "semanticscholar.org/author/..",
           "personal_website": "www.example.com",
           "categories": ["math","cs","cs.AI","astro-ph.CO"],
-          "keywords": [
-            "information retrieval",
-            "retrieval models"
-          ]
+          "topics": [
+            {
+              "topic": "information retrieval",
+              "topic_id": 20
+            },
+            {
+              "topic": "retrieval models",
+              "topic_id": 68
+            },...
+          ]     
         }
         "7": {
           ...

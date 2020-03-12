@@ -22,7 +22,7 @@ class User():
         self.google_scholar_profile = user.get('google_scholar', '')
         self.semantic_scholar_profile = user.get('semantic_scholar', '')
         self.personal_website = user.get('personal_website', '')
-        self.keywords = user.get('keywords')
+        self.topics = user.get('topics')
         self.categories = user.get('categories')
         self.digestfrequency = user.get('digest_frequency')
 
@@ -158,17 +158,22 @@ class User():
         self._categories = categories
 
     @property
-    def keywords(self):
-        return self._keywords
+    def topics(self):
+        return self._topics
 
-    @keywords.setter
-    def keywords(self, keywords):
-        if isinstance(keywords, str):
-            keywords = keywords.replace('\n', ' ').replace('\r', '')
-            keywords = ','.join([x.strip() for x in keywords.split(',')])
-            self._keywords = keywords
+    @topics.setter
+    def topics(self, topics, min_topics=3, min_topic_length=3):
+        if isinstance(topics, str):
+            topics = topics.lower().replace('\n', ' ').replace('\r', '')
+            topics = [topic.strip() for topic in topics.split(',')
+                      if len(topic.strip()) >= min_topic_length]
         else:
-            self._keywords = ''
+            raise ValidationError('Topics must be a comma separated string.')
+        if len(topics) < min_topics:
+            raise ValidationError('User must have at least {} '
+                                  'topics.'.format(min_topics))
+
+        self._topics = topics
 
     @property
     def digestfrequency(self):
