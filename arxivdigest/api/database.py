@@ -26,7 +26,7 @@ def getUserIDs(fromID, max):
     cur = getDb().cursor()
 
     cur.execute("SELECT COUNT(*) FROM users")
-    sql = "SELECT user_ID FROM users ORDER BY user_ID ASC LIMIT %s, %s"
+    sql = "SELECT user_id FROM users ORDER BY user_id ASC LIMIT %s, %s"
     count = cur.fetchone()[0]
     cur.execute(sql, (fromID, max))
     userList = cur.fetchall()
@@ -48,10 +48,10 @@ def getUsers(ids):
     of data about the users requested."""
     cur = getDb().cursor(dictionary=True)
     format_strings = ','.join(['%s'] * len(ids))
-    sql = '''SELECT user_ID, firstname as first_name, lastname as last_name, 
+    sql = '''SELECT user_id, firstname as first_name, lastname as last_name, 
              keywords, registered, organization, dblp_profile, 
              google_scholar_profile, semantic_scholar_profile, personal_website
-             FROM users WHERE user_ID IN (%s)''' % format_strings
+             FROM users WHERE user_id IN (%s)''' % format_strings
     cur.execute(sql, ids)
 
     users = {}
@@ -62,13 +62,13 @@ def getUsers(ids):
         else:
             user['keywords'] = []
 
-        users[user.pop('user_ID')] = user
+        users[user.pop('user_id')] = user
 
-    sql = "SELECT * FROM user_categories WHERE user_ID IN (%s)" % format_strings
+    sql = "SELECT * FROM user_categories WHERE user_id IN (%s)" % format_strings
 
     cur.execute(sql, ids)
     for category in cur.fetchall():
-        users[category['user_ID']]['categories'].append(category['category_ID'])
+        users[category['user_id']]['categories'].append(category['category_id'])
 
     cur.close()
     return users
@@ -82,7 +82,7 @@ def getArticleIDs(date):
     cur.execute(sql, (date,))
     count = cur.fetchone()[0]
 
-    sql = "SELECT article_ID FROM articles WHERE datestamp=%s ORDER BY article_ID ASC"
+    sql = "SELECT article_id FROM articles WHERE datestamp=%s ORDER BY article_id ASC"
     cur.execute(sql, (date,))
 
     articles = {
@@ -99,7 +99,7 @@ def checkArticlesExists(ids):
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
 
-    sql = "SELECT article_ID FROM articles WHERE article_ID IN (%s)" % format_strings
+    sql = "SELECT article_id FROM articles WHERE article_id IN (%s)" % format_strings
     cur.execute(sql, ids)
     articles = [x[0] for x in cur.fetchall()]
 
@@ -113,7 +113,7 @@ def checkUsersExists(ids):
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
 
-    sql = "SELECT user_ID FROM users WHERE user_ID IN (%s)" % format_strings
+    sql = "SELECT user_id FROM users WHERE user_id IN (%s)" % format_strings
     cur.execute(sql, ids)
     users = [str(x[0]) for x in cur.fetchall()]
 
@@ -127,7 +127,7 @@ def getArticleData(ids):
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
 
-    sql = "SELECT * FROM articles WHERE article_ID IN (%s)" % format_strings
+    sql = "SELECT * FROM articles WHERE article_id IN (%s)" % format_strings
     cur.execute(sql, ids)
     articleList = cur.fetchall()
     articles = {}
@@ -143,18 +143,18 @@ def getArticleData(ids):
             'authors': [],
             'categories': [],
         }
-    sql = "SELECT * FROM article_categories WHERE article_ID IN (%s)" % format_strings
+    sql = "SELECT * FROM article_categories WHERE article_id IN (%s)" % format_strings
     cur.execute(sql, ids)
     articleCategories = cur.fetchall()
 
     for c in articleCategories:
         articles[c[0]]['categories'].append(c[1])
-    sql = "SELECT * FROM article_authors WHERE article_ID IN (%s)" % format_strings
+    sql = "SELECT * FROM article_authors WHERE article_id IN (%s)" % format_strings
     cur.execute(sql, ids)
     authors = cur.fetchall()
     authorlist = {x[0]: [] for x in authors}
     format_strings = ','.join(['%s'] * len(authorlist))
-    sql = "SELECT * FROM author_affiliations WHERE author_ID IN (%s)" % format_strings
+    sql = "SELECT * FROM author_affiliations WHERE author_id IN (%s)" % format_strings
     cur.execute(sql, list(authorlist.keys()))
     affiliations = cur.fetchall()
 
@@ -178,7 +178,7 @@ def insertRecommendations(recommendations):
     cur = conn.cursor()
 
     sql = '''REPLACE INTO system_recommendations 
-             (user_ID, article_ID, system_ID, explanation, score, recommendation_date) 
+             (user_id, article_id, system_id, explanation, score, recommendation_date) 
              VALUES (%s, %s, %s, %s, %s, %s)'''
     cur.executemany(sql, recommendations)
     cur.close()
@@ -202,7 +202,7 @@ def getUserRecommendations(ids):
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
 
-    sql = "SELECT * FROM system_recommendations WHERE user_ID IN (%s)" % format_strings
+    sql = "SELECT * FROM system_recommendations WHERE user_id IN (%s)" % format_strings
     cur.execute(sql, ids)
     users = defaultdict(lambda: defaultdict(list))
     for u in cur.fetchall():
@@ -222,15 +222,15 @@ def getUserFeedback(ids):
     cur = getDb().cursor(dictionary=True)
     format_strings = ','.join(['%s'] * len(ids))
 
-    sql = "SELECT user_ID, article_ID, DATE(recommendation_date) AS date, " \
+    sql = "SELECT user_id, article_id, DATE(recommendation_date) AS date, " \
           "seen_email, seen_web, clicked_email, clicked_web, liked, score " \
-          "FROM user_recommendations WHERE user_ID IN (%s) ORDER BY score DESC" % format_strings
+          "FROM user_recommendations WHERE user_id IN (%s) ORDER BY score DESC" % format_strings
     cur.execute(sql, ids)
     result = defaultdict(lambda: defaultdict(list))
     for feedback in cur.fetchall():
-        user = feedback['user_ID']
+        user = feedback['user_id']
         date = str(feedback['date'])
-        article = feedback['article_ID']
+        article = feedback['article_id']
         feedbackNum = feedback['seen_email'] * 1
         feedbackNum += feedback['seen_web'] * 2
         feedbackNum += feedback['clicked_email'] * 4

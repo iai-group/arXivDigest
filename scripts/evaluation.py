@@ -46,9 +46,9 @@ args = parser.parse_args()
 # retrive user interactions for requested period
 conn = connector.connect(**sql_config)
 cur = conn.cursor(dictionary=True)
-sql = '''SELECT user_ID, system_ID, DATE(recommendation_date) as date,clicked_email,clicked_web,liked
+sql = '''SELECT user_id, system_id, DATE(recommendation_date) as date,clicked_email,clicked_web,liked
          FROM user_recommendations WHERE  DATE(recommendation_date) >= %s AND
-         DATE(recommendation_date) <= %s AND system_ID is not null'''
+         DATE(recommendation_date) <= %s AND system_id is not null'''
 cur.execute(sql, (args.startdate, args.enddate))
 
 data = cur.fetchall()
@@ -62,8 +62,8 @@ for item in data:
     score += item['liked'] * evaluation_config.get('liked_weight')
 
     date = item['date']
-    user = item['user_ID']
-    system = item['system_ID']
+    user = item['user_id']
+    system = item['system_id']
     # add the score to the current day for the current user for the current system
     scoreList[date][user][system] += score
 

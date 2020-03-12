@@ -20,11 +20,11 @@ This script interacts with the following tables in the database.
 
 | Tables | Fields |
 | ------------- | ------------- |
-| articles  | article_ID, title, description, doi, comments, license, journal, datestamp|
-|article_authors| article_ID, author_ID, firstname, lastname|
-|users| user_ID, email, firstname, lastname, notification_interval, last_recommendation_date|
-|system_recommendations| user_ID, article_ID, system_ID, score, recommendation_date|
-|user_recommendations|user_ID, article_ID, system_ID, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email|
+| articles  | article_id, title, description, doi, comments, license, journal, datestamp|
+|article_authors| article_id, author_id, firstname, lastname|
+|users| user_id, email, firstname, lastname, notification_interval, last_recommendation_date|
+|system_recommendations| user_id, article_id, system_id, score, recommendation_date|
+|user_recommendations|user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email|
 
 ## Usage
 

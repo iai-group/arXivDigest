@@ -89,7 +89,7 @@ explanation varchar(1000) not null,
 foreign key (system_id) references systems(system_id) on delete cascade,
 foreign key (article_id) references articles(article_id),
 foreign key (user_id) references users (user_id) on delete cascade,
-primary key(user_id, article_ID,system_id)
+primary key(user_id, article_id,system_id)
 );
 
 create table article_feedback(

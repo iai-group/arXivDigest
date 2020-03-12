@@ -120,16 +120,16 @@ These are the values that can be configured in the frontend-section of config.js
 
 | Tables | Fields |
 | ------------- | ------------- |
-| users | user_ID, email, salted_hash, firstname, lastname, keywords, notification_interval, last_recommendation_date, last_email_date, registered, admin, organization, dblp_profile, google_scholar_profile, semantic_scholar_profile, personal_website|
-| user_categories | user_ID, category_ID |
-| articles | article_ID, title, abstract, doi, comments, licence, journal, datestamp |
-| article_authors | author_ID, article_ID, firstname, lastname |
-| article_categories | article_ID, category_ID |
-| author_affiliations | author_ID, affiliation |
-| categories | category_ID, category, subcategory, category_name |
-| system_recommendations | user_ID, article_ID, system_ID, score, recommendation_date |
-| systems | system_ID, api_key, system_name, active |
-| user_recommendations | user_ID, article_ID, system_ID, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email |
+| users | user_id, email, salted_hash, firstname, lastname, keywords, notification_interval, last_recommendation_date, last_email_date, registered, admin, organization, dblp_profile, google_scholar_profile, semantic_scholar_profile, personal_website|
+| user_categories | user_id, category_id |
+| articles | article_id, title, abstract, doi, comments, licence, journal, datestamp |
+| article_authors | author_id, article_id, firstname, lastname |
+| article_categories | article_id, category_id |
+| author_affiliations | author_id, affiliation |
+| categories | category_id, category, subcategory, category_name |
+| system_recommendations | user_id, article_id, system_id, score, recommendation_date |
+| systems | system_id, api_key, system_name, active |
+| user_recommendations | user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email |
 | keywords | title, keyword, score |
 | keyword feedback | user_id, keyword, feedback, datestamp |
 

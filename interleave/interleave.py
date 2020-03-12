@@ -39,7 +39,7 @@ def multi_leave_recommendations(system_recommendations, multileaver, time):
         for index, rec in enumerate(recs):
             score = len(recs) - index
 
-            rec = (user_id, rec["article_ID"], systems[index],
+            rec = (user_id, rec["article_id"], systems[index],
                    rec["explanation"], score, time)
 
             user_recommendations.append(rec)

@@ -32,7 +32,7 @@ def validateApiKey(f):
             return make_response(jsonify({'error': 'System is inactive.'}), 401)
         g.apiKey = system['api_key']
         g.sysName = system['system_name']
-        g.sysID = system['system_ID']
+        g.sysID = system['system_id']
         return f(*args, **kwargs)
 
     return wrapper

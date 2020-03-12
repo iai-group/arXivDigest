@@ -12,11 +12,11 @@ def getLikedArticles(userid, interval, order, start, n):
 
     # IMPORTANT sanitizes order, against sql injection
     order = orders.get(order.lower(), 'recommendation_date DESC')
-    sql = '''SELECT SQL_CALC_FOUND_ROWS article_ID,liked,title,abstract,explanation, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') as authors
+    sql = '''SELECT SQL_CALC_FOUND_ROWS article_id,liked,title,abstract,explanation, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') as authors
     FROM user_recommendations
     NATURAL JOIN articles NATURAL JOIN article_authors
-    WHERE user_ID = %s AND liked=true AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL %s DAY)
-    group by article_ID ORDER BY {} LIMIT %s,%s'''.format(order)
+    WHERE user_id = %s AND liked=true AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL %s DAY)
+    group by article_id ORDER BY {} LIMIT %s,%s'''.format(order)
     cur.execute(sql, (userid, interval, start, n,))
     articles = cur.fetchall()
     cur.execute('SELECT FOUND_ROWS() as total',)
@@ -36,11 +36,11 @@ def getUserRecommendations(userid, interval, order, start, n):
 
     # IMPORTANT sanitizes order, against sql injection
     order = orders.get(order.lower(), 'score DESC')
-    sql = '''SELECT SQL_CALC_FOUND_ROWS article_ID,liked,title,abstract,explanation, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ", ") as authors
+    sql = '''SELECT SQL_CALC_FOUND_ROWS article_id,liked,title,abstract,explanation, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ", ") as authors
     FROM user_recommendations
     NATURAL JOIN articles NATURAL JOIN article_authors
-    WHERE user_ID = %s AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL %s DAY)
-    group by article_ID ORDER BY {} LIMIT %s,%s'''.format(order)
+    WHERE user_id = %s AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL %s DAY)
+    group by article_id ORDER BY {} LIMIT %s,%s'''.format(order)
     cur.execute(sql, (userid, interval, start, n,))
 
     articles = cur.fetchall()
@@ -54,7 +54,7 @@ def getUserRecommendations(userid, interval, order, start, n):
 def likeArticle(articleId, userid, setTo):
     '''Sets liked to setTo for given article and user. Returns true if successful like, false if unsuccessful'''
     cur = getDb().cursor()
-    sql = 'UPDATE user_recommendations SET liked=%s WHERE article_ID = %s AND user_ID = %s'
+    sql = 'UPDATE user_recommendations SET liked=%s WHERE article_id = %s AND user_id = %s'
     cur.execute(sql, (setTo, articleId, userid, ))
     if cur.rowcount == 0:
         return False
@@ -68,7 +68,7 @@ def likeArticleEmail(articleId, userid, trace):
     conn = getDb()
     cur = conn.cursor()
     result = 0
-    sql = 'UPDATE user_recommendations SET liked=True WHERE article_ID = %s AND user_ID = %s AND trace_like_email = %s'
+    sql = 'UPDATE user_recommendations SET liked=True WHERE article_id = %s AND user_id = %s AND trace_like_email = %s'
     cur.execute(sql, (articleId, userid, trace))
     result = cur.rowcount
 
@@ -83,7 +83,7 @@ def clickedArticleEmail(articleId, userid, trace):
     conn = getDb()
     cur = conn.cursor()
 
-    sql = 'UPDATE user_recommendations SET clicked_email=True WHERE article_ID = %s AND user_ID = %s AND trace_click_email = %s'
+    sql = 'UPDATE user_recommendations SET clicked_email=True WHERE article_id = %s AND user_id = %s AND trace_click_email = %s'
     cur.execute(sql, (articleId, userid, trace))
     result = cur.rowcount
 
@@ -97,7 +97,7 @@ def clickArticle(articleId, userid):
     '''Sets clicked_web to true for given article and user. Returns True on success.'''
     conn = getDb()
     cur = conn.cursor()
-    sql = 'UPDATE user_recommendations SET clicked_web=True WHERE article_ID = %s AND user_ID = %s'
+    sql = 'UPDATE user_recommendations SET clicked_web=True WHERE article_id = %s AND user_id = %s'
 
     cur.execute(sql, (articleId, userid, ))
     cur.close()
@@ -110,7 +110,7 @@ def seenArticle(articles):
     <articles> should be a list of tuples: [(article,user),(article,user)].'''
     conn = getDb()
     cur = conn.cursor()
-    sql = 'UPDATE user_recommendations SET seen_web=True WHERE article_ID=%s AND user_ID = %s'
+    sql = 'UPDATE user_recommendations SET seen_web=True WHERE article_id=%s AND user_id = %s'
     cur.executemany(sql, articles)
     cur.close()
     conn.commit()

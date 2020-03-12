@@ -98,13 +98,13 @@ $(document).ready(function () {
 function generateSystemTableHtml(systems) {
     let html = "<tr>";
     for (const system of systems) {
-        html += "<td>" + system.system_ID + "</td>";
+        html += "<td>" + system.system_id + "</td>";
         html += "<td>" + system.system_name + "</td>";
         html += "<td>" + system.firstname + " " + system.lastname + "</td>";
         html += "<td>" + system.organization + "</td>";
         html += "<td>" + system.email + "</td>";
         html += "<td>" + system.api_key + "</td>";
-        html += "<td><input class='toggleSystem' type='checkbox' data-value=" + system.system_ID
+        html += "<td><input class='toggleSystem' type='checkbox' data-value=" + system.system_id
         if (system.active) {
             html += " checked"
         }
@@ -117,7 +117,7 @@ function generateSystemTableHtml(systems) {
 function generateAdminsTableHtml(admins) {
     let html = "<tr>";
     for (const admin of admins) {
-        html += "<td>" + admin.user_ID + "</td>";
+        html += "<td>" + admin.user_id + "</td>";
         html += "<td>" + admin.email + "</td>";
         html += "<td>" + admin.firstname + " " + admin.lastname + "</td>";
         html += "></td></tr>";

@@ -8,18 +8,18 @@ from collections import defaultdict
 
 
 def getSystemRecommendations(db, startUserID, n):
-    '''This method returns user_ID, system_ID and article_ID in a structure like this:
-    {user_ID:{system_ID:[article_IDs]}}.
+    '''This method returns user_id, system_id and article_id in a structure like this:
+    {user_id:{system_id:[article_ids]}}.
     '''
     cur = db.cursor()
-    sql = '''SELECT user_ID,System_ID, article_ID, explanation 
-    FROM system_recommendations NATURAL JOIN users WHERE user_ID between %s AND %s
+    sql = '''SELECT user_id,System_id, article_id, explanation 
+    FROM system_recommendations NATURAL JOIN users WHERE user_id between %s AND %s
     AND DATE(recommendation_date) = UTC_DATE()
     AND last_recommendation_date < UTC_DATE() ORDER BY score DESC'''
     cur.execute(sql, (startUserID, startUserID + n - 1))
     result = defaultdict(lambda: defaultdict(list))
     for r in cur.fetchall():
-        result[r[0]][r[1]].append({'article_ID': r[2], 'explanation': r[3]})
+        result[r[0]][r[1]].append({'article_id': r[2], 'explanation': r[3]})
     cur.close()
     return result
 
@@ -28,12 +28,12 @@ def insertUserRecommendations(db, recommendations):
     '''Inserts the recommended articles into database'''
     cur = db.cursor()
     sql = '''INSERT INTO user_recommendations 
-            (user_ID, article_ID, system_ID, explanation, score, recommendation_date)      
+            (user_id, article_id, system_id, explanation, score, recommendation_date)      
             VALUES(%s, %s, %s, %s, %s, %s)'''
     cur.executemany(sql, recommendations)
     users = {str(x[0]) for x in recommendations}
     users = ','.join(users)
-    sql = 'UPDATE users SET last_recommendation_date=UTC_DATE() WHERE user_ID in (%s)' % users
+    sql = 'UPDATE users SET last_recommendation_date=UTC_DATE() WHERE user_id in (%s)' % users
     try:
         cur.execute(sql)
     except Exception:
@@ -44,12 +44,12 @@ def insertUserRecommendations(db, recommendations):
 
 
 def getUserRecommendations(db, startUserID, n):
-    '''This method returns user_ID, system_ID and article_ID in a structure like this:
-    {user_ID:{date:{article_IDs:score}}.
+    '''This method returns user_id, system_id and article_id in a structure like this:
+    {user_id:{date:{article_ids:score}}.
     '''
     cur = db.cursor()
-    sql = '''SELECT user_ID, DATE(recommendation_date), article_ID, score, explanation FROM user_recommendations NATURAL JOIN users 
-    WHERE user_ID between %s AND %s
+    sql = '''SELECT user_id, DATE(recommendation_date), article_id, score, explanation FROM user_recommendations NATURAL JOIN users 
+    WHERE user_id between %s AND %s
     AND DATE(recommendation_date) >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY) 
     AND last_email_date < UTC_DATE()'''
     cur.execute(sql, (startUserID, startUserID + n - 1))
@@ -61,9 +61,9 @@ def getUserRecommendations(db, startUserID, n):
 
 
 def getUsers(db, startUserID, n):
-    '''This method returns user_ID, name, notification_interval and email in a dictionary.'''
+    '''This method returns user_id, name, notification_interval and email in a dictionary.'''
     cur = db.cursor()
-    sql = 'SELECT user_ID,email,firstname,notification_interval FROM users WHERE user_ID between %s AND %s'
+    sql = 'SELECT user_id,email,firstname,notification_interval FROM users WHERE user_id between %s AND %s'
     cur.execute(sql, (startUserID, startUserID + n - 1))
     users = {x[0]: {'email': x[1], 'name': x[2], 'notification_interval': x[3]}
              for x in cur.fetchall()}
@@ -94,8 +94,8 @@ def getHighestUserID(db):
 def getArticleData(db):
     '''Returns article data with authors in a dictionary'''
     cur = db.cursor()
-    sql = '''SELECT article_ID,title, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') FROM article_authors natural join articles
-    WHERE datestamp >=DATE_SUB(UTC_DATE(),INTERVAL 8 DAY) GROUP BY article_ID'''
+    sql = '''SELECT article_id,title, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') FROM article_authors natural join articles
+    WHERE datestamp >=DATE_SUB(UTC_DATE(),INTERVAL 8 DAY) GROUP BY article_id'''
     cur.execute(sql)
     articles = {x[0]: {'title': x[1], 'authors': x[2]} for x in cur.fetchall()}
     cur.close()
@@ -105,12 +105,12 @@ def getArticleData(db):
 def setSeenEmail(db, articles):
     '''Updates database field if user sees the email'''
     cur = db.cursor()
-    sql = 'UPDATE user_recommendations SET seen_email=true,trace_click_email=%s, trace_like_email=%s WHERE user_ID=%s and article_ID=%s'
+    sql = 'UPDATE user_recommendations SET seen_email=true,trace_click_email=%s, trace_like_email=%s WHERE user_id=%s and article_id=%s'
     cur.executemany(sql, articles)
 
     users = {str(x[2]) for x in articles}
     users = ','.join(users)
-    sql = 'UPDATE users SET last_email_date=UTC_DATE() WHERE user_ID in (%s)' % users
+    sql = 'UPDATE users SET last_email_date=UTC_DATE() WHERE user_id in (%s)' % users
     cur.execute(sql)
     cur.close()
     db.commit()
