@@ -12,7 +12,7 @@
                onblur="inputTouched(this);"
                onfocus="removeTouched(this);"
                value="{{ value|e }}"
-               {% if required %}required {% endif %}
+               {% if required %}required{% endif %}
                size="{{ size }}">
         <p class="form_error"></p>
 
@@ -20,25 +20,18 @@
     <td></td>
 {%- endmacro %}
 <script>
-    categoryList = {{ categoryList | tojson | safe }};
-    usercategories = {{ (user.categories if user else [])| tojson | safe }};
-    user_keywords = "{{ user.keywords if user else '' }}".split(",");
-    user_keywords = user_keywords.map(function (el) {
-        return el.trim();
-    });
-    suggested_keywords = [];
+    categoryList = {{ categoryList | tojson }};
+    usercategories = {{ (user.categories if user else[]) | tojson }};
+    user_topics = {{ (user.topics if user else[] )| tojson }};
 </script>
 <tr>
     <td>
         <label for="email" class="signupLabel">Email: *</label>
     </td>
-
-
     <td>
         <p class="signupHint">Your email will not be distributed.</p>
-        <input type="email" id="email" name="email" placeholder="Your email.." required
-               onblur="inputTouched(this)" autofocus size="254"
-               onfocus="removeTouched(this)" value="{{ user.email if user else '' }}">
+        <input type="email" id="email" name="email" placeholder="Your email.." required onblur="inputTouched(this)"
+               autofocus size="254" onfocus="removeTouched(this)" value="{{ user.email if user else '' }}">
         <p class="form_error"></p>
     </td>
     <td></td>
@@ -54,11 +47,9 @@
                 character, one number, one symbol
                 and be more than 8 charcters long.</p>
             <input type="password" id="password" name="password" placeholder="Your password.."
-                   pattern="(?=^.{9,256}$)(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-                   required onblur="inputTouched(this)" size="256"
-                   oninput="this.value==confirmPassword.value ? confirmPassword.setCustomValidity(''):
-                            confirmPassword.setCustomValidity('Passwords must match.')"
-                   onfocus="removeTouched(this)">
+                   pattern="(?=^.{9,256}$)(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" required
+                   onblur="inputTouched(this)" size="256" oninput="this.value==confirmPassword.value ? confirmPassword.setCustomValidity(''):
+                            confirmPassword.setCustomValidity('Passwords must match.')" onfocus="removeTouched(this)">
             <p class="form_error"></p>
         </td>
         <td></td>
@@ -68,12 +59,9 @@
             <label for="confpass"></label>
         </td>
         <td>
-            <input type="password" id="confpass" name="confirmPassword" placeholder="Repeat password.."
-                   required onblur="inputTouched(this)"
-                   size="256"
-                   oninput="this.value==password.value ? this.setCustomValidity(''):
-                            this.setCustomValidity('Passwords must match.')"
-                   onfocus="removeTouched(this)">
+            <input type="password" id="confpass" name="confirmPassword" placeholder="Repeat password.." required
+                   onblur="inputTouched(this)" size="256" oninput="this.value==password.value ? this.setCustomValidity(''):
+                            this.setCustomValidity('Passwords must match.')" onfocus="removeTouched(this)">
             <p class="form_error"></p>
         </td>
         <td></td>
@@ -113,30 +101,30 @@
     {{ input("semantic_scholar",placeholder="Your Semantic Scholar profile..",
                         label="Semantic Scholar profile:", size=256,
                         value=user.semantic_scholar_profile if user else "") }}
-<tr>
-    <td>
-        <label for="keywords" class="signupLabel">Keywords:</label>
-    </td>
-    <td>
-        <div style="height:300px;">
-            <div>
-                <br>
-                <p class="signupHint">Enter your interests seperated by a comma or add suggested
-                    keywords from the list to the right</p>
-                <textarea id="keyword_text" name="keywords"
-                          style="height:220px; resize: none;">
-                    {{ user.keywords if user else "" }}
-                </textarea>
-            </div>
-        </div>
-    </td>
-    <td>
-        <div id="keywords">
-
-        </div>
-    </td>
 </tr>
 
+<tr>
+    <td>
+        <label for="topics_input" class="signupLabel">Topics:</label>
+    </td>
+    <td>
+        <br>
+        <p class="signupHint">Select topics from the suggestion list or submit your own, press
+            enter or add to submit currently selected topic. Submit at least 3 topics.
+        </p>
+        <div class="flexContainer">
+            <div>
+                <input id="topic_input" type="text" name="topics_input" placeholder="Your topics.." size="300">
+            </div>
+            <button id="add_topic" class="btn btn-primary">Add</button>
+        </div>
+        <p class="form_error"></p>
+
+        <ul id="topic_list" class="list-group  form_list"></ul>
+        <input type="hidden" name="topics" id="hidden_topics_input">
+    </td>
+    <td></td>
+</tr>
 <tr>
     <td>
         <label for="interests" class="signupLabel">Interests:</label>
@@ -147,20 +135,21 @@
             enter or add to submit currently
             selected category, you can select both categories and subcategories.
         </p>
-        <ul id="interestsList"></ul>
-        <input type="hidden" name="categories" id="categoriesInput">
         <div class="flexContainer">
-            <input id="interestsInput" class="flexinput" type="text" name="interests"
-                   placeholder="Your interests.." size="300">
-            <button id="addCategory">Add</button>
+            <div>
+                <input id="interestsInput" type="text" name="interests" placeholder="Your interests.." size="300">
+                <button id="addCategory" class="btn btn-primary">Add</button>
+            </div>
         </div>
+        <ul id="interestsList" class="list-group form_list"></ul>
+        <input type="hidden" name="categories" id="categoriesInput">
     </td>
-    <td></td>
+    <td>
+    </td>
 </tr>
-
 <tr>
     <td>
-        <label for="keywords" class="signupLabel">Notification interval: *</label>
+        <label for="digest_frequency" class="signupLabel">Notification interval: *</label>
     </td>
     <td>
         <br>
@@ -173,4 +162,3 @@
     </td>
     <td></td>
 </tr>
-

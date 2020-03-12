@@ -51,9 +51,11 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Keywords:</td>
+                        <td>Topics:</td>
                         <td>
-                            {{ user.keywords }}
+                            {% for topic in user.topics %}
+                                {{ topic['topic'] }}
+                                <br> {% endfor %}
                         </td>
                     </tr>
                     <tr>
@@ -61,7 +63,7 @@
                         <td>
                             {% for category in user.categories %}
                                 <a href="https://arxiv.org/list/{{ category[0] }}/recent"
-                                   target="_blank">{{ category[1] }}</a>
+                                   target="_blank">{{ category['category_name'] }}</a>
                                 <br> {% endfor %}
                         </td>
                     </tr>
@@ -83,15 +85,15 @@
                     <tr>
                         <td>
                             <a href="{{ url_for('general.passwordChange') }}">
-                                <div class="profileButton">
-                                    <h5>Change password</h5>
+                                <div class="btn btn-primary">
+                                    Change password
                                 </div>
                             </a>
                         </td>
                         <td>
                             <a href="{{ url_for('general.modify') }}">
-                                <div class="profileButton">
-                                    <h5>Modify profile</h5>
+                                <div class="btn btn-primary">
+                                    Modify profile
                                 </div>
                             </a>
                         </td>

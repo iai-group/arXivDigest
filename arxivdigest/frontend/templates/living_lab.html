@@ -18,8 +18,9 @@
             </div>
             <br>
             <h2 style="text-align: center;">Your systems:</h2>
-            <p style="text-align: center; color:rgb(104, 104, 104);">Contact name: {{systems[0].firstname}} {{systems[0].lastname}}. | 
-                Organization: {{systems[0].organization}}. | Email: {{systems[0].email}}</p>
+            <p style="text-align: center; color:rgb(104, 104, 104);">Contact
+                name: {{ user.firstname }} {{ user.lastname }}. |
+                Organization: {{ user.organization }}. | Email: {{ user.email }}</p>
             <div id="user_system_list">
                 <table class="table">
                     <thead>
@@ -47,7 +48,9 @@
                 </table>
             </div>
             <br>
-            <a href="{{ url_for('general.registerSystemPage') }}" id="create_system_button">Add a new system</a>
+            <a href="{{ url_for('general.registerSystemPage') }}">
+                <div class="btn btn-primary">Add a new system</div>
+            </a>
         </div>
     </div>
 </div>

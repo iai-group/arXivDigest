@@ -51,7 +51,6 @@ js_bundle = Bundle('javascript/autocomplete.js',
                    'javascript/forms.js',
                    'javascript/articlelist.js',
                    'javascript/admin.js',
-                   'javascript/keywords.js',
                    filters='jsmin',
                    output='generated/js/base.%(version)s.js')
 
@@ -92,4 +91,5 @@ def teardownDb(exception):
 
 if __name__ == '__main__':
     assets.auto_build = True
+    app.config['ASSETS_DEBUG'] = True
     app.run(port=frontend_config.get('dev_port'), debug=True)
