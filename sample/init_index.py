@@ -2,8 +2,6 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
-from elasticsearch import Elasticsearch
-
 INDEX_SETTINGS = {
     'settings': {
         'index': {
@@ -62,8 +60,7 @@ INDEX_SETTINGS = {
 }
 
 
-def init_index(index):
+def init_index(es, index):
     print('Creating index')
-    es = Elasticsearch()
     es.indices.create(index=index, body=INDEX_SETTINGS)
     print('Finished creating index')

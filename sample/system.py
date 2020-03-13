@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import urllib
 from collections import defaultdict
@@ -9,10 +10,32 @@ from elasticsearch import Elasticsearch
 from index import run_indexing
 from init_index import init_index
 
-API_KEY = '4c02e337-c94b-48b6-b30e-0c06839c81e6'
-API_URL = 'http://127.0.0.1:5000/'
-INDEX = 'main_index'
-ELASTICSEARCH_HOST = {'host': '127.0.0.1', 'port': 9200}
+file_locations = [
+    os.path.expanduser('~') + '/arxivdigest/system_config.json',
+    '/etc/arxivdigest/system_config.json',
+    os.curdir + '/system_config.json',
+]
+
+
+def get_config_from_file(file_paths):
+    """Checks the given list of file paths for a config file,
+    returns None if not found."""
+    for file_location in file_paths:
+        if os.path.isfile(file_location):
+            print('Found config file at: {}'.format(
+                os.path.abspath(file_location)))
+            with open(file_location) as file:
+                return json.load(file)
+    return {}
+
+
+config_file = get_config_from_file(file_locations)
+
+API_KEY = config_file.get('api_key', '4c02e337-c94b-48b6-b30e-0c06839c81e6')
+API_URL = config_file.get('api_url', 'http://127.0.0.1:5001/')
+INDEX = config_file.get('index_name', 'main_index')
+ELASTICSEARCH_HOST = config_file.get('elasticsearch_host',
+                                     {'host': '127.0.0.1', 'port': 9200})
 
 
 def get_user_ids(start, api_key, api_url):
@@ -35,11 +58,10 @@ def get_user_info(user_ids, api_key, api_url, batch_size=100):
     return user_info
 
 
-def get_articles_by_topic(topic, index, window_size=1, size=10000):
+def get_articles_by_topic(es, topic, index, window_size=1, size=10000):
     """Retrieves articles from the Elasticsearch index mentioning 'topic',
     the 'window_size' is the number of days back in time articles will
     be included from."""
-    es = Elasticsearch()
     query = {
         'query': {
             'bool': {
@@ -81,7 +103,7 @@ def send_recommendations(recommendations, api_key, api_url, batch_size=100):
             sys.exit(1)
 
 
-def make_user_recommendation(topics, index, n_topics_explanation=3):
+def make_user_recommendation(es, topics, index, n_topics_explanation=3):
     """Makes recommendations based on list of topics and returns a list of
     articles. The score of each article is calculated as the sum of the score of
     each topics, and the explanation is contains all topics that matched an
@@ -90,7 +112,7 @@ def make_user_recommendation(topics, index, n_topics_explanation=3):
     included in the explanation."""
     articles = defaultdict(list)
     for topic in topics:
-        for article in get_articles_by_topic(topic, index)['hits']['hits']:
+        for article in get_articles_by_topic(es, topic, index)['hits']['hits']:
             articles[article['_id']].append((article['_score'], topic))
 
     result = []
@@ -98,7 +120,6 @@ def make_user_recommendation(topics, index, n_topics_explanation=3):
         sorted_topics = [topic for _, topic in sorted(score_topic_list)]
         expl_str = ', '.join(sorted_topics[:n_topics_explanation])
         explanation = 'This article matches the topics: {}'.format(expl_str)
-        print(article_id, score_topic_list, '/n', explanation)
         result.append({'article_id': article_id,
                        'score': sum([score for score, _ in score_topic_list]),
                        'explanation': explanation
@@ -106,7 +127,7 @@ def make_user_recommendation(topics, index, n_topics_explanation=3):
     return result
 
 
-def make_recommendations(user_info, index, n_articles=10):
+def make_recommendations(es, user_info, index, n_articles=10):
     """Makes recommendations for all the users in user_info based on the
     topics in user_info. Searches the elasticsearch index for candidates
     and uses the Elasticsearch score as score.
@@ -114,13 +135,13 @@ def make_recommendations(user_info, index, n_articles=10):
     recommendations = {}
     for user, info in user_info.items():
         topics = [topic['topic'] for topic in info['topics']]
-        articles = make_user_recommendation(topics, index)
+        articles = make_user_recommendation(es, topics, index)
         articles = sorted(articles, key=lambda k: k['score'], reverse=True)
         recommendations[user] = articles[0:n_articles]
     return recommendations
 
 
-def recommend(api_key, api_url, index):
+def recommend(es, api_key, api_url, index):
     """Makes and sends recommendations to all users."""
     total_users = get_user_ids(0, api_key, api_url)['users']['num']
     print('Starting recommending articles for {} users'.format(total_users))
@@ -128,7 +149,7 @@ def recommend(api_key, api_url, index):
     while recommendation_count < total_users:
         user_ids = get_user_ids(0, api_key, api_url)['users']['user_ids']
         user_info = get_user_info(user_ids, api_key, api_url)
-        recommendations = make_recommendations(user_info, index)
+        recommendations = make_recommendations(es, user_info, index)
         send_recommendations(recommendations, api_key, api_url)
 
         recommendation_count += len(user_ids)
@@ -144,9 +165,9 @@ def run(api_key, api_url, index):
         """
     es = Elasticsearch(hosts=[ELASTICSEARCH_HOST])
     if not es.indices.exists(index=index):
-        init_index(index)
-    run_indexing(index, api_key, api_url)
-    recommend(api_key, api_url, index)
+        init_index(es, index)
+    run_indexing(es, index, api_key, api_url)
+    recommend(es, api_key, api_url, index)
     print('\nFinished recommending articles')
 
 
