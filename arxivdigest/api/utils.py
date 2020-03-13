@@ -20,7 +20,10 @@ def validateApiKey(f):
 
     @wraps(f)
     def wrapper(*args, **kwargs):
-        key = request.headers.get('api_key', '')
+        key = request.headers.get('api_key')
+        if not key:
+            return make_response(jsonify({'error': 'No API key received.'}),
+                                 401)
         try:
             UUID(key, version=4)
         except ValueError:
