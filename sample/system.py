@@ -35,8 +35,8 @@ def get_user_info(user_ids, api_key, api_url, batch_size=100):
     return user_info
 
 
-def get_articles_by_keyword(keyword, index, window_size=1, size=10000):
-    """Retrieves articles from the Elasticsearch index mentioning 'keywords',
+def get_articles_by_topic(topic, index, window_size=1, size=10000):
+    """Retrieves articles from the Elasticsearch index mentioning 'topic',
     the 'window_size' is the number of days back in time articles will
     be included from."""
     es = Elasticsearch()
@@ -46,7 +46,7 @@ def get_articles_by_keyword(keyword, index, window_size=1, size=10000):
                 'must': {
                     'match': {
                         'catch_all': {
-                            'query': keyword,
+                            'query': topic,
                         }
                     }
                 },
@@ -81,26 +81,26 @@ def send_recommendations(recommendations, api_key, api_url, batch_size=100):
             sys.exit(1)
 
 
-def make_user_recommendation(keywords, index, n_keywords_explanation=3):
-    """Makes recommendations based on list of keywords and returns a list of
+def make_user_recommendation(topics, index, n_topics_explanation=3):
+    """Makes recommendations based on list of topics and returns a list of
     articles. The score of each article is calculated as the sum of the score of
-    each keyword, and the explanation is contains all keywords that matched an
+    each topics, and the explanation is contains all topics that matched an
     article.
-    'n_keywords_explanation' is how many of the top keywords that will be
-    included in the explaantion."""
+    'n_topics_explanation' is how many of the top topics that will be
+    included in the explanation."""
     articles = defaultdict(list)
-    for keyword in keywords:
-        for article in get_articles_by_keyword(keyword, index)['hits']['hits']:
-            articles[article['_id']].append((article['_score'], keyword))
+    for topic in topics:
+        for article in get_articles_by_topic(topic, index)['hits']['hits']:
+            articles[article['_id']].append((article['_score'], topic))
 
     result = []
-    for article_id, score_keyword_list in articles.items():
-        sorted_keywords = [keyword for _, keyword in sorted(score_keyword_list)]
-        expl_str = ', '.join(sorted_keywords[:n_keywords_explanation])
-        explanation = 'This article matches the keywords: {}'.format(expl_str)
-
+    for article_id, score_topic_list in articles.items():
+        sorted_topics = [topic for _, topic in sorted(score_topic_list)]
+        expl_str = ', '.join(sorted_topics[:n_topics_explanation])
+        explanation = 'This article matches the topics: {}'.format(expl_str)
+        print(article_id, score_topic_list, '/n', explanation)
         result.append({'article_id': article_id,
-                       'score': sum([score for score, _ in score_keyword_list]),
+                       'score': sum([score for score, _ in score_topic_list]),
                        'explanation': explanation
                        })
     return result
@@ -108,12 +108,13 @@ def make_user_recommendation(keywords, index, n_keywords_explanation=3):
 
 def make_recommendations(user_info, index, n_articles=10):
     """Makes recommendations for all the users in user_info based on the
-    keywords in user_info. Searches the elasticsearch index for candidates
+    topics in user_info. Searches the elasticsearch index for candidates
     and uses the Elasticsearch score as score.
     'n_articles' is the number of articles to recommend for each user."""
     recommendations = {}
     for user, info in user_info.items():
-        articles = make_user_recommendation(info['keywords'], index)
+        topics = [topic['topic'] for topic in info['topics']]
+        articles = make_user_recommendation(topics, index)
         articles = sorted(articles, key=lambda k: k['score'], reverse=True)
         recommendations[user] = articles[0:n_articles]
     return recommendations
