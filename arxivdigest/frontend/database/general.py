@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from flask import g
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
-from contextlib import closing
-
 import datetime
+from contextlib import closing
 from datetime import datetime
 from uuid import uuid4
 
@@ -78,8 +79,8 @@ def insertUser(user):
                  semantic_scholar_profile, personal_website) 
                  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 
-        cur.execute(sql, (user.email, user.hashed_password, user.first_name,
-                          user.last_name, user.digestfrequency,
+        cur.execute(sql, (user.email, user.hashed_password, user.firstname,
+                          user.lastname, user.notification_interval,
                           user.registered, user.organization, user.dblp_profile,
                           user.google_scholar_profile,
                           user.semantic_scholar_profile, user.personal_website))
@@ -120,11 +121,11 @@ def update_user(user_id, user):
                  google_scholar_profile = %s, semantic_scholar_profile = %s,  
                 notification_interval = %s 
                  WHERE user_ID = %s'''
-        cur.execute(sql, (user.email, user.first_name, user.last_name,
+        cur.execute(sql, (user.email, user.firstname, user.lastname,
                           user.organization, user.personal_website,
                           user.dblp_profile, user.google_scholar_profile,
                           user.semantic_scholar_profile,
-                          user.digestfrequency, user_id))
+                          user.notification_interval, user_id))
         set_user_categories_and_topics(user_id, user)
     conn.commit()
 
@@ -157,7 +158,7 @@ def set_user_categories_and_topics(user_id, user):
         data = [(user_id, topic, 'USER_ADDED', datetime.utcnow())
                 for topic in user.topics if topic not in current_topics]
         sql = '''INSERT INTO 
-                 user_topics(user_id, topic_id, state, interaction_timestamp)
+                 user_topics(user_id, topic_id, state, interaction_time)
                  VALUES(%s, (SELECT  topic_id FROM topics WHERE topic=%s),
                  %s, %s)'''
         cur.executemany(sql, data)
@@ -180,13 +181,16 @@ def validatePassword(email, password):
 
 
 def userExist(email):
-    """Checks if email is already in use by another user. Returns True if in use and False if not."""
+    """Checks if email is already in use by another user.
+     Returns True if in use and False if not."""
     cur = getDb().cursor()
-    sql = 'SELECT EXISTS(SELECT user_ID FROM users WHERE email = %s)'
+    sql = 'SELECT user_ID FROM users WHERE email = %s'
     cur.execute(sql, (email,))
-    exists = cur.fetchone()[0]
+    row = cur.fetchone()
     cur.close()
-    return False if exists is 0 else True
+    if not row:
+        return False
+    return False if row[0] == g.user else True
 
 
 def getCategoryNames():

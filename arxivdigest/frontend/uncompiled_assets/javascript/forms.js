@@ -20,14 +20,14 @@ $(document).ready(function () {
         }
         let result = await $.ajax({
             url: "topics/search/" + encodeURIComponent(text),
-            async: false
 
         }).done(function (data) {
             input.parent().parent().next("form_error").text('');
         }).fail(function () {
             input.parent().parent().next("form_error").text('Topic search request failed.');
         });
-        return {"suggestions": result}
+
+        return {"suggestions": result.filter(t => !input.submitted.includes(t))}
     }
 
     function submit_topics(value) {
@@ -46,20 +46,32 @@ $(document).ready(function () {
             input.submitted.push(value);
             const li = create_removable_list_element(value, value, input, hidden_input);
             interests_list.append(li);
-            hidden_input.val(input.submitted.join("\n"));
+            hidden_input.val_with_change(input.submitted.join("\n"));
             return true;
         }
     }
 
+    $("#hidden_topics_input").on("change", function (event) {
+        if (input.submitted.length < 3) {
+            input.get(0).setCustomValidity("You need to provide at least 3 topics.");
+        } else {
+            input.get(0).setCustomValidity("");
+        }
+    });
+
     const input = $("#topic_input");
     if (input.length) {
+        input.get(0).setCustomValidity("You need to provide at least 3 topics.");
         input.submitted = [];
         autoComplete(input, $("#add_topic"), suggest_topics_from_text, submit_topics);
-        if (typeof user_topics !== 'undefined') {
-            for (const topic of user_topics) {
-                input.submit(topic['topic'].toLowerCase());
+        if (typeof user_topics !== "undefined") {
+            const is_string = typeof user_topics === "string";
+            let topics = is_string ? user_topics.split(/\r?\n/) : user_topics.map(t => t['topic']);
+            for (const topic of topics) {
+                input.submit(topic.toLowerCase());
             }
         }
+        input.suggestion_list.hide();
     }
 });
 
@@ -121,7 +133,7 @@ $(document).ready(function () {
             input.submitted.push(category[0]);
             const li = create_removable_list_element(category[1], category[0], input, hidden_input);
             interests_list.append(li);
-            hidden_input.val(input.submitted.join(","));
+            hidden_input.val_with_change(input.submitted.join("\n"));
             return true;
         }
     }
@@ -140,12 +152,19 @@ $(document).ready(function () {
         const parsed_categories = parseCategoryList(categoryList);
         input.categories = parsed_categories["categories"];
         input.sub_categories = parsed_categories["sub_categories"];
+        input.category_names = parsed_categories["category_names"];
         input.submitted = [];
         autoComplete(input, $("#addCategory"), suggest_categories_from_text,
             submit_categories, set_input_value);
         if (typeof usercategories !== 'undefined') {
-            for (let i = 0; i < usercategories.length; i++) {
-                input.submit(usercategories[i]['category_name'].toLowerCase());
+            let categories;
+            if (typeof usercategories === "string") {
+                categories = usercategories.split(/\r?\n/);
+            } else {
+                categories = usercategories.map(c => c['category_id']);
+            }
+            for (const category of categories) {
+                input.submit(input.category_names[category].toLowerCase());
             }
         }
         input.suggestion_list.hide();
@@ -158,6 +177,7 @@ $(document).ready(function () {
 
         let categories = {};
         let sub_categories = {};
+        let category_names = {};
         for (const category of data) {
             const c = category[1].split(".");
             if (c.length === 1) {
@@ -166,8 +186,13 @@ $(document).ready(function () {
             } else {
                 sub_categories[c[0].toLowerCase()][c[1].toLowerCase()] = category;
             }
+            category_names[category[0]] = category[1];
         }
-        return {"categories": categories, "sub_categories": sub_categories};
+        return {
+            "categories": categories,
+            "sub_categories": sub_categories,
+            "category_names": category_names
+        };
     }
 });
 
@@ -176,9 +201,9 @@ $(document).ready(function () {
 $(document).ready(function () {
 
     let websiteInputs = [
-        {"id": "#dblpInput", "prefix": "dblp.org/"},
-        {"id": "#google_scholarInput", "prefix": "scholar.google.com/"},
-        {"id": "#semantic_scholarInput", "prefix": "semanticscholar.org/author/"},
+        {"id": "#dblp_profileInput", "prefix": "dblp.org/"},
+        {"id": "#google_scholar_profileInput", "prefix": "scholar.google.com/"},
+        {"id": "#semantic_scholar_profileInput", "prefix": "semanticscholar.org/author/"},
     ];
 
     for (const websiteInput of websiteInputs) {
@@ -210,7 +235,7 @@ function create_removable_list_element(text, data_value, input, hidden_input) {
                 input.submitted.splice(i, 1);
             }
         });
-        hidden_input.val(input.submitted.join(","));
+        hidden_input.val_with_change(input.submitted.join("\n"));
         li.remove();
     });
     li.html("<span class='list_text'>" + text + "</span>");
@@ -219,3 +244,9 @@ function create_removable_list_element(text, data_value, input, hidden_input) {
 }
 
 
+(function ($) {
+    $.fn.val_with_change = function (val) {
+        $(this).val(val);
+        $(this).change();
+    };
+})(jQuery);

@@ -36,7 +36,7 @@
     </td>
     <td></td>
 </tr>
-{% if not user %}
+{% if signup %}
     <tr>
         <td>
             <label for="password" class="signupLabel">Password: *</label>
@@ -68,12 +68,12 @@
     </tr>
 {% endif %}
 <tr>
-    {{ input("first_name",placeholder="Your first name..",
-                        label="First name:", size=60, required=true,
-                        value=user.firstname if user else "") }}
+    {{ input("firstname",placeholder="Your first name..",
+                        label="First name:", size=60, required=true,value=user.firstname
+                         if user else "") }}
 </tr>
 <tr>
-    {{ input("last_name",placeholder="Your last name..",
+    {{ input("lastname",placeholder="Your last name..",
                         label="Last name:", size=60, required=true,
                         value=user.lastname if user else "") }}
 </tr>
@@ -88,24 +88,24 @@
                         value=user.personal_website if user else "") }}
 </tr>
 <tr>
-    {{ input("dblp",placeholder="Your DBLP profile page..",
+    {{ input("dblp_profile",placeholder="Your DBLP profile page..",
                     label="DBLP profile:", size=256,
                     value=user.dblp_profile if user else "" ) }}
 </tr>
 <tr>
-    {{ input("google_scholar",placeholder="Your Google Scholar profile..",
+    {{ input("google_scholar_profile",placeholder="Your Google Scholar profile..",
                         label="Google Scholar profile:", size=256,
                         value=user.google_scholar_profile if user else "") }}
 </tr>
 <tr>
-    {{ input("semantic_scholar",placeholder="Your Semantic Scholar profile..",
+    {{ input("semantic_scholar_profile",placeholder="Your Semantic Scholar profile..",
                         label="Semantic Scholar profile:", size=256,
                         value=user.semantic_scholar_profile if user else "") }}
 </tr>
 
 <tr>
     <td>
-        <label for="topics_input" class="signupLabel">Topics:</label>
+        <label for="topics_input" class="signupLabel">Topics: *</label>
     </td>
     <td>
         <br>
@@ -149,16 +149,16 @@
 </tr>
 <tr>
     <td>
-        <label for="digest_frequency" class="signupLabel">Notification interval: *</label>
+        <label for="notification_interval" class="signupLabel">Notification interval: *</label>
     </td>
     <td>
         <br>
         <p>How often would you like receive a digest email?</p>
-        <input type="radio" name="digest_frequency" value="1 day" required
-                {{ "checked" if not user or user.notification_interval ==1 else '' }}>1 day
+        <input type="radio" name="notification_interval" value="1" required
+                {{ "checked" if not user or user.notification_interval | int ==1 else '' }}>1 day
         <br>
-        <input type="radio" name="digest_frequency" value="7 days"
-                {{ "checked" if user and user.notification_interval ==7 else '' }}>7 days
+        <input type="radio" name="notification_interval" value="7"
+                {{ "checked" if user and user.notification_interval | int ==7 else '' }}>7 days
     </td>
     <td></td>
 </tr>
