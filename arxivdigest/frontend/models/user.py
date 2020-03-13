@@ -164,11 +164,10 @@ class User():
     @topics.setter
     def topics(self, topics, min_topics=3, min_topic_length=3):
         if isinstance(topics, str):
-            topics = topics.lower().replace('\n', ' ').replace('\r', '')
-            topics = [topic.strip() for topic in topics.split(',')
+            topics = [topic.strip() for topic in topics.lower().splitlines()
                       if len(topic.strip()) >= min_topic_length]
         else:
-            raise ValidationError('Topics must be a comma separated string.')
+            raise ValidationError('Topics must be a newline separated string.')
         if len(topics) < min_topics:
             raise ValidationError('User must have at least {} '
                                   'topics.'.format(min_topics))
