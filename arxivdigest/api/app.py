@@ -125,6 +125,12 @@ def info():
     return make_response(jsonify({'info': "This is the arXivDigest API"}), 200)
 
 
+@app.route('/debug_header', methods=['GET'])
+def debug_header():
+    """Returns header data."""
+    return make_response(jsonify(dict(request.headers), 200))
+
+
 @app.teardown_appcontext
 def teardownDb(exception):
     db = getattr(g, '_database', None)
