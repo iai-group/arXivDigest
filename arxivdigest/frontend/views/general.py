@@ -75,18 +75,19 @@ def signup():
     """Takes data from signup form and creates an userobject. Sends user object to signup database function. Returns
     signup page with relevant error or index page and authToken"""
     if g.loggedIn:
-        flash('You can not register an account while you are already logged in.', 'danger')
+        flash('You can not sign up while you are already logged in.', 'danger')
         return redirect(url_for('articles.index'))
-    form = request.form
-    data = form.to_dict()
+    user_dict = request.form.to_dict()
     try:
-        user = User(data)
+        user = User(user_dict)
     except ValidationError as e:
         flash(e.message, 'danger')
-        return render_template('signup.html', categoryList=db.getCategoryNames())
+        return render_template('signup.html', user=user_dict, signup=True,
+                               categoryList=db.getCategoryNames())
     if db.userExist(user.email):
         flash('Email already used by another account.', 'danger')
-        return render_template('signup.html', categoryList=db.getCategoryNames())
+        return render_template('signup.html', user=user_dict, signup=True,
+                               categoryList=db.getCategoryNames())
 
     id = db.insertUser(user)
 
@@ -99,7 +100,8 @@ def signupPage():
     """Returns signup page or index page if already logged in"""
     if g.loggedIn:
         return redirect(url_for('articles.index'))
-    return render_template('signup.html', categoryList=db.getCategoryNames())
+    return render_template('signup.html', signup=True,
+                           categoryList=db.getCategoryNames())
 
 
 @mod.route('/passwordChange', methods=['POST'])
@@ -133,11 +135,16 @@ def passwordChangePage():
 def modify():
     """Gets new user data from form. creates user object and sends old user data and new user data to database update
     user function. Returns user modify template with relevant error or user profile template."""
+    user_dict = request.form.to_dict()
     try:
-        user = User(request.form.to_dict(), require_password=False)
+        user = User(user_dict, require_password=False)
     except ValidationError as e:
         flash(e.message, 'danger')
-        return render_template('modify.html', user=db.get_user(g.user),
+        return render_template('modify.html', user=user_dict,
+                               categoryList=db.getCategoryNames())
+    if db.userExist(user.email):
+        flash('Email already used by another account.', 'danger')
+        return render_template('modify.html', user=user_dict,
                                categoryList=db.getCategoryNames())
 
     db.update_user(g.user, user)
@@ -193,7 +200,8 @@ def livinglab():
 def feedbackPage():
     """Returns feedback page with list of articles."""
     article_id = request.args.get('articleID', '', type=str)
-    return render_template('feedback.html', endpoint='general.feedback', article_id=article_id)
+    return render_template('feedback.html', endpoint='general.feedback',
+                           article_id=article_id)
 
 
 @mod.route('/feedback/', methods=['POST'])
