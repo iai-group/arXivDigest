@@ -2,9 +2,9 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, 2020, The arXivDigest project'
 
-from urllib import request
 import json
-from elasticsearch import Elasticsearch
+from urllib import request
+
 from elasticsearch.helpers import bulk
 
 
@@ -35,9 +35,8 @@ def get_article_data(api_key, api_url, article_ids, batch_size=100):
     return article_data
 
 
-def bulk_insert_articles(index, article_data):
+def bulk_insert_articles(es, index, article_data):
     """Bulk insert article data into the elastic search index."""
-    es = Elasticsearch()
     bulk_docs = []
     for article_id, article_fields in article_data.items():
         doc = {
@@ -50,12 +49,13 @@ def bulk_insert_articles(index, article_data):
     bulk(es, bulk_docs, request_timeout=10)
 
 
-def run_indexing(index, api_key, api_url, date=None):
-    """Indexes article data for new additions to the arXivDigest database for the given date object, defaults to the current date."""
+def run_indexing(es, index, api_key, api_url, date=None):
+    """Indexes article data for new additions to the arXivDigest
+     database for the given date object, defaults to the current date."""
     print('Retrieving article IDs')
     article_ids = get_article_ids(api_key, api_url, date)['articles']['article_ids']
     print('Retriving article data')
     article_data = get_article_data(api_key, api_url, article_ids)
     print('Starting bulk insertion of article data into index')
-    bulk_insert_articles(index, article_data)
+    bulk_insert_articles(es, index, article_data)
     print('Bulk insertion complete')

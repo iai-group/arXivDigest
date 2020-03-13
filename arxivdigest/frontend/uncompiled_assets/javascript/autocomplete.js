@@ -126,7 +126,8 @@ function autoComplete(input, submit_button,
 
             let s = "";
             for (let i = 0; i < choices.length; i++) {
-                s += "<div class='autocomplete-suggestion' >";
+                s += "<div class='autocomplete-suggestion' " +
+                    "data-toggle='tooltip' title='" + choices[i] + "' >";
                 s += choices[i].replace(re, "<b>$1</b>") + "</div>";
             }
             if (title) {
