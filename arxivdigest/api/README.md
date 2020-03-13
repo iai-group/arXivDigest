@@ -50,7 +50,7 @@ Example:
   - Request: `GET /users?from=1000`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -96,7 +96,7 @@ Example:
   - Request: `GET /userinfo?user_id=1,7`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -190,7 +190,7 @@ Example request:
   - Request: `GET /userfeedback?user_id=1,7`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -232,7 +232,7 @@ Example:
   - Request: `GET /articles?date=2018-02-20`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -282,7 +282,7 @@ Example:
   - Request: `GET /articledata?article_id=123`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -324,7 +324,7 @@ Insert recommendations for articles to users, with a score describing how well i
 The maximal number of users that can be given recommendations in a single request, maximal number of recommendations per user and maximal length of explanations can be [configured](#configurations).
 
 Header:
-- `api_key` used to identify which system the recomendations come from
+- `api-key` used to identify which system the recomendations come from
 
 JSON:
   - `user_id` id of the user
@@ -342,7 +342,7 @@ Example:
   - Header:
     ```
     {"Content-Type": "application/json",
-     "api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+     "api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - JSON:
     ```
@@ -392,7 +392,7 @@ Example:
 
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```

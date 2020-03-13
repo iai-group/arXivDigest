@@ -5,6 +5,7 @@ __copyright__ = 'Copyright 2018, 2020, The arXivDigest project'
 import json
 from urllib import request
 
+from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
 
@@ -12,7 +13,7 @@ def get_article_ids(api_key, api_url, date):
     """Get a list of the article_ids from the arXivDigest API for the date object supplied, defaults to the current date."""
     url = '{}articles'.format(api_url)
     url = url + '?date=' + date.strftime("%Y-%m-%d") if date else url
-    req = request.Request(url, headers={'api_key': api_key})
+    req = request.Request(url, headers={'api-key': api_key})
     resp = request.urlopen(req)
     return json.loads(resp.read())
 
@@ -25,7 +26,7 @@ def get_article_data(api_key, api_url, article_ids, batch_size=100):
     for i in range(0, len(article_ids), batch_size):
         id_batch = ','.join(article_ids[i:i + batch_size])
         req = request.Request('{}articledata?article_id={}'.format(api_url, id_batch),
-                              headers={'api_key': api_key})
+                              headers={'api-key': api_key})
 
         resp = request.urlopen(req)
         article_data.update(json.loads(resp.read())['articles'])
