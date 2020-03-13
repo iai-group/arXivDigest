@@ -36,9 +36,9 @@ $(document).ready(function () {
         const interests_list = $("#topic_list");
 
         if (!input.submitted.some(o => o === value)) {
-            if (value.includes(",") || value.length < 3) {
+            if (value.length < 3) {
                 input.parent().parent().next().text(
-                    "Topics must not contain ',' and contain at least 3 characters.");
+                    "Topics must contain at least 3 characters.");
                 input.suggestion_list.hide();
                 return false;
             }
@@ -46,7 +46,7 @@ $(document).ready(function () {
             input.submitted.push(value);
             const li = create_removable_list_element(value, value, input, hidden_input);
             interests_list.append(li);
-            hidden_input.val(input.submitted.join(","));
+            hidden_input.val(input.submitted.join("\n"));
             return true;
         }
     }
