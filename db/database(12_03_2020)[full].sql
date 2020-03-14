@@ -12,7 +12,7 @@ create table users(
                       salted_hash              char(87) not null,
                       firstname                varchar(255) not null,
                       lastname                 varchar(255) not null,
-                      notification_interval    int, # todo not null
+                      notification_interval    int not null,
                       last_recommendation_date date default '0-0-0',
                       last_email_date          date default '0-0-0',
                       registered               datetime not null,
@@ -147,17 +147,17 @@ create table topic_recommendations(
                                       system_id          int      not null,
                                       datestamp          datetime not null,
                                       system_score       float    not null,
-                                      interleaving_order int, # TODO flags
+                                      interleaving_order int,
+                                      seen boolean default false,
+                                      clicked boolean default false,
                                       foreign key (user_id) references users (user_id) on delete cascade,
                                       foreign key (topic_id) references topics (topic_id) on delete cascade,
                                       foreign key (system_id) references systems (system_id) on delete cascade,
                                       primary key (recommendation_id)
 );
 
-create index user_email_index on users (email); # TODO unique creates index
 create index article_date_index on articles(datestamp);
 create index recommendation_date_index on article_recommendations(recommendation_date);
 create index article_feedback_date_index on article_feedback(recommendation_date);
-create index topic_index on topics (topic); # TODO unique creates index
 create index user_topic_state_index on user_topics(state);
 create index topic_date_index on topic_recommendations(datestamp);
