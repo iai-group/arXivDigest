@@ -2,10 +2,10 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-lg-6 col-lg-offset-3">
+            <div class="col-md-8">
                 <table class="table table-user-information">
                     <tbody>
-                    <h3>{{ user.firstname }}&nbsp{{ user.lastname }}'s profile information:</h3>
+                    <h3>Profile</h3>
                     <tr>
                         <td>Name:</td>
                         <td>
@@ -69,37 +69,17 @@
                     </tr>
                     <tr>
                         <td>Notification Interval:</td>
-                        <td>{{ user.notification_interval }}</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Personal data:
-                        </td>
-                        <td>
-                            <a href="{{ url_for('general.download_personal_data') }}">
-
-                                Download my personal data
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="{{ url_for('general.passwordChange') }}">
-                                <div class="btn btn-primary">
-                                    Change password
-                                </div>
-                            </a>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('general.modify') }}">
-                                <div class="btn btn-primary">
-                                    Modify profile
-                                </div>
-                            </a>
-                        </td>
+                        <td>{% if user.notification_interval == 1 %}daily{% else %}weekly{% endif %}</td>
                     </tr>
                     </tbody>
                 </table>
+            </div>
+            <div class="col-md-4">
+                <ul class="list-group">
+                    <li class="list-group-item"><a href="{{ url_for('general.modify') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Modify profile</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('general.passwordChange') }}"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Change password</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('general.download_personal_data') }}"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Download your personal data</a></li>
+                </ul>
             </div>
         </div>
     </div>
