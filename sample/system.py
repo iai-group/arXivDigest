@@ -135,6 +135,9 @@ def make_recommendations(es, user_info, index, n_articles=10):
     recommendations = {}
     for user, info in user_info.items():
         topics = [topic['topic'] for topic in info['topics']]
+        if not topics:
+            print('User {} has no topics and was skipped.'.format(user))
+            continue
         articles = make_user_recommendation(es, topics, index)
         articles = sorted(articles, key=lambda k: k['score'], reverse=True)
         recommendations[user] = articles[0:n_articles]
