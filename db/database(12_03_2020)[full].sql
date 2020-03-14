@@ -7,22 +7,22 @@ primary key (category_id)
 );
 
 create table users(
-user_id int auto_increment,
-email varchar(255) not null unique,
-salted_hash char(87) not null,
-firstname varchar(255) not null,
-lastname varchar(255) not null,
-notification_interval int,
-last_recommendation_date date default '0-0-0',
-last_email_date date default '0-0-0',
-registered datetime not null,
-admin boolean default false,
-organization varchar(255) not null,
-dblp_profile varchar(256) DEFAULT '',
-google_scholar_profile varchar(256) DEFAULT '',
-semantic_scholar_profile varchar(256) DEFAULT '',
-personal_website varchar(256) DEFAULT '',
-primary key (user_id)		
+                      user_id                  int auto_increment,
+                      email                    varchar(255) not null unique,
+                      salted_hash              char(87) not null,
+                      firstname                varchar(255) not null,
+                      lastname                 varchar(255) not null,
+                      notification_interval    int, # todo not null
+                      last_recommendation_date date default '0-0-0',
+                      last_email_date          date default '0-0-0',
+                      registered               datetime not null,
+                      admin                    boolean default false,
+                      organization             varchar(255) not null,
+                      dblp_profile             varchar(256) DEFAULT '',
+                      google_scholar_profile   varchar(256) DEFAULT '',
+                      semantic_scholar_profile varchar(256) DEFAULT '',
+                      personal_website         varchar(256) DEFAULT '',
+                      primary key (user_id)
 );
 
 create table user_categories(
@@ -141,23 +141,23 @@ primary key (user_id, topic_id)
 );
 
 create table topic_recommendations(
-recommendation_id int auto_increment,
-user_id int not null,
-topic_id int not null,
-system_id int not null,
-datestamp datetime not null,
-system_score float not null,
-interleaving_order int,
-foreign key (user_id) references users (user_id) on delete cascade,
-foreign key (topic_id) references topics (topic_id) on delete cascade,
-foreign key (system_id) references systems (system_id) on delete cascade,
-primary key (recommendation_id)
+                                      recommendation_id  int auto_increment,
+                                      user_id            int      not null,
+                                      topic_id           int      not null,
+                                      system_id          int      not null,
+                                      datestamp          datetime not null,
+                                      system_score       float    not null,
+                                      interleaving_order int, # TODO flags
+                                      foreign key (user_id) references users (user_id) on delete cascade,
+                                      foreign key (topic_id) references topics (topic_id) on delete cascade,
+                                      foreign key (system_id) references systems (system_id) on delete cascade,
+                                      primary key (recommendation_id)
 );
 
-create index user_email_index on users(email);
+create index user_email_index on users (email); # TODO unique creates index
 create index article_date_index on articles(datestamp);
 create index recommendation_date_index on article_recommendations(recommendation_date);
 create index article_feedback_date_index on article_feedback(recommendation_date);
-create index topic_index on topics(topic);
+create index topic_index on topics (topic); # TODO unique creates index
 create index user_topic_state_index on user_topics(state);
 create index topic_date_index on topic_recommendations(datestamp);
