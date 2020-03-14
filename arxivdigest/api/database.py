@@ -49,26 +49,30 @@ def getUsers(ids):
     cur = getDb().cursor(dictionary=True)
     format_strings = ','.join(['%s'] * len(ids))
     sql = '''SELECT user_id, firstname as first_name, lastname as last_name, 
-             keywords, registered, organization, dblp_profile, 
-             google_scholar_profile, semantic_scholar_profile, personal_website
+             registered, organization, dblp_profile, google_scholar_profile,
+             semantic_scholar_profile, personal_website
              FROM users WHERE user_id IN (%s)''' % format_strings
     cur.execute(sql, ids)
 
     users = {}
     for user in cur.fetchall():
         user['categories'] = []
-        if user['keywords']:
-            user['keywords'] = [k.strip() for k in user['keywords'].split(',')]
-        else:
-            user['keywords'] = []
+        user['topics'] = []
+        users[user.pop('user_ID')] = user
 
-        users[user.pop('user_id')] = user
-
-    sql = "SELECT * FROM user_categories WHERE user_id IN (%s)" % format_strings
+    sql = 'SELECT * FROM user_categories WHERE user_id IN (%s)' % format_strings
 
     cur.execute(sql, ids)
     for category in cur.fetchall():
         users[category['user_id']]['categories'].append(category['category_id'])
+
+    sql = '''SELECT ut.user_id, ut.topic_id, t.topic 
+             FROM user_topics ut NATURAL JOIN topics t WHERE user_id IN (%s) 
+             AND NOT t.filtered''' % format_strings
+
+    cur.execute(sql, ids)
+    for topic in cur.fetchall():
+        users[topic.pop('user_id')]['topics'].append(topic)
 
     cur.close()
     return users

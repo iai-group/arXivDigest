@@ -15,16 +15,16 @@ class User():
         self.require_password = require_password
         self.email = user.get('email')
         self.password = user.get('password')
-        self.first_name = user.get('first_name')
-        self.last_name = user.get('last_name')
+        self.firstname = user.get('firstname')
+        self.lastname = user.get('lastname')
         self.organization = user.get('organization')
-        self.dblp_profile = user.get('dblp', '')
-        self.google_scholar_profile = user.get('google_scholar', '')
-        self.semantic_scholar_profile = user.get('semantic_scholar', '')
+        self.dblp_profile = user.get('dblp_profile', '')
+        self.google_scholar_profile = user.get('google_scholar_profile', '')
+        self.semantic_scholar_profile = user.get('semantic_scholar_profile', '')
         self.personal_website = user.get('personal_website', '')
-        self.keywords = user.get('keywords')
+        self.topics = user.get('topics')
         self.categories = user.get('categories')
-        self.digestfrequency = user.get('digest_frequency')
+        self.notification_interval = user.get('notification_interval')
 
     @property
     def email(self):
@@ -48,26 +48,26 @@ class User():
         self._password = password
 
     @property
-    def first_name(self):
-        return self._first_name
+    def firstname(self):
+        return self._firstname
 
-    @first_name.setter
-    def first_name(self, first_name):
+    @firstname.setter
+    def firstname(self, firstname):
         """Checks if firstname seems valid"""
-        if not validString(first_name, 1, 255):
+        if not validString(firstname, 1, 255):
             raise ValidationError('Invalid firstname format.')
-        self._first_name = first_name
+        self._firstname = firstname
 
     @property
-    def last_name(self):
-        return self._last_name
+    def lastname(self):
+        return self._lastname
 
-    @last_name.setter
-    def last_name(self, last_name):
+    @lastname.setter
+    def lastname(self, lastname):
         """Checks if lastname seems valid"""
-        if not validString(last_name, 1, 255):
+        if not validString(lastname, 1, 255):
             raise ValidationError('Invalid  lastname fromat.')
-        self._last_name = last_name
+        self._lastname = lastname
 
     @property
     def organization(self):
@@ -154,33 +154,37 @@ class User():
     @categories.setter
     def categories(self, categories):
         if isinstance(categories, str):
-            categories = [x for x in categories.split(',') if x is not '']
+            categories = [x for x in categories.splitlines() if x is not '']
         self._categories = categories
 
     @property
-    def keywords(self):
-        return self._keywords
+    def topics(self):
+        return self._topics
 
-    @keywords.setter
-    def keywords(self, keywords):
-        if isinstance(keywords, str):
-            keywords = keywords.replace('\n', ' ').replace('\r', '')
-            keywords = ','.join([x.strip() for x in keywords.split(',')])
-            self._keywords = keywords
+    @topics.setter
+    def topics(self, topics, min_topics=3, min_topic_length=3):
+        if isinstance(topics, str):
+            topics = [topic.strip() for topic in topics.lower().splitlines()
+                      if len(topic.strip()) >= min_topic_length]
         else:
-            self._keywords = ''
+            raise ValidationError('Topics must be a newline separated string.')
+        if len(topics) < min_topics:
+            raise ValidationError('You need to provide at least {} '
+                                  'topics.'.format(min_topics))
+
+        self._topics = topics
 
     @property
-    def digestfrequency(self):
-        return self._digestfrequency
+    def notification_interval(self):
+        return self._notification_interval
 
-    @digestfrequency.setter
-    def digestfrequency(self, digestfrequency):
-        """Sets value of digestfrequency"""
-        if digestfrequency == '7 days':
-            digestfrequency = 7
-        elif digestfrequency == '1 day':
-            digestfrequency = 1
-        if digestfrequency not in [1, 7]:
+    @notification_interval.setter
+    def notification_interval(self, notification_interval):
+        """Sets value of notification_interval"""
+        if notification_interval == '7':
+            notification_interval = 7
+        elif notification_interval == '1':
+            notification_interval = 1
+        if notification_interval not in [1, 7]:
             raise ValidationError('Invalid value:Digest Frequency')
-        self._digestfrequency = digestfrequency
+        self._notification_interval = notification_interval

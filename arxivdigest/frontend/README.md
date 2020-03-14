@@ -58,10 +58,6 @@ Routes available:
 
 >Likes or unlikes articles from web, depending on current state. Returns "Success" or "Fail".
 
-``/keyword_opinion/<keyword>/<opinion> [GET]``
-
->Stores the suggested keyword for an user along with the users opinion on that keywors (discarded or approved).
-
 ``/mail/like/<int:userID>/<string:articleID>/<uuid:trace> [GET]``
 
 >Likes article directly from email based on userid, articleid and a trace from the email.
@@ -120,18 +116,18 @@ These are the values that can be configured in the frontend-section of config.js
 
 | Tables | Fields |
 | ------------- | ------------- |
-| users | user_id, email, salted_hash, firstname, lastname, keywords, notification_interval, last_recommendation_date, last_email_date, registered, admin, organization, dblp_profile, google_scholar_profile, semantic_scholar_profile, personal_website|
+| users | user_id, email, salted_hash, firstname, lastname, notification_interval, last_recommendation_date, last_email_date, registered, admin, organization, dblp_profile, google_scholar_profile, semantic_scholar_profile, personal_website|
 | user_categories | user_id, category_id |
+| user_topics | user_id, topic_id, state |
+| topics | topic_id, topic, filtered |
 | articles | article_id, title, abstract, doi, comments, licence, journal, datestamp |
 | article_authors | author_id, article_id, firstname, lastname |
-| article_categories | article_id, category_id |
+| article_categories | article_id, category_ID |
 | author_affiliations | author_id, affiliation |
 | categories | category_id, category, subcategory, category_name |
-| article_recommendations | user_id, article_id, system_id, score, recommendation_date |
+| system_recommendations | user_id, article_id, system_id, score, recommendation_date |
 | systems | system_id, api_key, system_name, active |
-| article_feedback | user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email |
-| keywords | title, keyword, score |
-| keyword feedback | user_id, keyword, feedback, datestamp |
+| user_recommendations | user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email |
 
 ## Setup
 

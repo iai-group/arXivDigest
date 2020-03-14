@@ -91,7 +91,10 @@ $(document).ready(function () {
     if (location.hash) { //switches tabs based on the anchor part (#) of url
         $("ul.nav a[href='" + location.hash + "']").tab("show");
     } else {
-        $(".nav li:first-child a").tab("show");
+        const tabs = $(".nav-tabs li:first-child a");
+        if (tabs) {
+            tabs.tab("show");
+        }
     }
 });
 

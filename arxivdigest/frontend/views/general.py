@@ -75,18 +75,19 @@ def signup():
     """Takes data from signup form and creates an userobject. Sends user object to signup database function. Returns
     signup page with relevant error or index page and authToken"""
     if g.loggedIn:
-        flash('You can not register an account while you are already logged in.', 'danger')
+        flash('You can not sign up while you are already logged in.', 'danger')
         return redirect(url_for('articles.index'))
-    form = request.form
-    data = form.to_dict()
+    user_dict = request.form.to_dict()
     try:
-        user = User(data)
+        user = User(user_dict)
     except ValidationError as e:
         flash(e.message, 'danger')
-        return render_template('signup.html', categoryList=db.getCategoryNames())
+        return render_template('signup.html', user=user_dict, signup=True,
+                               categoryList=db.getCategoryNames())
     if db.userExist(user.email):
         flash('Email already used by another account.', 'danger')
-        return render_template('signup.html', categoryList=db.getCategoryNames())
+        return render_template('signup.html', user=user_dict, signup=True,
+                               categoryList=db.getCategoryNames())
 
     id = db.insertUser(user)
 
@@ -99,7 +100,8 @@ def signupPage():
     """Returns signup page or index page if already logged in"""
     if g.loggedIn:
         return redirect(url_for('articles.index'))
-    return render_template('signup.html', categoryList=db.getCategoryNames())
+    return render_template('signup.html', signup=True,
+                           categoryList=db.getCategoryNames())
 
 
 @mod.route('/passwordChange', methods=['POST'])
@@ -133,12 +135,18 @@ def passwordChangePage():
 def modify():
     """Gets new user data from form. creates user object and sends old user data and new user data to database update
     user function. Returns user modify template with relevant error or user profile template."""
-    data = request.form.to_dict()
+    user_dict = request.form.to_dict()
     try:
-        user = User(data, require_password=False)
+        user = User(user_dict, require_password=False)
     except ValidationError as e:
         flash(e.message, 'danger')
-        return render_template('modify.html', user=db.get_user(g.user))
+        return render_template('modify.html', user=user_dict,
+                               categoryList=db.getCategoryNames())
+    if db.userExist(user.email):
+        flash('Email already used by another account.', 'danger')
+        return render_template('modify.html', user=user_dict,
+                               categoryList=db.getCategoryNames())
+
     db.update_user(g.user, user)
     return redirect(url_for('general.profile'))
 
@@ -159,6 +167,7 @@ def profile():
 
 
 @mod.route('/livinglab/register', methods=['POST'])
+@requiresLogin
 def registerSystem():
     """Registers a system or returns an error if something went wrong."""
     form = request.form.to_dict()
@@ -178,21 +187,12 @@ def registerSystemPage():
 
 
 @mod.route('/livinglab', methods=['GET'])
+@requiresLogin
 def livinglab():
     """Returns page for livinglabs with systems belonging to a user"""
     return render_template('living_lab.html',
-                           systems=db.get_user_systems(g.user))
-
-
-@mod.route('/keyword_feedback/<keyword>/<feedback>', methods=['GET'])
-def user_keyword_feedback(keyword, feedback):
-    """Endpoint for saving a users feedback on a suggested keyword.
-    Returns success or fail"""
-    success = db.store_keyword_feedback(g.user, keyword, feedback)
-    if success:
-        return jsonify(result='success')
-    else:
-        return jsonify(results='fail')
+                           systems=db.get_user_systems(g.user),
+                           user=db.get_user(g.user))
 
 
 @mod.route('/feedback/', methods=['GET'])
@@ -200,10 +200,12 @@ def user_keyword_feedback(keyword, feedback):
 def feedbackPage():
     """Returns feedback page with list of articles."""
     article_id = request.args.get('articleID', '', type=str)
-    return render_template('feedback.html', endpoint='general.feedback', article_id=article_id)
+    return render_template('feedback.html', endpoint='general.feedback',
+                           article_id=article_id)
 
 
 @mod.route('/feedback/', methods=['POST'])
+@requiresLogin
 def submitFeedback():
     """Submits the feedback form."""
     form = request.form.to_dict()
@@ -231,6 +233,12 @@ def submitFeedback():
 def termsandconditions():
     """Returns terms and conditions page."""
     return render_template('terms_and_conditions.html')
+
+
+@mod.route('/topics/search/<search_string>', methods=['GET'])
+def topic_search(search_string):
+    """Returns a json containing topics starting with ´search_string´."""
+    return jsonify(db.search_topics(search_string))
 
 
 @mod.route('/personal_data/', methods=['GET'])

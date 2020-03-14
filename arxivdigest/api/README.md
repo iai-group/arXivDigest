@@ -50,7 +50,7 @@ Example:
   - Request: `GET /users?from=1000`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -82,7 +82,9 @@ Fields returned for each user:
   - `google_scholar_profile`: Google Scholar profile
   - `semantic_scholar_profile`: Semantic Scholar profile
   - `personal_website`: personal/organizational website
-  - `keywords`: list of self-supplied keywords
+  - `topics`: list of topics user is interested in
+     - `topic`: topic string
+     - `topic_id`: id of topic
   - `categories` : list of arXiv categories user is interested in
   - `organization`: the organization the user registered with
 
@@ -94,7 +96,7 @@ Example:
   - Request: `GET /userinfo?user_id=1,7`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -104,15 +106,22 @@ Example:
           "first_name": "John",
           "last_name": "Smith",
           "registered": "2018-02-20",
+          "organization": "arXivDigest",
           "dblp_profile": "dblp.org/...",
           "google_scholar_profile": "scholar.google.com/...",
           "semantic_scholar_profile": "semanticscholar.org/author/..",
           "personal_website": "www.example.com",
           "categories": ["math","cs","cs.AI","astro-ph.CO"],
-          "keywords": [
-            "information retrieval",
-            "retrieval models"
-          ]
+          "topics": [
+            {
+              "topic": "information retrieval",
+              "topic_id": 20
+            },
+            {
+              "topic": "retrieval models",
+              "topic_id": 68
+            },...
+          ]     
         }
         "7": {
           ...
@@ -181,7 +190,7 @@ Example request:
   - Request: `GET /userfeedback?user_id=1,7`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -223,7 +232,7 @@ Example:
   - Request: `GET /articles?date=2018-02-20`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -273,7 +282,7 @@ Example:
   - Request: `GET /articledata?article_id=123`
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```
@@ -315,7 +324,7 @@ Insert recommendations for articles to users, with a score describing how well i
 The maximal number of users that can be given recommendations in a single request, maximal number of recommendations per user and maximal length of explanations can be [configured](#configurations).
 
 Header:
-- `api_key` used to identify which system the recomendations come from
+- `api-key` used to identify which system the recomendations come from
 
 JSON:
   - `user_id` id of the user
@@ -333,7 +342,7 @@ Example:
   - Header:
     ```
     {"Content-Type": "application/json",
-     "api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+     "api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - JSON:
     ```
@@ -383,7 +392,7 @@ Example:
 
   - Header:
     ```
-    {"api_key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
     ```

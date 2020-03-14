@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from flask import g
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
-from contextlib import closing
-
 import datetime
+from contextlib import closing
 from datetime import datetime
 from uuid import uuid4
 
@@ -23,7 +24,7 @@ def get_user(user_id):
     :return: User data as dictionary.
     """
     cur = getDb().cursor(dictionary=True)
-    sql = '''SELECT user_id, email, firstname, lastname, keywords, organization,
+    sql = '''SELECT user_id, email, firstname, lastname, organization,
              notification_interval, registered, last_email_date,
              last_recommendation_date, dblp_profile, google_scholar_profile,
              semantic_scholar_profile, personal_website
@@ -32,15 +33,19 @@ def get_user(user_id):
     user = cur.fetchone()
     if not user:
         return None
-
+    # Add categories to user
     sql = '''SELECT u.category_id,c.category_name FROM user_categories u 
-             JOIN categories c on u.category_id=c.category_id 
-             WHERE u.user_id = %s'''
+             NATURAL JOIN categories c WHERE u.user_id = %s'''
     cur.execute(sql, (user_id,))
-    user['categories'] = sorted([[c['category_id'], c['category_name']]
-                                 for c in cur.fetchall()])
-    cur.close()
+    user['categories'] = sorted(cur.fetchall(),
+                                key=lambda x: x['category_name'])
 
+    # Add topics to user
+    sql = '''SELECT t.topic_id, t.topic FROM user_topics ut 
+             NATURAL JOIN topics t WHERE user_id = %s AND NOT t.filtered'''
+    cur.execute(sql, (user_id,))
+    user['topics'] = sorted(cur.fetchall(), key=lambda x: x['topic'])
+    cur.close()
     return user
 
 
@@ -69,21 +74,20 @@ def insertUser(user):
     conn = getDb()
     with closing(conn.cursor()) as cur:
         sql = '''INSERT INTO users(email, salted_hash, firstname, lastname,
-                 keywords, notification_interval, registered, organization, 
+                 notification_interval, registered, organization, 
                  dblp_profile, google_scholar_profile, 
                  semantic_scholar_profile, personal_website) 
-                 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
+                 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 
-        cur.execute(sql, (user.email, user.hashed_password, user.first_name,
-                          user.last_name, user.keywords, user.digestfrequency,
+        cur.execute(sql, (user.email, user.hashed_password, user.firstname,
+                          user.lastname, user.notification_interval,
                           user.registered, user.organization, user.dblp_profile,
                           user.google_scholar_profile,
                           user.semantic_scholar_profile, user.personal_website))
 
         user_id = cur.lastrowid
 
-        sql = 'INSERT INTO user_categories(user_id, category_id) VALUES(%s,%s)'
-        cur.executemany(sql, [(user_id, cat_id) for cat_id in user.categories])
+        set_user_categories_and_topics(user_id, user)
 
     conn.commit()
     return user_id
@@ -116,19 +120,48 @@ def update_user(user_id, user):
         sql = '''UPDATE users SET email = %s, firstname = %s, lastname = %s, 
                  organization = %s, personal_website = %s, dblp_profile = %s,
                  google_scholar_profile = %s, semantic_scholar_profile = %s,  
-                 keywords = %s, notification_interval = %s 
+                notification_interval = %s 
                  WHERE user_id = %s'''
-        cur.execute(sql, (user.email, user.first_name, user.last_name,
+        cur.execute(sql, (user.email, user.firstname, user.lastname,
                           user.organization, user.personal_website,
                           user.dblp_profile, user.google_scholar_profile,
-                          user.semantic_scholar_profile, user.keywords,
-                          user.digestfrequency, user_id))
+                          user.semantic_scholar_profile,
+                          user.notification_interval, user_id))
+        set_user_categories_and_topics(user_id, user)
+    conn.commit()
 
-        cur.execute('DELETE FROM user_categories WHERE user_id = %s', [user_id])
-
+def set_user_categories_and_topics(user_id, user):
+    """Helper function for setting user categories and inputs, does not
+    commit."""
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
+        # Update categories.
+        cur.execute('DELETE FROM user_categories WHERE user_ID = %s', [user_id])
         data = [(user_id, category_id) for category_id in user.categories]
         cur.executemany('INSERT INTO user_categories VALUES(%s, %s)', data)
-    conn.commit()
+
+        # Update topics.
+        cur.executemany('INSERT IGNORE INTO topics(topic) VALUE(%s)',
+                        [(t,) for t in user.topics])
+
+        sql = '''DELETE ut FROM user_topics ut 
+                 NATURAL JOIN topics t WHERE user_ID = %s'''
+        if user.topics:
+            placeholders = ','.join(['%s'] * len(user.topics))
+            sql += ' AND t.topic NOT IN ({})'.format(placeholders)
+
+        cur.execute(sql, [user_id, *user.topics])
+        cur.execute('''SELECT t.topic FROM topics t NATURAL JOIN user_topics ut
+                        WHERE ut.user_id = %s''', [user_id])
+        current_topics = [t[0] for t in cur.fetchall()]
+
+        data = [(user_id, topic, 'USER_ADDED', datetime.utcnow())
+                for topic in user.topics if topic not in current_topics]
+        sql = '''INSERT INTO 
+                 user_topics(user_id, topic_id, state, interaction_time)
+                 VALUES(%s, (SELECT  topic_id FROM topics WHERE topic=%s),
+                 %s, %s)'''
+        cur.executemany(sql, data)
 
 
 def validatePassword(email, password):
@@ -148,13 +181,16 @@ def validatePassword(email, password):
 
 
 def userExist(email):
-    """Checks if email is already in use by another user. Returns True if in use and False if not."""
+    """Checks if email is already in use by another user.
+     Returns True if in use and False if not."""
     cur = getDb().cursor()
-    sql = 'SELECT EXISTS(SELECT user_id FROM users WHERE email = %s)'
+    sql = 'SELECT user_id FROM users WHERE email = %s'
     cur.execute(sql, (email,))
-    exists = cur.fetchone()[0]
+    row = cur.fetchone()
     cur.close()
-    return False if exists is 0 else True
+    if not row:
+        return False
+    return False if row[0] == g.user else True
 
 
 def getCategoryNames():
@@ -164,43 +200,6 @@ def getCategoryNames():
     data = cur.fetchall()
     cur.close()
     return [[x[0], x[1]] for x in data]
-
-
-def store_keyword_feedback(userid, keyword, feedback):
-    """Stores the users feedback on a keyword to the db.
-    Returns true on success and false on failure"""
-    sql = 'INSERT IGNORE INTO keyword_feedback VALUES(%s, %s, %s, %s)'
-    conn = getDb()
-    cur = conn.cursor()
-    now = datetime.now()
-    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-    try:
-        cur.execute(sql, (userid, keyword, feedback, formatted_date))
-    except:
-        cur.close()
-        return False
-    cur.close()
-    conn.commit()
-    return True
-
-
-def get_keyword_feedback(userid, keyword):
-    """Checks if the user has discarded or approved a keyword earlier.
-    Returns approved, discarded or no feedback"""
-    sql = 'SELECT feedback FROM keyword_feedback WHERE user_id = %s AND keyword = %s'
-    conn = getDb()
-    cur = conn.cursor()
-    try:
-        cur.execute(sql, (userid, keyword))
-    except Exception as e:
-        cur.close()
-        return "no feedback"
-    feedback = cur.fetchone()
-    cur.close()
-    if feedback == None:
-        return "no feedbCK"
-    return feedback[0]
-
 
 def insertFeedback(user_id, article_id, type, feedback_text):
     """Inserts feedback into the database. Returns None if successful and an error if not."""
@@ -214,19 +213,6 @@ def insertFeedback(user_id, article_id, type, feedback_text):
             return "Unknown article id."
         raise
     conn.commit()
-
-
-def get_keyword_feedback_user(user_id):
-    """ Gets all the feedback on keywords from given user.
-    :param user_id: User to get feedback for.
-    :return: List of feedback instances.
-    """
-    cur = getDb().cursor(dictionary=True)
-    sql = '''SELECT keyword, feedback, datestamp FROM  keyword_feedback 
-             WHERE user_id = %s'''
-    cur.execute(sql, (user_id,))
-    return cur.fetchall()
-
 
 def get_freetext_feedback(user_id):
     """Get freetext feedback from given user.
@@ -287,7 +273,7 @@ def get_all_userdata(user_id):
 
     return {'user': get_user(user_id),
             'freetext_feedback': get_freetext_feedback(user_id),
-            'topic_recommendations': get_keyword_feedback_user(user_id),
+            'topic_recommendations': [],  # TODO when tables are available
             'article_recommendations': get_article_recommendations(user_id),
             'systems': get_systems(user_id)}
 
@@ -303,3 +289,17 @@ def get_user_systems(user_id):
     systems = cur.fetchall()
     cur.close()
     return systems
+
+
+def search_topics(search_string, max_results=50):
+    """Searches the topics table for topics starting with `search_string`.
+
+    :param search_string: String topics should start with.
+    :param max_results: Number of results to return.
+    :return: List of topics.
+    """
+    with closing(getDb().cursor()) as cur:
+        sql = '''SELECT topic FROM topics WHERE topic 
+        LIKE CONCAT(LOWER(%s), '%') LIMIT %s'''
+        cur.execute(sql, (search_string, max_results))
+        return [x[0] for x in cur.fetchall()]

@@ -1,26 +1,58 @@
 {% extends "base.html" %} {% block content %}
-<div class="container">
-  <div id=login>
-    <fieldset>
-      <legend>Login:</legend>
-      <form action="{{ url_for('general.login',next=next) }}" method="POST">
-        <p>
-          <label>Email:</label>
-          <input id="loginEmail" type="email" name="email" placeholder="Your email.." required autofocus size="254">
-        </p>
-        <p>
-          <label>Password:</label>
-          <input id="loginPassword" type="password" name="password" placeholder="Your password.." pattern="(?=^.{9,256}$)(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-            required size="256">
-        </p>
-        <p>
-          <input id="largeLoginButton" type="submit" value="Login"> </p>
-        <br>
-        <br>
-        <br>
-        <br>
-      </form>
-    </fieldset>
-  </div>
-</div>
-{%endblock%}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h2>What is arXivDigest?</h2>
+                <h3>A scientific literature recommendation service</h3>
+                <p>Motivated by the accelerating pace at which scientific knowledge is being produced, we aim to provide
+                    a recommendation service that helps researchers to keep up with scientific literature.
+                    Specifically, we create a <strong>personalized email digest of the most recent papers published at
+                        <a href="https://arxiv.org/" target="_blank">arXiv.org</a></strong> at regular intervals, based
+                    on your interest profile. Based on your interactions with the recommendations, we can improve the
+                    service to serve you with even better recommendations in the future.</p>
+                <p>The service is <strong>free of charge</strong>. Well, almost. You pay for it by donating the data you
+                    generate for research purposes. You can find the exact details on our <a
+                            href="/terms_and_conditions">Terms and conditions</a> page. You can also download your
+                    personal data any time from the system to see what information is stored about you. All our code is
+                    open source and is available on <a href="https://github.com/iai-group/arXivDigest">GitHub</a>.</p>
+                <h3>A living lab</h3>
+                <p>ArXivDigest operates as a living lab platform. It means that third-party researchers can experiment
+                    with novel recommendation methods and techniques, and the resulting recommendations will be shown
+                    to users of the arXivDigest service. If you are interested in participating, see our
+                    <a href="https://github.com/iai-group/arXivDigest">GitHub</a> pages for more information.</p>
+            </div>
+            <div class="col-md-4">
+                <div id=login>
+                    <fieldset>
+                        <legend>Login</legend>
+                        <form action="{{ url_for('general.login',next=next) }}" method="POST">
+                            <table>
+
+                                <tr>
+                                    <td><label>Email:</label>
+                                    </td>
+                                    <td>
+                                        <input id="loginEmail" type="email" name="email" placeholder="Your email.."
+                                               required autofocus size="254">
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td><label>Password:</label></td>
+                                    <td><input id="loginPassword" type="password" name="password"
+                                               placeholder="Your password.." required
+                                               size="256"></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><input class="btn btn-primary" id="largeLoginButton" type="submit"
+                                               value="Login"></td>
+                                </tr>
+                            </table>
+                        </form>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
