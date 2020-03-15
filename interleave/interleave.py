@@ -75,9 +75,9 @@ def create_mail_content(user_id, user, top_articles, article_data):
     """
     mail_content = {'to_address': user['email'],
                     'subject': 'ArXiv Digest',
+                    'template': 'weekly',
                     'data': {'name': user['name'], 'articles': [],
-                             'link': BASE_URL},
-                    'template': 'weekly'}
+                             'link': BASE_URL}}
     mail_trace = []
     for day, daily_articles in sorted(top_articles.items()):
         articles = []

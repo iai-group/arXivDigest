@@ -58,7 +58,7 @@ def getUsers(ids):
     for user in cur.fetchall():
         user['categories'] = []
         user['topics'] = []
-        users[user.pop('user_ID')] = user
+        users[user.pop('user_id')] = user
 
     sql = 'SELECT * FROM user_categories WHERE user_id IN (%s)' % format_strings
 
