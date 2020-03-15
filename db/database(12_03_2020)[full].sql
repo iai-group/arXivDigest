@@ -161,3 +161,10 @@ create index recommendation_date_index on article_recommendations(recommendation
 create index article_feedback_date_index on article_feedback(recommendation_date);
 create index user_topic_state_index on user_topics(state);
 create index topic_date_index on topic_recommendations(datestamp);
+
+create table database_version(
+	current_version int not null,
+    primary key(current_version)
+);
+
+insert into database_version values(1);
