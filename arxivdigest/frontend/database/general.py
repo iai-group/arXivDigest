@@ -259,7 +259,7 @@ def get_systems(user_id):
     """
     with closing(getDb().cursor(dictionary=True)) as cur:
         sql = '''SELECT system_id, system_name, api_key, active
-                 FROM systems WHERE user_id = %s'''
+                 FROM systems WHERE admin_user_id = %s'''
         cur.execute(sql, (user_id,))
         return cur.fetchall()
 
@@ -284,7 +284,7 @@ def get_user_systems(user_id):
     cur = conn.cursor(dictionary=True)
     sql = '''select system_id, api_key, active, email, firstname, lastname,
           organization, system_name from systems left join users on 
-          users.user_id = systems.user_id where users.user_id = %s'''
+          users.user_id = systems.admin_user_id where users.user_id = %s'''
     cur.execute(sql, (user_id,))
     systems = cur.fetchall()
     cur.close()
