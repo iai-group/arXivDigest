@@ -24,11 +24,11 @@ def get_user(user_id):
     :return: User data as dictionary.
     """
     cur = getDb().cursor(dictionary=True)
-    sql = '''SELECT user_ID, email, firstname, lastname, organization,
+    sql = '''SELECT user_id, email, firstname, lastname, organization,
              notification_interval, registered, last_email_date,
              last_recommendation_date, dblp_profile, google_scholar_profile,
              semantic_scholar_profile, personal_website
-             FROM users WHERE user_ID = %s'''
+             FROM users WHERE user_id = %s'''
     cur.execute(sql, (user_id,))
     user = cur.fetchone()
     if not user:
@@ -53,7 +53,7 @@ def updatePassword(id, password):
     """Hash and update password to user with id. Returns True on success\""""
     conn = getDb()
     cur = conn.cursor()
-    passwordsql = 'UPDATE users SET salted_hash = %s WHERE user_ID = %s'
+    passwordsql = 'UPDATE users SET salted_hash = %s WHERE user_id = %s'
     password = password.encode('utf-8')
     hashedPassword = pbkdf2_sha256.hash(password)
     cur.execute(passwordsql, (hashedPassword, id,))
@@ -86,6 +86,7 @@ def insertUser(user):
                           user.semantic_scholar_profile, user.personal_website))
 
         user_id = cur.lastrowid
+
         set_user_categories_and_topics(user_id, user)
 
     conn.commit()
@@ -120,7 +121,7 @@ def update_user(user_id, user):
                  organization = %s, personal_website = %s, dblp_profile = %s,
                  google_scholar_profile = %s, semantic_scholar_profile = %s,  
                 notification_interval = %s 
-                 WHERE user_ID = %s'''
+                 WHERE user_id = %s'''
         cur.execute(sql, (user.email, user.firstname, user.lastname,
                           user.organization, user.personal_website,
                           user.dblp_profile, user.google_scholar_profile,
@@ -128,7 +129,6 @@ def update_user(user_id, user):
                           user.notification_interval, user_id))
         set_user_categories_and_topics(user_id, user)
     conn.commit()
-
 
 def set_user_categories_and_topics(user_id, user):
     """Helper function for setting user categories and inputs, does not
@@ -168,7 +168,7 @@ def validatePassword(email, password):
     """Checks if users password is correct. Returns userid if correct password, none if user does not exists and
     false if incorrect password"""
     cur = getDb().cursor()
-    sql = 'SELECT user_ID,salted_Hash FROM users WHERE email = %s'
+    sql = 'SELECT user_id,salted_Hash FROM users WHERE email = %s'
     cur.execute(sql, (email,))
     user = cur.fetchone()
     cur.close()
@@ -184,7 +184,7 @@ def userExist(email):
     """Checks if email is already in use by another user.
      Returns True if in use and False if not."""
     cur = getDb().cursor()
-    sql = 'SELECT user_ID FROM users WHERE email = %s'
+    sql = 'SELECT user_id FROM users WHERE email = %s'
     cur.execute(sql, (email,))
     row = cur.fetchone()
     cur.close()
@@ -196,17 +196,16 @@ def userExist(email):
 def getCategoryNames():
     """Returns list of article categories available in the database"""
     cur = getDb().cursor()
-    cur.execute('SELECT category_ID,category_name FROM categories')
+    cur.execute('SELECT category_id,category_name FROM categories')
     data = cur.fetchall()
     cur.close()
     return [[x[0], x[1]] for x in data]
-
 
 def insertFeedback(user_id, article_id, type, feedback_text):
     """Inserts feedback into the database. Returns None if successful and an error if not."""
     conn = getDb()
     cur = conn.cursor()
-    sql = 'INSERT INTO feedback (user_ID, article_ID, type, feedback_text) VALUES(%s, %s, %s, %s)'
+    sql = 'INSERT INTO feedback (user_id, article_id, type, feedback_text) VALUES(%s, %s, %s, %s)'
     try:
         cur.execute(sql, (user_id, article_id, type, feedback_text))
     except mysql.connector.errors.IntegrityError as e:
@@ -215,15 +214,14 @@ def insertFeedback(user_id, article_id, type, feedback_text):
         raise
     conn.commit()
 
-
 def get_freetext_feedback(user_id):
     """Get freetext feedback from given user.
     :param user_id: User to get feedback for.
     :return: List of feedback instances.
     """
     cur = getDb().cursor(dictionary=True)
-    sql = '''SELECT article_ID, type, feedback_text 
-             FROM feedback WHERE user_ID = %s'''
+    sql = '''SELECT article_id, type, feedback_text 
+             FROM feedback WHERE user_id = %s'''
     cur.execute(sql, (user_id,))
     return cur.fetchall()
 
@@ -236,17 +234,17 @@ def get_article_recommendations(user_id):
     :return: List of system recommendation instances.
     """
     cur = getDb().cursor(dictionary=True)
-    sql = '''SELECT sr.article_ID, s.system_name, sr.explanation, 
+    sql = '''SELECT sr.article_id, s.system_name, sr.explanation, 
              sr.score AS system_score, ur.score AS recommendation_order,
              ur.seen_email, ur.seen_web, ur.clicked_email, ur.clicked_web,
              ur.liked, sr.recommendation_date
-             FROM system_recommendations sr 
+             FROM article_recommendations sr 
              NATURAL JOIN systems s
-             LEFT JOIN user_recommendations ur 
-             ON sr.article_ID = ur.article_ID 
-             AND sr.user_ID = ur.user_ID
-             AND sr.system_ID = ur.system_ID
-             WHERE sr.user_ID = %s
+             LEFT JOIN article_feedback ur 
+             ON sr.article_id = ur.article_id 
+             AND sr.user_id = ur.user_id
+             AND sr.system_id = ur.system_id
+             WHERE sr.user_id = %s
              ORDER BY sr.recommendation_date desc,
              s.system_name desc, sr.score desc'''
     cur.execute(sql, (user_id,))
@@ -260,8 +258,8 @@ def get_systems(user_id):
     :return: List of system dictionaries.
     """
     with closing(getDb().cursor(dictionary=True)) as cur:
-        sql = '''SELECT system_ID, system_name, api_key, active
-                 FROM systems WHERE user_ID = %s'''
+        sql = '''SELECT system_id, system_name, api_key, active
+                 FROM systems WHERE user_id = %s'''
         cur.execute(sql, (user_id,))
         return cur.fetchall()
 
@@ -284,9 +282,9 @@ def get_user_systems(user_id):
     """Gets systems belonging to a user."""
     conn = getDb()
     cur = conn.cursor(dictionary=True)
-    sql = '''select system_ID, api_key, active, email, firstname, lastname,
+    sql = '''select system_id, api_key, active, email, firstname, lastname,
           organization, system_name from systems left join users on 
-          users.user_ID = systems.user_ID where users.user_ID = %s'''
+          users.user_id = systems.user_id where users.user_id = %s'''
     cur.execute(sql, (user_id,))
     systems = cur.fetchall()
     cur.close()

@@ -20,9 +20,9 @@ def getSystems():
     """Returns list of all recommending systems with null values if
     the systems are not connected to a user."""
     cur = getDb().cursor(dictionary=True)
-    cur.execute('''select system_ID, api_key, active, email, firstname, lastname, 
+    cur.execute('''select system_id, api_key, active, email, firstname, lastname, 
                 organization, system_name from systems left join users
-                on users.user_ID = systems.user_ID;''')
+                on users.user_id = systems.user_id;''')
     systems = cur.fetchall()
     cur.close()
     return systems
@@ -31,7 +31,7 @@ def getSystems():
 def getSystem(ID):
     '''Returns requested system.'''
     cur = getDb().cursor(dictionary=True)
-    cur.execute('SELECT * FROM systems where system_ID = %s', (ID,))
+    cur.execute('SELECT * FROM systems where system_id = %s', (ID,))
     data = cur.fetchone()
     cur.close()
     return data
@@ -40,7 +40,7 @@ def getSystem(ID):
 def toggleSystem(systemID, value):
     '''Sets active to value for given system. Returns true if successful, false if unsuccessful'''
     cur = getDb().cursor()
-    sql = 'UPDATE systems SET active=%s WHERE system_ID = %s'
+    sql = 'UPDATE systems SET active=%s WHERE system_id = %s'
     cur.execute(sql, (value, systemID, ))
     if cur.rowcount == 0:
         return False
@@ -112,7 +112,7 @@ def getArticleStatistics():
 def getAdmins():
     '''Returns admin users id, email and names'''
     cur = getDb().cursor(dictionary=True)
-    sql = 'select user_ID, email, firstname, lastname from users where admin=1'
+    sql = 'select user_id, email, firstname, lastname from users where admin=1'
     cur.execute(sql)
     admindata = cur.fetchall()
     cur.close()

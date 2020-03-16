@@ -32,11 +32,11 @@ This script will interact with the following tables in the database.
 
 | Tables | Fields |
 | ------------- | ------------- |
-| articles  | article_ID, title, description, doi, comments, license, journal, datestamp|
-| article_categories  | article_ID, category_ID |
-|article_authors| article_ID, author_ID, firstname, lastname|
-|author_affiliations| author_ID, affiliation|
-|categories| category_ID, category, subcategory, category_name|
+| articles  | article_id, title, description, doi, comments, license, journal, datestamp|
+| article_categories  | article_id, category_id |
+|article_authors| article_id, author_id, firstname, lastname|
+|author_affiliations| author_id, affiliation|
+|categories| category_id, category, subcategory, category_name|
 
 ## Usage
 

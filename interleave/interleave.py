@@ -28,22 +28,22 @@ BASE_URL = interleave_config.get('webaddress')
 ARTICLES_PER_DATE_IN_MAIL = interleave_config.get('articles_per_date_in_email')
 
 
-def multi_leave_recommendations(system_recommendations, multileaver, time):
+def multi_leave_recommendations(article_recommendations, multileaver, time):
     """Multileaves the given systemRecommendations and returns
-       a list of user_recommendations."""
-    user_recommendations = []
-    for user_id, lists in system_recommendations.items():
+       a list of article_feedback."""
+    article_feedback = []
+    for user_id, lists in article_recommendations.items():
         # multileave system recommendations
         recs, systems = multileaver.TDM(lists)
         # prepare results for database insertion
         for index, rec in enumerate(recs):
             score = len(recs) - index
 
-            rec = (user_id, rec["article_ID"], systems[index],
+            rec = (user_id, rec["article_id"], systems[index],
                    rec["explanation"], score, time)
 
-            user_recommendations.append(rec)
-    return user_recommendations
+            article_feedback.append(rec)
+    return article_feedback
 
 
 def sendMail(conn):
@@ -75,9 +75,9 @@ def create_mail_content(user_id, user, top_articles, article_data):
     """
     mail_content = {'to_address': user['email'],
                     'subject': 'ArXiv Digest',
+                    'template': 'weekly',
                     'data': {'name': user['name'], 'articles': [],
-                             'link': BASE_URL},
-                    'template': 'weekly'}
+                             'link': BASE_URL}}
     mail_trace = []
     for day, daily_articles in sorted(top_articles.items()):
         articles = []
@@ -114,12 +114,12 @@ def create_mail_batch(start_id, article_data, conn):
         for tracing mail interaction from users.
     """
     users = db.getUsers(conn, start_id, BATCH_SIZE)
-    user_recommendations = db.getUserRecommendations(conn, start_id, BATCH_SIZE)
+    article_feedback = db.getUserRecommendations(conn, start_id, BATCH_SIZE)
     mail_batch = []
     trace_batch = []
     for user_id, user in users.items():
 
-        top_articles = get_top_articles_each_date(user_recommendations[user_id])
+        top_articles = get_top_articles_each_date(article_feedback[user_id])
 
         articles = {}
         if user['notification_interval'] == 1:
@@ -137,20 +137,20 @@ def create_mail_batch(start_id, article_data, conn):
     return mail_batch, trace_batch
 
 
-def get_top_articles_each_date(user_recommendations):
+def get_top_articles_each_date(article_feedback):
     """Creates lists of top articles for each date.
 
     Creates dictionary with dates as keys and a list of top scoring articles for
     each date as values.
 
-    :param user_recommendations: Articles that has been recommended for the user
+    :param article_feedback: Articles that has been recommended for the user
     in a nested dictionary with format:
     {date:{ article_id:{'score' : 2, 'explanation' : "string"}}}
     :return: Dictionary with dates as keys and a list of top scoring articles
     for each date as values.
     """
     top_articles = {}
-    for day, articles in user_recommendations.items():
+    for day, articles in article_feedback.items():
         sorted_articles = sorted(articles.items(),
                                  key=lambda a: a[1]['score'],
                                  reverse=True)

@@ -44,7 +44,7 @@ def genArticleList(getArticles):
     articles, count = getArticles(g.user, intervalDays, sortBy,
                                   start, articlesPerPage)
 
-    db.seenArticle([(x['article_ID'], g.user) for x in articles])
+    db.seenArticle([(x['article_id'], g.user) for x in articles])
 
     numberOfPages = math.ceil(count/articlesPerPage)
     pages = pageinate(pageNr, numberOfPages, 15)

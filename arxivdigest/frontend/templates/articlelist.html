@@ -49,7 +49,7 @@
 {% if articles %} {% for article in articles %}
     <div class="articleDiv">
         <div class="articleInfo">
-            <a href="{{ url_for('articles.click', articleId=article.article_ID) }}" target="_blank">
+            <a href="{{ url_for('articles.click', articleId=article.article_id) }}" target="_blank">
                 <h4>{{ article.title }}</h4>
             </a>
             <p class="articleAuthors">{{ article.authors }}</p>
@@ -57,7 +57,7 @@
             <span>
                 <span style="max-width: 75%;"><p class='explanation'>{{ article.explanation }}</p></span>
                 <span class='feedback'>
-                    <a href="{{ url_for('general.feedbackPage',articleID=article.article_ID) }}" style="color: rgb(90, 90, 90);">
+                    <a href="{{ url_for('general.feedbackPage',articleID=article.article_id) }}" style="color: rgb(90, 90, 90);">
                         Feedback
                     </a>
                 </span>
@@ -66,13 +66,13 @@
         </div>
         <div class="articleIcons">
             {% if article.liked == True %}
-                <div class="likeButton Liked glyphicon glyphicon-heart" data-value="{{ article.article_ID }}"
+                <div class="likeButton Liked glyphicon glyphicon-heart" data-value="{{ article.article_id }}"
                      title="Unlike this article"></div>
             {% else %}
-                <div class="likeButton glyphicon glyphicon-heart" data-value="{{ article.article_ID }}"
+                <div class="likeButton glyphicon glyphicon-heart" data-value="{{ article.article_id }}"
                      title="Like this article"></div>
             {% endif %}
-            <a href="{{ url_for('articles.click', articleId=article.article_ID,pdf=True) }}" target="_blank">
+            <a href="{{ url_for('articles.click', articleId=article.article_id,pdf=True) }}" target="_blank">
                 <img src="../static/icons/read.png" id="linkButton" title="Read whole article pdf">
             </a>
         </div>
