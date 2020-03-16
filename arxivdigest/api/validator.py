@@ -2,7 +2,6 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
-from datetime import datetime
 from functools import wraps
 
 from flask import current_app as app
@@ -98,13 +97,11 @@ def contains_ineligible_articles(json):
         return 'Could not find articles with ids: %s.' % ', '.join(
             not_found_articles), 400
 
-    today = datetime.utcnow().strftime('%Y/%m/%d')
-    articles_today = db.getArticleIDs(today)['article_ids']
-    articles_not_today = (
-        set(articles_today) & set(article_ids) ^ set(article_ids))
-    if articles_not_today:
-        return 'These articles are not from today\'s batch: %s.' % ', '.join(
-            articles_not_today), 400
+    eligible_ids = set(db.get_article_ids_past_seven_days())
+    ineligible_ids = set(article_ids) - eligible_ids
+    if ineligible_ids:
+        return 'These articles are not from the past seven days: {}.' \
+                   .format(', '.join(ineligible_ids)), 400
     return False
 
 

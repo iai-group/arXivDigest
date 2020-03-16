@@ -60,16 +60,10 @@ def userinfo(users):
 @app.route('/articles', methods=['GET'])
 @validateApiKey
 def articles():
-    """API-endpoint for requesting articleIDs, all articles added on the
-    specified "date", if "date" is not specified it will the current date."""
-    date = request.args.get('date', datetime.utcnow().strftime("%Y-%m-%d"))
-    try:
-        date = datetime.strptime(
-            date, "%Y-%m-%d").strftime("%Y-%m-%d")
-    except Exception:
-        return make_response(jsonify({'error': 'Invalid date format.'}, 400))
-    articles = db.getArticleIDs(date)
-    return make_response(jsonify({'articles': articles}), 200)
+    """API-endpoint for requesting articleIDs of articles from the last 7
+    days."""
+    return make_response(jsonify({
+        'articles': db.get_article_ids_past_seven_days()}), 200)
 
 
 @app.route('/articledata', methods=['GET'])

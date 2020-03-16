@@ -219,19 +219,15 @@ Example request:
 
 `GET /articles`
 
-Returns a list of articles, which are candidates for recommendation, for a given day. If arXiv did not post anything at the requested date, the article_ids-field will be empty.
+Returns a list of articles, which are candidates for recommendation, from the previous week.
 
-Parameters:
-  - `date` date in YYYY-MM-DD format (default: current date)
 Data returned:
-  - `num`: total number of articles
   - `article_ids`: list of article ids:
-  - `date` : date articles were added
   - `error`: if something went wrong
 
 Example:
 
-  - Request: `GET /articles?date=2018-02-20`
+  - Request: `GET /articles`
   - Header:
     ```
     {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
@@ -239,17 +235,11 @@ Example:
   - Response:
     ```
     {
-      "articles": {
-        "num": 1250,
-        "article_ids": [
+      "articles": [
           1111.2174, 1302.5663, 1407.6169, ...
-        ],
-        "date"="2018-05-20"
-      }
+        ]
     }
     ```
-
-
 
 ### Article data
 

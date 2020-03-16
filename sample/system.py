@@ -58,7 +58,7 @@ def get_user_info(user_ids, api_key, api_url, batch_size=100):
     return user_info
 
 
-def get_articles_by_topic(es, topic, index, window_size=1, size=10000):
+def get_articles_by_topic(es, topic, index, window_size=7, size=10000):
     """Retrieves articles from the Elasticsearch index mentioning 'topic',
     the 'window_size' is the number of days back in time articles will
     be included from."""

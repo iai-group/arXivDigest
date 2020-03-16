@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from contextlib import closing
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
@@ -64,7 +66,8 @@ def getUsers(ids):
 
     cur.execute(sql, ids)
     for category in cur.fetchall():
-        users[category['user_id']]['categories'].append(category['category_id'])
+        users[category['user_id']]['categories'].append(
+            category['category_id'])
 
     sql = '''SELECT ut.user_id, t.topic 
              FROM user_topics ut NATURAL JOIN topics t WHERE user_id IN (%s) 
@@ -78,23 +81,14 @@ def getUsers(ids):
     return users
 
 
-def getArticleIDs(date):
-    """Returns a list of all articleIDs added at the requested date."""
-    cur = getDb().cursor()
-
-    sql = "SELECT COUNT(*) FROM articles WHERE datestamp=%s"
-    cur.execute(sql, (date,))
-    count = cur.fetchone()[0]
-
-    sql = "SELECT article_id FROM articles WHERE datestamp=%s ORDER BY article_id ASC"
-    cur.execute(sql, (date,))
-
-    articles = {
-        'num': count,
-        'article_ids': [x[0] for x in cur.fetchall()]
-    }
-    cur.close()
-    return articles
+def get_article_ids_past_seven_days():
+    """Returns a list of all article ids added the past 7 days."""
+    with closing(getDb().cursor()) as cur:
+        sql = '''SELECT article_id FROM articles 
+                 WHERE datestamp > date_sub(now(), INTERVAL 1 WEEK)
+                 ORDER BY article_id ASC'''
+        cur.execute(sql)
+        return [x[0] for x in cur.fetchall()]
 
 
 def checkArticlesExists(ids):
