@@ -21,13 +21,13 @@ app = Flask(__name__)
 app.config.update(**api_config)
 
 
-@app.route('/userfeedback', methods=['GET'])
+@app.route('/user_feedback/articles', methods=['GET'])
 @validateApiKey
 @getUserlist
-def userfeedback(users):
-    """API-endpoint for requesting userfeedback, 'user_id' must be one or more
-    ids separated by comma."""
-    return jsonify(db.getUserFeedback(users))
+def user_feedback_articles(users):
+    """API-endpoint for requesting user_feedback for articles, 'user_id' must be
+    one or more ids separated by comma."""
+    return jsonify(db.get_user_feedback_articles(users))
 
 
 @app.route('/users', methods=['GET'])
@@ -48,13 +48,13 @@ def users():
     return make_response(jsonify({'users': users}), 200)
 
 
-@app.route('/userinfo', methods=['GET'])
+@app.route('/user_info', methods=['GET'])
 @validateApiKey
 @getUserlist
-def userinfo(users):
+def user_info(users):
     """API-endpoint for requesting userdata, 'user_id' must be one or more ids
     separated by comma."""
-    return make_response(jsonify({'userinfo': db.getUsers(users)}), 200)
+    return make_response(jsonify({'user_info': db.getUsers(users)}), 200)
 
 
 @app.route('/articles', methods=['GET'])
@@ -66,11 +66,11 @@ def articles():
         'articles': db.get_article_ids_past_seven_days()}), 200)
 
 
-@app.route('/articledata', methods=['GET'])
+@app.route('/article_data', methods=['GET'])
 @validateApiKey
-def articledata():
-    """API-endpoint for requesting articledata, 'article_id' must be one or more
-    ids separated by comma."""
+def article_data():
+    """API-endpoint for requesting article_data, 'article_id' must be one or
+    more ids separated by comma."""
     try:
         ids = request.args.get('article_id').split(',')
     except Exception:
@@ -85,31 +85,31 @@ def articledata():
         err = 'Could not find articles with ids: %s.' % ', '.join(articles)
         return make_response(jsonify({'error': err}), 400)
 
-    articles = db.getArticleData(ids)
+    articles = db.get_article_data(ids)
     return make_response(jsonify({'articles': articles}), 200)
 
 
-@app.route('/recommendation', methods=['POST'])
+@app.route('/recommendations/articles', methods=['POST'])
 @validateApiKey
 @validation.validate_json(validation.recommendation)
-def recommendation():
-    """API-endpoint for inserting recommendations"""
+def article_recommendations():
+    """API-endpoint for inserting article recommendations"""
     data = request.get_json().get('recommendations')
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     data = [(k, v['article_id'], g.sysID, v['explanation'], v['score'], now)
             for k, v in data.items() for v in v]
 
-    db.insertRecommendations(data)
+    db.insert_article_recommendations(data)
     return make_response(jsonify({'success': True}), 200)
 
 
-@app.route('/recommendations', methods=['GET'])
+@app.route('/recommendations/articles', methods=['GET'])
 @validateApiKey
 @getUserlist
-def recommendations(users):
-    """API-endpoint for requesting user-recommendations,
+def article_recommendations(users):
+    """API-endpoint for requesting user-recommendations of articles,
      "user_id" must be one or more ids seperated by comma."""
-    users = db.getUserRecommendations(users)
+    users = db.get_article_recommendations(users)
     return make_response(jsonify({'users': users}), 200)
 
 
@@ -117,12 +117,6 @@ def recommendations(users):
 def info():
     """Info response."""
     return make_response(jsonify({'info': "This is the arXivDigest API"}), 200)
-
-
-@app.route('/debug_header', methods=['GET'])
-def debug_header():
-    """Returns header data."""
-    return make_response(jsonify(dict(request.headers), 200))
 
 
 @app.teardown_appcontext

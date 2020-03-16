@@ -19,13 +19,13 @@ These are the values that can be configured in the API-section of config.json.
 * [User data](#user-data)
   + [List of users](#list-of-users)
   + [User information](#user-information)
-  + [User feedback](#user-feedback)
+  + [User feedback articles](#user-feedback-articles)
 * [Article data](#article-data)
   + [List of articles](#list-of-articles)
   + [Article data](#article-data-1)
 * [Recommendations](#recommendations)
-  + [Insert recommendations](#insert-recommendations)
-  + [Recommendation data](#recommendation-data)
+  + [Insert article recommendations](#insert-article-recommendations)
+  + [Article recommendation data](#article-recommendation-data)
 
 ## User data
 
@@ -67,7 +67,7 @@ Example:
 
 ### User information
 
-`GET /userinfo`
+`GET /user_info`
 
 Returns the details of a given user (or list of users). Limited to 100 per request by default, this values can be [configured](#configurations).
 
@@ -91,7 +91,7 @@ Other fields:
 
 Example:
 
-  - Request: `GET /userinfo?user_id=1,7`
+  - Request: `GET /user_info?user_id=1,7`
   - Header:
     ```
     {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
@@ -99,7 +99,7 @@ Example:
   - Response:
     ```
     {
-      "userinfo": {
+      "user_info": {
         "1": {
           "first_name": "John",
           "last_name": "Smith",
@@ -124,11 +124,11 @@ Example:
     }
     ```
 
-### User feedback
+### User feedback articles
 
-`GET /userfeedback`
+`GET /user_feedback/articles`
 
-Returns the feedback data recorded for a given user (or list of users).
+Returns the feedback on article recommendations recorded for a given user (or list of users).
 
 Parameters:
   - `user_id` user ID, or a list of up to 100 user IDs, separated by a comma
@@ -136,7 +136,7 @@ Parameters:
 Fields are returned in a JSON in the format, the article IDs are sorted descending by score:
 ```
     {
-      "userfeedback": {
+      "user_feedback": {
         user_id: {
            date: [
             {article_id: feedback},
@@ -173,7 +173,7 @@ Example feedback:
 
 Example request:
 
-  - Request: `GET /userfeedback?user_id=1,7`
+  - Request: `GET /user_feedback/articles?user_id=1,7`
   - Header:
     ```
     {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
@@ -181,7 +181,7 @@ Example request:
   - Response:
     ```
     {
-      "userfeedback": {
+      "user_feedback": {
         "1": {
           "2018-05-10": [
           {"article-123": 
@@ -243,7 +243,7 @@ Example:
 
 ### Article data
 
-`GET /articledata`
+`GET /article_data`
 
 Returns data for a given article (or list of articles). This is by default limited to 100 articles per request, but can be [configured](#configurations).
 
@@ -271,7 +271,7 @@ Other fields:
 
 Example:
 
-  - Request: `GET /articledata?article_id=123`
+  - Request: `GET /article_data?article_id=123`
   - Header:
     ```
     {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
@@ -307,11 +307,11 @@ Example:
 
 ## Recommendations
 
-### Insert recommendations
+### Insert article recommendations
 
-`POST /recommendations`
+`POST /recommendations/articles`
 
-Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](/../../#daily-submission-periods), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to the arXiv the same day. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+Insert article recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](/../../#daily-submission-periods), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to arXivDigest the past seven days. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
 The maximal number of users that can be given recommendations in a single request, maximal number of recommendations per user and maximal length of explanations can be [configured](#configurations).
 
@@ -329,7 +329,7 @@ Data returned:
   - `article_ids`: list of article ids:
 
 Example:
-  - Request: `POST /recommendations`
+  - Request: `POST /recommendations/articles`
 
   - Header:
     ```
@@ -358,11 +358,11 @@ Example:
       "error" : "Some error"
     }
     ```
-### Recommendation data
+### Article recommendation data
 
-`GET /recommendations`
+`GET /recommendations/articles`
 
-Returns recommendation data for a given user (or list of users). By default it is limited to 100 users per request, but this can be [configured](#configurations).
+Returns article recommendation data for a given user (or list of users). By default it is limited to 100 users per request, but this can be [configured](#configurations).
 
 Parameters:
 
@@ -380,7 +380,7 @@ Other fields:
 
 Example:
 
-  - Request: `GET /recommendations?user_id=123`
+  - Request: `GET /recommendations/articles?user_id=123`
 
   - Header:
     ```

@@ -48,7 +48,7 @@ def multi_leave_recommendations(article_recommendations, multileaver, time):
 
 def sendMail(conn):
     """Sends emails to users about new recommendations."""
-    article_data = db.getArticleData(conn)
+    article_data = db.get_article_data(conn)
     server = MailServer(**email_config)
 
     for i in range(0, db.getHighestUserID(conn) + BATCH_SIZE, BATCH_SIZE):

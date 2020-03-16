@@ -51,10 +51,10 @@ def get_user_info(user_ids, api_key, api_url, batch_size=100):
     user_info = {}
     for i in range(0, len(user_ids), batch_size):
         user_id_string = ','.join([str(u) for u in user_ids[i:i + batch_size]])
-        url = '%suserinfo?user_id=%s' % (api_url, user_id_string)
+        url = '%suser_info?user_id=%s' % (api_url, user_id_string)
         req = request.Request(url, headers={"api-key": api_key})
         resp = request.urlopen(req)
-        user_info.update(json.loads(resp.read())['userinfo'])
+        user_info.update(json.loads(resp.read())['user_info'])
     return user_info
 
 
@@ -93,8 +93,9 @@ def send_recommendations(recommendations, api_key, api_url, batch_size=100):
     for i in range(0, len(recommendations), batch_size):
         data = json.dumps({'recommendations': dict(
             recommendations[i:i + batch_size])}).encode('utf8')
-        req = request.Request(api_url + "recommendation", data=data, headers={
-            'Content-Type': 'application/json', "api-key": api_key})
+        req = request.Request(api_url + "/recommendations/articles", data=data,
+                              headers={'Content-Type': 'application/json',
+                                       "api-key": api_key})
         try:
             request.urlopen(req)
         except urllib.error.HTTPError as e:

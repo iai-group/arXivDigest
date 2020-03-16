@@ -23,7 +23,8 @@ def get_article_data(api_key, api_url, article_ids, batch_size=100):
     article_data = {}
     for i in range(0, len(article_ids), batch_size):
         id_batch = ','.join(article_ids[i:i + batch_size])
-        req = request.Request('{}articledata?article_id={}'.format(api_url, id_batch),
+        req = request.Request('{}article_data?article_id={}'
+                              .format(api_url, id_batch),
                               headers={'api-key': api_key})
 
         resp = request.urlopen(req)

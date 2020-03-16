@@ -119,7 +119,7 @@ def checkUsersExists(ids):
     return list(set(ids).difference(users))
 
 
-def getArticleData(ids):
+def get_article_data(ids):
     """Takes in a list of articleIDs and returns a nested dictionary
     of data about the articles requested."""
     cur = getDb().cursor()
@@ -129,15 +129,15 @@ def getArticleData(ids):
     cur.execute(sql, ids)
     articleList = cur.fetchall()
     articles = {}
-    for articleData in articleList:
-        articles[articleData[0]] = {
-            'title': articleData[1],
-            'abstract': articleData[2],
-            'doi': articleData[3],
-            'comments': articleData[4],
-            'license': articleData[5],
-            'journal': articleData[6],
-            'date': articleData[7].strftime('%Y-%m-%d'),
+    for article_data in articleList:
+        articles[article_data[0]] = {
+            'title': article_data[1],
+            'abstract': article_data[2],
+            'doi': article_data[3],
+            'comments': article_data[4],
+            'license': article_data[5],
+            'journal': article_data[6],
+            'date': article_data[7].strftime('%Y-%m-%d'),
             'authors': [],
             'categories': [],
         }
@@ -169,7 +169,7 @@ def getArticleData(ids):
     return articles
 
 
-def insertRecommendations(recommendations):
+def insert_article_recommendations(recommendations):
     """Takes in a list of tuples containg (userID,articleID,systemID,score,timestamp),
     and inserts them into the system_recomendation table, replacing duplicate primary keys."""
     conn = getDb()
@@ -195,7 +195,7 @@ def getSystem(apiKey):
     return result
 
 
-def getUserRecommendations(ids):
+def get_article_recommendations(ids):
     """Returns recomendationdata for the requested userIDs in this format: {userid:{articleID:[data,data,...]}}"""
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
@@ -211,7 +211,7 @@ def getUserRecommendations(ids):
     return users
 
 
-def getUserFeedback(ids):
+def get_user_feedback_articles(ids):
     """Returns feedbackdata for the requested userIDs in this format: {userid:date[{articleID:feedback}}
     where articleIDs are sorted by score and feedback is a binary number composite of
     seen_email-bit 0,seen_web-bit 1,clicked_email-bit 2,clicked_web-bit 3, liked-bit 4,
