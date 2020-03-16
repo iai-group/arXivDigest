@@ -32,7 +32,7 @@ def get_config_from_file(file_paths):
 config_file = get_config_from_file(file_locations)
 
 API_KEY = config_file.get('api_key', '4c02e337-c94b-48b6-b30e-0c06839c81e6')
-API_URL = config_file.get('api_url', 'http://127.0.0.1:5001/')
+API_URL = config_file.get('api_url', 'https://api.arxivdigest.org')
 INDEX = config_file.get('index_name', 'main_index')
 ELASTICSEARCH_HOST = config_file.get('elasticsearch_host',
                                      {'host': '127.0.0.1', 'port': 9200})
@@ -135,9 +135,13 @@ def make_recommendations(es, user_info, index, n_articles=10):
     recommendations = {}
     for user, info in user_info.items():
         topics = [topic['topic'] for topic in info['topics']]
+        if not topics:
+            print('User {} has no topics and was skipped.'.format(user))
+            continue
         articles = make_user_recommendation(es, topics, index)
         articles = sorted(articles, key=lambda k: k['score'], reverse=True)
-        recommendations[user] = articles[0:n_articles]
+        if articles:
+            recommendations[user] = articles[0:n_articles]
     return recommendations
 
 
@@ -150,11 +154,17 @@ def recommend(es, api_key, api_url, index):
         user_ids = get_user_ids(0, api_key, api_url)['users']['user_ids']
         user_info = get_user_info(user_ids, api_key, api_url)
         recommendations = make_recommendations(es, user_info, index)
-        send_recommendations(recommendations, api_key, api_url)
 
+        user_ids_set = {str(u) for u in user_ids}
+        not_recommended_users = user_ids_set - set(recommendations.keys())
+
+        if not_recommended_users:
+            print('Unable to make recommendations for the following users: '
+                  '{}'.format(','.join(sorted(not_recommended_users))))
+        if recommendations:
+            send_recommendations(recommendations, api_key, api_url)
         recommendation_count += len(user_ids)
-        print('\rRecommended articles for {} users'
-              .format(recommendation_count), end='')
+        print('Processed {} users'.format(recommendation_count))
 
 
 def run(api_key, api_url, index):
