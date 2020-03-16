@@ -66,13 +66,13 @@ def getUsers(ids):
     for category in cur.fetchall():
         users[category['user_id']]['categories'].append(category['category_id'])
 
-    sql = '''SELECT ut.user_id, ut.topic_id, t.topic 
+    sql = '''SELECT ut.user_id, t.topic 
              FROM user_topics ut NATURAL JOIN topics t WHERE user_id IN (%s) 
              AND NOT t.filtered''' % format_strings
 
     cur.execute(sql, ids)
     for topic in cur.fetchall():
-        users[topic.pop('user_id')]['topics'].append(topic)
+        users[topic.pop('user_id')]['topics'].append(topic['topic'])
 
     cur.close()
     return users

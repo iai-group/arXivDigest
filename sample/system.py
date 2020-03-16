@@ -32,7 +32,7 @@ def get_config_from_file(file_paths):
 config_file = get_config_from_file(file_locations)
 
 API_KEY = config_file.get('api_key', '4c02e337-c94b-48b6-b30e-0c06839c81e6')
-API_URL = config_file.get('api_url', 'https://api.arxivdigest.org')
+API_URL = config_file.get('api_url', 'https://api.arxivdigest.org/')
 INDEX = config_file.get('index_name', 'main_index')
 ELASTICSEARCH_HOST = config_file.get('elasticsearch_host',
                                      {'host': '127.0.0.1', 'port': 9200})
@@ -134,11 +134,10 @@ def make_recommendations(es, user_info, index, n_articles=10):
     'n_articles' is the number of articles to recommend for each user."""
     recommendations = {}
     for user, info in user_info.items():
-        topics = [topic['topic'] for topic in info['topics']]
-        if not topics:
+        if not info['topics']:
             print('User {} has no topics and was skipped.'.format(user))
             continue
-        articles = make_user_recommendation(es, topics, index)
+        articles = make_user_recommendation(es, info['topics'], index)
         articles = sorted(articles, key=lambda k: k['score'], reverse=True)
         if articles:
             recommendations[user] = articles[0:n_articles]

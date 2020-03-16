@@ -83,8 +83,6 @@ Fields returned for each user:
   - `semantic_scholar_profile`: Semantic Scholar profile
   - `personal_website`: personal/organizational website
   - `topics`: list of topics user is interested in
-     - `topic`: topic string
-     - `topic_id`: id of topic
   - `categories` : list of arXiv categories user is interested in
   - `organization`: the organization the user registered with
 
@@ -112,14 +110,10 @@ Example:
           "semantic_scholar_profile": "semanticscholar.org/author/..",
           "personal_website": "www.example.com",
           "categories": ["math","cs","cs.AI","astro-ph.CO"],
-          "topics": [
-            {
-              "topic": "information retrieval",
-              "topic_id": 20
-            },
-            {
-              "topic": "retrieval models",
-              "topic_id": 68
+          "topics": [ "information retrieval",
+                      "retrieval models",...
+                    ]
+             
             },...
           ]     
         }
