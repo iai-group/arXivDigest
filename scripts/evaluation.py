@@ -58,11 +58,11 @@ scoreList = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 for item in data:
     # give weighted score to each user interaction
     score = 0
-    if item[item['clicked_email']] != 'null':
+    if item[item['clicked_email']]:
         score += 1 * evaluation_config.get('clicked_email_weight')
-    if item[item['clicked_web']] != 'null':
+    if item[item['clicked_web']]:
         score += 1 * evaluation_config.get('clicked_web_weight')
-    if item[item['liked']] != 'null':
+    if item[item['liked']]:
         score += 1 * evaluation_config.get('liked_weight')
 
     date = item['date']
