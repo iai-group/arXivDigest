@@ -126,7 +126,7 @@ These are the values that can be configured in the frontend-section of config.js
 | author_affiliations | author_id, affiliation |
 | categories | category_id, category, subcategory, category_name |
 | article_recommendations | user_id, article_id, system_id, score, recommendation_date, explanation |
-| systems | system_id, api_key, system_name, active, user_id |
+| systems | system_id, api_key, system_name, active, admin_user_id |
 | article_feedback | user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email, explanation |
 | feedback | feedback_id, user_id, article_id, type, feedback_text |
 | topic_recommendations | recommendation_id, user_id, topic_id, system_id, datestamp, system_score, interleaving_order, seen, clicked |

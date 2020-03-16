@@ -65,7 +65,7 @@
             <br>
         </div>
         <div class="articleIcons">
-            {% if article.liked == True %}
+            {% if article.liked %}
                 <div class="likeButton Liked glyphicon glyphicon-heart" data-value="{{ article.article_id }}"
                      title="Unlike this article"></div>
             {% else %}

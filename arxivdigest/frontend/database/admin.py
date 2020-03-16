@@ -22,7 +22,7 @@ def getSystems():
     cur = getDb().cursor(dictionary=True)
     cur.execute('''select system_id, api_key, active, email, firstname, lastname, 
                 organization, system_name from systems left join users
-                on users.user_id = systems.user_id;''')
+                on users.user_id = systems.admin_user_id;''')
     systems = cur.fetchall()
     cur.close()
     return systems

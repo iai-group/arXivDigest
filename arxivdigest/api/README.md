@@ -156,12 +156,12 @@ Fields returned for each user:
   - `user_id`: ID of the user
   - `date`: Date the recommendation was originally given to the user
   - `article_id`: ID of the article
-  - `feedback`: is the feedback stored in binary in a five bit number
-    -  "seen_email":   bit 0
-    -  "seen_web":     bit 1
-    -  "clicked_email":bit 2
-    -  "clicked_web":  bit 2
-    -  "liked":        bit 4
+  - `feedback`: is the feedback stored in a dictionary of feedbak_type: datetime
+    -  "seen_email":   datetime of when article was seen on email
+    -  "seen_web":     datetime of when article was seen on web
+    -  "clicked_email":datetime of when article was clicked in email
+    -  "clicked_web":  datetime of when article was clicked on web
+    -  "liked":        datetime of when article was liked
 
 
 Other fields:
@@ -170,19 +170,11 @@ Other fields:
 Example feedback:
 
 ```
-  "seen_email": 0,
-  "seen_web": 1,
-  "clicked_email": 0,
-  "clicked_web": 1,
-  "liked": 0
-  feedback=b'01010'=10
-
-  "seen_email": 1,
-  "seen_web": 0,
-  "clicked_email": 0,
-  "clicked_web": 0,
-  "liked": 0
-  feedback=b'00001'=1
+  "seen_email": None,
+  "seen_web": '2020-03-16 20:45:26',
+  "clicked_email": None,
+  "clicked_web": '2020-03-16 20:45:26',
+  "liked": None
 ````
 
 Example request:
@@ -198,8 +190,24 @@ Example request:
       "userfeedback": {
         "1": {
           "2018-05-10": [
-          {"article-123": 12},
-          {"article-012": 1},
+          {"article-123": 
+            {
+              "seen_email": None,
+              "seen_web": '2020-03-16 20:45:26',
+              "clicked_email": None,
+              "clicked_web": '2020-03-16 20:45:26',
+              "liked": None
+            }
+          },
+          {"article-012": 1
+            {
+              "seen_email": None,
+              "seen_web": '2020-03-16 20:45:26',
+              "clicked_email": None,
+              "clicked_web": '2020-03-16 20:45:26',
+              "liked": None
+            }
+          },
           ...
            ]
         }

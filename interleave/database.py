@@ -105,7 +105,7 @@ def getArticleData(db):
 def setSeenEmail(db, articles):
     '''Updates database field if user sees the email'''
     cur = db.cursor()
-    sql = 'UPDATE article_feedback SET seen_email=true,trace_click_email=%s, trace_like_email=%s WHERE user_id=%s and article_id=%s'
+    sql = 'UPDATE article_feedback SET seen_email=CURRENT_TIMESTAMP,trace_click_email=%s, trace_like_email=%s WHERE user_id=%s and article_id=%s'
     cur.executemany(sql, articles)
 
     users = {str(x[2]) for x in articles}

@@ -3,7 +3,7 @@
         "user": "root",
         "password": "root",
         "host": "localhost",
-        "database": "arxivdigest"
+        "database": "arxivdigest_test"
     },
     "email_config": {
         "from_address": "yourfavouriteapp@gmail.com",

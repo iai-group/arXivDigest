@@ -235,10 +235,14 @@ def getUserFeedback(ids):
         user = feedback['user_id']
         date = str(feedback['date'])
         article = feedback['article_id']
-        feedbackNum = feedback['seen_email'] * 1
-        feedbackNum += feedback['seen_web'] * 2
-        feedbackNum += feedback['clicked_email'] * 4
-        feedbackNum += feedback['clicked_web'] * 8
-        feedbackNum += feedback['liked'] * 16
-        result[user][date].append({article: feedbackNum})
+
+        article_feedback = {
+            'seen_email': str(feedback['seen_email']),
+            'seen_web': str(feedback['seen_web']),
+            'clicked_email': str(feedback['clicked_email']),
+            'clicked_web': str(feedback['clicked_web']),
+            'liked': str(feedback['liked'])
+        }
+
+        result[user][date].append({article: article_feedback})
     return result
