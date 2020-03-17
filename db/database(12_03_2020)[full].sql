@@ -75,7 +75,7 @@ api_key char(36) not null unique,
 system_name varchar(255) not null unique,
 active boolean default true,
 admin_user_id int default NULL,
-foreign key (user_id) references users(user_id),
+foreign key (admin_user_id) references users(user_id),
 primary key(system_id)
 );
 

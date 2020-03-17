@@ -58,7 +58,7 @@ def toggleSystem(systemID, state):
         mail = {'to_address': sys['email'],
                 'subject': 'System Activation',
                 'template': 'systemActivation',
-                'data': {'name': sys['contact_name'],
+                'data': {'name': sys['firstname'] + " " + sys['lastname'],
                          'key': sys['api_key'],
                          'link': request.url_root}}
 
