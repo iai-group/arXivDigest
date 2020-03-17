@@ -60,7 +60,7 @@ def toggleSystem(systemID, state):
                 'template': 'systemActivation',
                 'data': {'name': sys['firstname'] + " " + sys['lastname'],
                          'key': sys['api_key'],
-                         'link': request.url_root}}
+                         'link': 'arxivdigest.org'}}
 
         Server = MailServer(**email_config)
         try:
