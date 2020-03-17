@@ -93,8 +93,12 @@ class User():
         if not validString(dblp_profile, 5, 255):
             raise ValidationError('Invalid DBLP profile.')
 
-        if not dblp_profile.startswith('dblp.org/'):
-            raise ValidationError('DBLP profile must start with dblp.org/.')
+        allowed_prefixes = ('https://dblp.org/', 'https://dblp.uni-trier.de/', 
+            'dblp.uni-trier.de/', 'dblp.org/')
+        if not dblp_profile.startswith(allowed_prefixes):
+            raise ValidationError('DBLP url prefix does not match DBLP links.')
+
+        dblp_profile = dblp_profile.replace('dblp.uni-trier.de', 'dblp.org')
         self._dblp_profile = dblp_profile
 
     @property
@@ -110,9 +114,9 @@ class User():
         if not validString(google_scholar_profile, 5, 255):
             raise ValidationError('Invalid Google Scholar profile.')
 
-        if not google_scholar_profile.startswith('scholar.google.com/'):
-            raise ValidationError('Google Scholar profile must start with '
-                                  'scholar.google.com/.')
+        allowed_prefixes = ('scholar.google.com/', 'https://scholar.google.com/')
+        if not google_scholar_profile.startswith(allowed_prefixes):
+            raise ValidationError('Google Scholar url prefix does not match Google Scholar links.')
         self._google_scholar_profile = google_scholar_profile
 
     @property
@@ -127,10 +131,12 @@ class User():
         if not validString(semantic_scholar_profile, 5, 256):
             raise ValidationError('Invalid Semantic Scholar profile.')
 
-        if not semantic_scholar_profile.startswith(
-                'semanticscholar.org/author/'):
-            raise ValidationError('Semantic Scholar profile must start with'
-                                  ' semanticscholar.org/author/.')
+        allowed_prefixes = ('semanticscholar.org/author/', 
+            'https://www.semanticscholar.org/author/', 'www.semanticscholar.org/author/')
+        if not semantic_scholar_profile.startswith(allowed_prefixes):
+            raise ValidationError('Semantic Scholar url prefix does not match Semantic Scholar links.')
+
+        semantic_scholar_profile = semantic_scholar_profile.replace('www.','')
         self._semantic_scholar_profile = semantic_scholar_profile
 
     @property
