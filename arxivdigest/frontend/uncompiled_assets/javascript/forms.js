@@ -42,6 +42,12 @@ $(document).ready(function () {
                 input.suggestion_list.hide();
                 return false;
             }
+            if (!value.match(/^[0-9a-zA-Z\-]+$/)){
+                input.parent().parent().next().text(
+                    "Topics must not contain special symbols.");
+                input.suggestion_list.hide();
+                return false;
+            }
             input.parent().parent().next("form_error").text("");
             input.submitted.push(value);
             const li = create_removable_list_element(value, value, input, hidden_input);
@@ -206,7 +212,8 @@ $(document).ready(function () {
         {"id": "#google_scholar_profileInput", "prefix": ["scholar.google.com/", 
             "https://scholar.google.com/"]},
         {"id": "#semantic_scholar_profileInput", "prefix": ["semanticscholar.org/author/", 
-            "https://www.semanticscholar.org/author/","www.semanticscholar.org/author/"]},
+            "https://www.semanticscholar.org/author/","www.semanticscholar.org/author/",
+            "https://semanticscholar.org/author/"]},
     ];
 
     for (const websiteInput of websiteInputs) {

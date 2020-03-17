@@ -6,6 +6,7 @@ from arxivdigest.frontend.models.errors import ValidationError
 from arxivdigest.frontend.models.validate import validEmail
 from arxivdigest.frontend.models.validate import validPassword
 from arxivdigest.frontend.models.validate import validString
+import re
 
 
 class User():
@@ -132,7 +133,8 @@ class User():
             raise ValidationError('Invalid Semantic Scholar profile.')
 
         allowed_prefixes = ('semanticscholar.org/author/', 
-            'https://www.semanticscholar.org/author/', 'www.semanticscholar.org/author/')
+            'https://www.semanticscholar.org/author/', 'www.semanticscholar.org/author/',
+            'https://semanticscholar.org/author/')
         if not semantic_scholar_profile.startswith(allowed_prefixes):
             raise ValidationError('Semantic Scholar url prefix does not match Semantic Scholar links.')
 
@@ -177,6 +179,9 @@ class User():
         if len(topics) < min_topics:
             raise ValidationError('You need to provide at least {} '
                                   'topics.'.format(min_topics))
+        for topic in topics:
+            if not re.match('^[0-9a-zA-Z\-]+$',topic):
+                raise ValidationError('Topics must not contain special characters.')
 
         self._topics = topics
 
