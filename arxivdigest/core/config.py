@@ -2,12 +2,9 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
-import sys
 import json
 import os
-
-from pkg_resources import Requirement
-from pkg_resources import resource_filename
+import sys
 
 __file_locations = [
     os.path.expanduser('~') + '/arxivdigest/config.json',
@@ -37,9 +34,6 @@ if not config_file:
 
 with open(config_file) as file:
     config = json.load(file)
-
-config['email_config']['templates'] = resource_filename(
-    Requirement.parse('arxivdigest'), 'core/mail/templates')
 
 sql_config = config.get('sql_config')
 email_config = config.get('email_config')
