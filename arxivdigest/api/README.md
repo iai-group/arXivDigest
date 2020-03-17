@@ -106,7 +106,7 @@ Example:
         "1": {
           "first_name": "John",
           "last_name": "Smith",
-          "registered": "2018-02-20",
+          "registered": "Sat, 14 Mar 2020 00:06:21 GMT",
           "organization": "arXivDigest",
           "dblp_profile": "dblp.org/...",
           "google_scholar_profile": "scholar.google.com/...",
@@ -167,11 +167,11 @@ Other fields:
 Example feedback:
 
 ```
-  "seen_email": None,
-  "seen_web": '2020-03-16 20:45:26',
-  "clicked_email": None,
-  "clicked_web": '2020-03-16 20:45:26',
-  "liked": None
+  "seen_email": null,
+  "seen_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+  "clicked_email": null,
+  "clicked_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+  "liked": null
 ````
 
 Example request:
@@ -186,23 +186,23 @@ Example request:
     {
       "user_feedback": {
         "1": {
-          "2018-05-10": [
+          "Mon, 16 Mar 2020 00:00:00 GMT": [
           {"article-123": 
             {
-              "seen_email": None,
-              "seen_web": '2020-03-16 20:45:26',
-              "clicked_email": None,
-              "clicked_web": '2020-03-16 20:45:26',
-              "liked": None
+              "seen_email": null,
+              "seen_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+              "clicked_email": null,
+              "clicked_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+              "liked": null
             }
           },
           {"article-012": 1
             {
-              "seen_email": None,
-              "seen_web": '2020-03-16 20:45:26',
-              "clicked_email": None,
-              "clicked_web": '2020-03-16 20:45:26',
-              "liked": None
+              "seen_email": null,
+              "seen_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+              "clicked_email": null,
+              "clicked_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+              "liked": null
             }
           },
           ...
@@ -261,7 +261,7 @@ Example request:
         "1": {
           "information retrieval": [
           {"clicked": null},
-          {"seen": "2020-10-05"},
+          {"seen": "Mon, 16 Mar 2020 00:00:00 GMT"},
           ...
            ]
         }
@@ -346,7 +346,7 @@ Example:
           "comments": "XXX",
           "license": "XXX",
           "journal-ref": "XXX",
-          "date":"2018-01-15",
+          "date":"Mon, 16 Mar 2020 00:00:00 GMT",
           "authors":[
             {"firstname":"XXX",
              "keyname":"XXX",
@@ -545,10 +545,10 @@ Example:
           "Information Retrieval":[
           {"system_id":2,
           "score": 3,
-          "date": "2020-06-20"},
+          "date": "Mon, 16 Mar 2020 00:00:00 GMT"},
           {"system_id":33,
           "score": 2,
-          "date": "2020-05-10"}
+          "date": "Mon, 16 Mar 2020 00:00:00 GMT"}
           ],...
         }
       }

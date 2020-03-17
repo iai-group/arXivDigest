@@ -137,7 +137,7 @@ def get_article_data(ids):
             'comments': article_data[4],
             'license': article_data[5],
             'journal': article_data[6],
-            'date': article_data[7].strftime('%Y-%m-%d'),
+            'date': article_data[7],
             'authors': [],
             'categories': [],
         }
@@ -227,15 +227,15 @@ def get_user_feedback_articles(ids):
     result = defaultdict(lambda: defaultdict(list))
     for feedback in cur.fetchall():
         user = feedback['user_id']
-        date = str(feedback['date'])
+        date = feedback['date']
         article = feedback['article_id']
 
         article_feedback = {
-            'seen_email': str(feedback['seen_email']),
-            'seen_web': str(feedback['seen_web']),
-            'clicked_email': str(feedback['clicked_email']),
-            'clicked_web': str(feedback['clicked_web']),
-            'liked': str(feedback['liked'])
+            'seen_email': feedback['seen_email'],
+            'seen_web': feedback['seen_web'],
+            'clicked_email': feedback['clicked_email'],
+            'clicked_web': feedback['clicked_web'],
+            'liked': feedback['liked']
         }
 
         result[user][date].append({article: article_feedback})
