@@ -20,12 +20,15 @@ These are the values that can be configured in the API-section of config.json.
   + [List of users](#list-of-users)
   + [User information](#user-information)
   + [User feedback articles](#user-feedback-articles)
+  + [User feedback topics](#user-feedback-topcis)
 * [Article data](#article-data)
   + [List of articles](#list-of-articles)
   + [Article data](#article-data-1)
 * [Recommendations](#recommendations)
   + [Insert article recommendations](#insert-article-recommendations)
-  + [Article recommendation data](#article-recommendation-data)
+  + [Article recommendation data](#article-recommendation-data) 
+  + [Insert topic recommendations](#insert-topic-recommendations)
+  + [Topic recommendation data](#topic-recommendation-data)
 
 ## User data
 
@@ -212,6 +215,62 @@ Example request:
     }
     ```
 
+### User feedback topics
+
+`GET /user_feedback/topics`
+
+Returns the feedback on topic recommendations recorded for a given user (or list of users).
+
+Parameters:
+  - `user_id` user ID, or a list of up to 100 user IDs, separated by a comma
+
+Fields are returned in a JSON in the format, the topics are sorted descending by score:
+```
+    {
+      "user_feedback": {
+        user_id: {
+           date: [
+            {topic: feedback},
+            {topic: feedback},
+           ]
+        }
+      }
+    }
+```
+Fields returned for each user:
+  - `user_id`: ID of the user
+  - `topic`: topic that was recommended
+  - `feedback`: is the feedback stored in a dictionary of {feedback_type: datetime}
+    -  "seen":   datetime of when article was seen or null if not seen
+    -  "clicked":     datetime of when topic was clicked or null if not clicked
+
+Other fields:
+  - `error`: if something went wrong
+
+Example request:
+
+  - Request: `GET /user_feedback/topics?user_id=1,7`
+  - Header:
+    ```
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    ```
+  - Response:
+    ```
+    {
+      "user_feedback": {
+        "1": {
+          "information retrieval": [
+          {"clicked": null},
+          {"seen": "2020-10-05"},
+          ...
+           ]
+        }
+        "7": {
+          ...
+        }
+      }
+    }
+    ```
 
 ## Article data
 
@@ -311,12 +370,12 @@ Example:
 
 `POST /recommendations/articles`
 
-Insert article recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](/../../#daily-submission-periods), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to arXivDigest the past seven days. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](/../../#daily-submission-periods), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to arXivDigest the past seven days. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
 The maximal number of users that can be given recommendations in a single request, maximal number of recommendations per user and maximal length of explanations can be [configured](#configurations).
 
 Header:
-- `api-key` used to identify which system the recomendations come from
+- `api-key` used to identify which system the recommendations come from
 
 JSON:
   - `user_id` id of the user
@@ -399,6 +458,98 @@ Example:
           "score": "XXX",
           "date": "XXX"}
           ]
+        }
+      }
+    }
+    ```
+
+### Insert topic recommendations
+
+`POST /recommendations/topics`
+
+Insert recommendations for topics to users, with a score describing how well it matches the users interests.  See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+
+The maximal number of users that can be given recommendations in a single request and the maximal number of recommendations per user can be [configured](#configurations).
+
+Header:
+- `api-key` used to identify which system the recommendations come from
+
+JSON:
+  - `user_id` id of the user
+  - `topic` topic to recommend, containing only a..z, 0..9, space and dash
+  - `score` score of the recommendation
+
+Data returned:
+  - `error`: if something went wrong
+
+Example:
+  - Request: `POST /recommendations/topics`
+
+  - Header:
+    ```
+    {"Content-Type": "application/json",
+     "api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    ```
+  - JSON:
+    ```
+    {
+        "recommendations": {
+        user_id: [
+            {"topic": "Information Retrieval", "score": 2},
+            {"topic": "Entity Oriented Search", "score": 3},
+            {"topic": "Retrieval models", "score": 2}
+        ],...
+      }
+    }
+      ```
+  - Response:
+    ```
+    {
+      "success": True
+      "error" : "Some error"
+    }
+    ```
+### Topic recommendation data
+
+`GET /recommendations/topics`
+
+Returns topic recommendation data for a given user (or list of users). By default it is limited to 100 users per request, but this can be [configured](#configurations).
+
+Parameters:
+
+- `user_id` User ID, or a list of up to 100 user IDs, separated by a comma
+
+Fields returned for each user:
+
+- `topic`: topic that was recommended
+- `score`: score of the topic for this user
+- `date`: date this recommendation was given
+- `system_id`: id of the system which gave this recommendation
+
+Other fields:
+  - `error`: if something went wrong
+
+Example:
+
+  - Request: `GET /recommendations/topics?user_id=123`
+
+  - Header:
+    ```
+    {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
+    ```
+  - Response:
+    ```
+    {
+      "users": {
+        "123": {
+          "Information Retrieval":[
+          {"system_id":2,
+          "score": 3,
+          "date": "2020-06-20"},
+          {"system_id":33,
+          "score": 2,
+          "date": "2020-05-10"}
+          ],...
         }
       }
     }

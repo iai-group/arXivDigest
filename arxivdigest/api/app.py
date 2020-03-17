@@ -92,7 +92,7 @@ def article_data():
 @app.route('/recommendations/articles', methods=['POST'])
 @validateApiKey
 @validation.validate_json(validation.recommendation)
-def article_recommendations():
+def make_article_recommendations():
     """API-endpoint for inserting article recommendations"""
     data = request.get_json().get('recommendations')
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -106,7 +106,7 @@ def article_recommendations():
 @app.route('/recommendations/articles', methods=['GET'])
 @validateApiKey
 @getUserlist
-def article_recommendations(users):
+def get_article_recommendations(users):
     """API-endpoint for requesting user-recommendations of articles,
      "user_id" must be one or more ids seperated by comma."""
     users = db.get_article_recommendations(users)
