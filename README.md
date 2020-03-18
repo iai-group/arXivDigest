@@ -45,7 +45,7 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
 Experimental recommender systems need to follow the following steps for submitting recommendations.  The API is available at https://api.arxivdigest.org.
 
   1. Call [`GET /users`](/arxivdigest/api#list-of-users) to get a list of user IDs.
-  1. Call [`GET /user_info?ids`](/api#user-information) with user IDs as a parameter to get information about the users.
+  1. Call [`GET /user_info?ids`](/arxivdigest/api#user-information) with user IDs as a parameter to get information about the users.
   1. Call [`GET /articles`](/arxivdigest/api#list-of-articles) to get the list of article IDs that are may be returned as recommendation.
   1. Call [`GET /article_data`](/arxivdigest/api#article-data) with article IDs as a parameter to get information about the articles.
   1. Use the gathered information to generate personalized recommendations for users.
