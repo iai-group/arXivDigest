@@ -32,7 +32,7 @@ def get_config_from_file(file_paths):
 config_file = get_config_from_file(file_locations)
 
 API_KEY = config_file.get('api_key', '4c02e337-c94b-48b6-b30e-0c06839c81e6')
-API_URL = config_file.get('api_url', 'https://api.arxivdigest.org')
+API_URL = config_file.get('api_url', 'https://api.arxivdigest.org/')
 INDEX = config_file.get('index_name', 'main_index')
 ELASTICSEARCH_HOST = config_file.get('elasticsearch_host',
                                      {'host': '127.0.0.1', 'port': 9200})
@@ -51,14 +51,14 @@ def get_user_info(user_ids, api_key, api_url, batch_size=100):
     user_info = {}
     for i in range(0, len(user_ids), batch_size):
         user_id_string = ','.join([str(u) for u in user_ids[i:i + batch_size]])
-        url = '%suserinfo?user_id=%s' % (api_url, user_id_string)
+        url = '%suser_info?user_id=%s' % (api_url, user_id_string)
         req = request.Request(url, headers={"api-key": api_key})
         resp = request.urlopen(req)
-        user_info.update(json.loads(resp.read())['userinfo'])
+        user_info.update(json.loads(resp.read())['user_info'])
     return user_info
 
 
-def get_articles_by_topic(es, topic, index, window_size=1, size=10000):
+def get_articles_by_topic(es, topic, index, window_size=7, size=10000):
     """Retrieves articles from the Elasticsearch index mentioning 'topic',
     the 'window_size' is the number of days back in time articles will
     be included from."""
@@ -93,8 +93,9 @@ def send_recommendations(recommendations, api_key, api_url, batch_size=100):
     for i in range(0, len(recommendations), batch_size):
         data = json.dumps({'recommendations': dict(
             recommendations[i:i + batch_size])}).encode('utf8')
-        req = request.Request(api_url + "recommendation", data=data, headers={
-            'Content-Type': 'application/json', "api-key": api_key})
+        req = request.Request(api_url + "/recommendations/articles", data=data,
+                              headers={'Content-Type': 'application/json',
+                                       "api-key": api_key})
         try:
             request.urlopen(req)
         except urllib.error.HTTPError as e:
@@ -134,11 +135,10 @@ def make_recommendations(es, user_info, index, n_articles=10):
     'n_articles' is the number of articles to recommend for each user."""
     recommendations = {}
     for user, info in user_info.items():
-        topics = [topic['topic'] for topic in info['topics']]
-        if not topics:
+        if not info['topics']:
             print('User {} has no topics and was skipped.'.format(user))
             continue
-        articles = make_user_recommendation(es, topics, index)
+        articles = make_user_recommendation(es, info['topics'], index)
         articles = sorted(articles, key=lambda k: k['score'], reverse=True)
         if articles:
             recommendations[user] = articles[0:n_articles]

@@ -25,7 +25,7 @@ app.secret_key = secret_key
 app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
-app.config['MAX_CONTENT_LENGTH'] = frontend_config.get('MAX_CONTENT_LENGTH')
+app.config['max_content_length'] = frontend_config.get('max_content_length')
 
 assets = Environment(app)
 if frontend_config.get('data_path', None):

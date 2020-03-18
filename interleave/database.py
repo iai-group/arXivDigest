@@ -91,11 +91,14 @@ def getHighestUserID(db):
     return users
 
 
-def getArticleData(db):
+def get_article_data(db):
     '''Returns article data with authors in a dictionary'''
     cur = db.cursor()
-    sql = '''SELECT article_id,title, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') FROM article_authors natural join articles
-    WHERE datestamp >=DATE_SUB(UTC_DATE(),INTERVAL 8 DAY) GROUP BY article_id'''
+    sql = '''SELECT article_id,title, 
+             GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ')
+             FROM article_authors natural join articles
+             WHERE datestamp >=DATE_SUB(UTC_DATE(),INTERVAL 8 DAY) 
+             GROUP BY article_id'''
     cur.execute(sql)
     articles = {x[0]: {'title': x[1], 'authors': x[2]} for x in cur.fetchall()}
     cur.close()
