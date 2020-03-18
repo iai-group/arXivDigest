@@ -2,6 +2,8 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
+from datetime import date
+from datetime import datetime
 from functools import wraps
 from uuid import UUID
 
@@ -9,6 +11,7 @@ from flask import g
 from flask import jsonify
 from flask import make_response
 from flask import request
+from flask.json import JSONEncoder
 
 import arxivdigest.api.database as db
 from arxivdigest.core.config import api_config
@@ -66,3 +69,20 @@ def getUserlist(f):
         return f(*args, **kwargs)
 
     return wrapper
+
+
+class CustomJSONEncoder(JSONEncoder):
+    """Custom JSON encoder that formats dates in YYYY-MM-dd hh:mm:ss format."""
+
+    def default(self, obj):
+        try:
+            if isinstance(obj, datetime):
+                return obj.strftime('%Y-%m-%d %H:%M:%S')
+            elif isinstance(obj, date):
+                return obj.strftime('%Y-%m-%d')
+            iterable = iter(obj)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        return JSONEncoder.default(self, obj)

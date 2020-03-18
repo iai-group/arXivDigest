@@ -141,7 +141,6 @@ primary key (user_id, topic_id)
 );
 
 create table topic_recommendations(
-recommendation_id  int auto_increment,
 user_id            int      not null,
 topic_id           int      not null,
 system_id          int      not null,
@@ -153,7 +152,7 @@ clicked datetime default null,
 foreign key (user_id) references users (user_id) on delete cascade,
 foreign key (topic_id) references topics (topic_id) on delete cascade,
 foreign key (system_id) references systems (system_id) on delete cascade,
-primary key (recommendation_id)
+primary key (user_id, topic_id, system_id)
 );
 
 create index article_date_index on articles(datestamp);

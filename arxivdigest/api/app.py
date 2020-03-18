@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
@@ -12,6 +13,7 @@ from flask import request
 
 import arxivdigest.api.database as db
 import arxivdigest.api.validator as validation
+from arxivdigest.api.utils import CustomJSONEncoder
 from arxivdigest.api.utils import getUserlist
 from arxivdigest.api.utils import validateApiKey
 from arxivdigest.core.config import api_config
@@ -19,6 +21,7 @@ from arxivdigest.core.config import api_config
 app = Flask(__name__)
 
 app.config.update(**api_config)
+app.json_encoder = CustomJSONEncoder
 
 
 @app.route('/user_feedback/articles', methods=['GET'])
@@ -28,6 +31,15 @@ def user_feedback_articles(users):
     """API-endpoint for requesting user_feedback for articles, 'user_id' must be
     one or more ids separated by comma."""
     return jsonify(db.get_user_feedback_articles(users))
+
+
+@app.route('/user_feedback/topics', methods=['GET'])
+@validateApiKey
+@getUserlist
+def user_feedback_topics(users):
+    """API-endpoint for requesting user feedback for topics, 'user_id' must be
+    one or more ids separated by comma."""
+    return jsonify(db.get_user_feedback_topics(users))
 
 
 @app.route('/users', methods=['GET'])
@@ -91,7 +103,7 @@ def article_data():
 
 @app.route('/recommendations/articles', methods=['POST'])
 @validateApiKey
-@validation.validate_json(validation.recommendation)
+@validation.validate_json(validation.article_recommendation)
 def make_article_recommendations():
     """API-endpoint for inserting article recommendations"""
     data = request.get_json().get('recommendations')
@@ -103,14 +115,45 @@ def make_article_recommendations():
     return make_response(jsonify({'success': True}), 200)
 
 
+@app.route('/recommendations/topics', methods=['POST'])
+@validateApiKey
+@validation.validate_json(validation.topic_recommendation)
+def make_topic_recommendations():
+    """API-endpoint for inserting topic recommendations"""
+    json = request.get_json().get('recommendations')
+
+    now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    data = []
+    for user, recommendations in json.items():
+        for recommendation in recommendations:
+            data.append({'user_id': user,
+                         'topic': recommendation['topic'],
+                         'system_id': g.sysID,
+                         'date': now,
+                         'score': recommendation['score']})
+
+    db.insert_topic_recommendations(data)
+    return make_response(jsonify({'success': True}), 200)
+
+
 @app.route('/recommendations/articles', methods=['GET'])
 @validateApiKey
 @getUserlist
 def get_article_recommendations(users):
     """API-endpoint for requesting user-recommendations of articles,
-     "user_id" must be one or more ids seperated by comma."""
+     "user_id" must be one or more ids separated by comma."""
     users = db.get_article_recommendations(users)
     return make_response(jsonify({'users': users}), 200)
+
+
+@app.route('/recommendations/topics', methods=['GET'])
+@validateApiKey
+@getUserlist
+def get_topic_recommendations(users):
+    """API-endpoint for requesting user-recommendations of topics,
+     "user_id" must be one or more ids separated by comma."""
+    topic_recommendations = db.get_topic_recommendations(users)
+    return make_response(jsonify({'users': topic_recommendations}), 200)
 
 
 @app.route('/', methods=['GET'])

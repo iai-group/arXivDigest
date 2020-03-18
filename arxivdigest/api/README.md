@@ -12,7 +12,7 @@ These are the values that can be configured in the API-section of config.json.
 - `MAX_USERID_REQUEST`: The maximal amount of userIds that can be retrieved in one request. More info on [endpoint](#list-of-users).
 - `MAX_ARTICLEDATA_REQUEST`: The maximal amount of articles that info can be retrieved for in one request. More info on [endpoint](#article-data).
 - `MAX_RECOMMENDATION_USERS`:The maximal amount of users that recommendations can be submitted for in each request. More info on [endpoint](#insert-recommendations).
-- `MAX_RECOMMENDATION_ARTICLES`: The maximal amount of articles that info can be recommended to each user in one request. More info on [endpoint](#insert-recommendations).
+- `max_recommendations_per_user`: The maximal amount of articles that info can be recommended to each user in one request. More info on [endpoint](#insert-recommendations).
 - `MAX_EXPLANATION_LEN`: The maximal length of an explanation for a recommendation. More info on [endpoint](#insert-recommendations).
 
 ## Endpoints
@@ -106,7 +106,7 @@ Example:
         "1": {
           "first_name": "John",
           "last_name": "Smith",
-          "registered": "Sat, 14 Mar 2020 00:06:21 GMT",
+          "registered": "2020-01-17 17:06:23",
           "organization": "arXivDigest",
           "dblp_profile": "dblp.org/...",
           "google_scholar_profile": "scholar.google.com/...",
@@ -186,22 +186,22 @@ Example request:
     {
       "user_feedback": {
         "1": {
-          "Mon, 16 Mar 2020 00:00:00 GMT": [
+          "2020-03-17": [
           {"article-123": 
             {
               "seen_email": null,
-              "seen_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+              "seen_web": '2020-03-17 17:13:53',
               "clicked_email": null,
-              "clicked_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+              "clicked_web": '2020-03-17 17:13:53',
               "liked": null
             }
           },
           {"article-012": 1
             {
               "seen_email": null,
-              "seen_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+              "seen_web": '2020-03-17 17:13:53',
               "clicked_email": null,
-              "clicked_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
+              "clicked_web": '',
               "liked": null
             }
           },
@@ -239,6 +239,7 @@ Fields are returned in a JSON in the format, the topics are sorted descending by
 ```
 Fields returned for each user:
   - `user_id`: ID of the user
+  - `date`: Date the recommendation was originally given to the user
   - `topic`: topic that was recommended
   - `feedback`: is the feedback stored in a dictionary of {feedback_type: datetime}
     -  "seen":   datetime of when article was seen or null if not seen
@@ -249,25 +250,42 @@ Other fields:
 
 Example request:
 
-  - Request: `GET /user_feedback/topics?user_id=1,7`
+  - Request: `GET /user_feedback/topics?user_id=1,2,3`
   - Header:
     ```
     {"api-key": "355b36dc-7863-4c4a-a088-b3c5e297f04f"}
     ```
   - Response:
-    ```
+    ```json
     {
       "user_feedback": {
         "1": {
-          "information retrieval": [
-          {"clicked": null},
-          {"seen": "Mon, 16 Mar 2020 00:00:00 GMT"},
-          ...
-           ]
-        }
-        "7": {
-          ...
-        }
+          "2020-03-17": [
+            {
+              "higher education and career education": {
+                "clicked": null,
+                "seen": "2020-03-17 17:13:53"
+              }
+            },
+            {
+              "transportation planning": {
+                "clicked": null,
+                "seen": "2020-03-17 17:13:53"
+              }
+            }
+          ]
+        },
+        "2": {
+          "2020-03-17": [
+            {
+              "transportation planning": {
+                "clicked": null,
+                "seen": "2020-03-17 17:13:53"
+              }
+            }
+          ]
+        },
+        "3": {}
       }
     }
     ```
@@ -346,7 +364,7 @@ Example:
           "comments": "XXX",
           "license": "XXX",
           "journal-ref": "XXX",
-          "date":"Mon, 16 Mar 2020 00:00:00 GMT",
+          "date":"2020-03-17",
           "authors":[
             {"firstname":"XXX",
              "keyname":"XXX",
@@ -370,7 +388,7 @@ Example:
 
 `POST /recommendations/articles`
 
-Insert recommendations for articles to users, with a score describing how well it matches the users interests. Systems can submit recommendations in the periods specified in the [schedule](/../../#daily-submission-periods), recommendations submitted outside of the specified periods will be ignored. Systems can only recommend articles added to arXivDigest the past seven days. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+Insert recommendations for articles to users, with a score describing how well it matches the users interests. Sending the same recommendation multiple times will update the score and explanations to the last received values. This allows reordering of already submitted recommendations, but assumes comparable scores across submissions. See the  [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
 The maximal number of users that can be given recommendations in a single request, maximal number of recommendations per user and maximal length of explanations can be [configured](#configurations).
 
@@ -467,7 +485,7 @@ Example:
 
 `POST /recommendations/topics`
 
-Insert recommendations for topics to users, with a score describing how well it matches the users interests.  See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+Insert recommendations for topics to users, with a score describing how well it matches the users interests. Sending the same recommendation multiple times will update the score to the last received value. This allows reordering of already submitted recommendations, but assumes comparable scores across submissions. See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
 The maximal number of users that can be given recommendations in a single request and the maximal number of recommendations per user can be [configured](#configurations).
 
@@ -543,12 +561,12 @@ Example:
       "users": {
         "123": {
           "Information Retrieval":[
-          {"system_id":2,
-          "score": 3,
-          "date": "Mon, 16 Mar 2020 00:00:00 GMT"},
-          {"system_id":33,
-          "score": 2,
-          "date": "Mon, 16 Mar 2020 00:00:00 GMT"}
+              {"system_id":2,
+              "score": 3,
+              "date": "2020-01-17 17:06:23"},
+              {"system_id":33,
+              "score": 2,
+              "date": "2020-01-17 17:06:23"}
           ],...
         }
       }

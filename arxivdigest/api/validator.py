@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
@@ -36,7 +38,7 @@ def validate_json(validator_func):
     return decorator
 
 
-def recommendation(json):
+def article_recommendation(json):
     """Validator function for json submitted to the recommendation insertion
     endpoint."""
     json = json.get('recommendations')
@@ -62,6 +64,31 @@ def recommendation(json):
     return None
 
 
+def topic_recommendation(json):
+    """Validator function for json submitted to the topic recommendation
+    endpoint."""
+    json = json.get('recommendations')
+    if not json:
+        return 'No recommendations submitted.', 400
+
+    if len(json) > app.config['MAX_RECOMMENDATION_USERS']:
+        return 'Requests must not contain more than %s users.' % app.config[
+            'MAX_RECOMMENDATION_USERS'], 400
+
+    # functions that validate different properties of the json
+    check_funcs = {nonexistent_users,
+                   too_many_recommendations,
+                   contains_ineligible_topics,
+                   score_is_not_float,
+                   }
+
+    for check_func in check_funcs:
+        err = check_func(json)
+        if err:
+            return err
+    return None
+
+
 def nonexistent_users(json):
     """Returns false if all users exist.
     Returns errormessage and status code if not."""
@@ -78,10 +105,10 @@ def too_many_recommendations(json):
     """Returns false if no user got more recommendations then the limit.
     Returns errormessage and status code if not."""
     err_msg = 'Requests must not contain more than {} recommendations per user.'
-    err_msg = err_msg.format(app.config['MAX_RECOMMENDATION_ARTICLES'])
+    err_msg = err_msg.format(app.config['max_recommendations_per_user'])
 
     for recs in json.values():
-        if len(recs) > app.config['MAX_RECOMMENDATION_ARTICLES']:
+        if len(recs) > app.config['max_recommendations_per_user']:
             return err_msg, 400
 
 
@@ -105,6 +132,18 @@ def contains_ineligible_articles(json):
     return False
 
 
+def contains_ineligible_topics(json):
+    """Returns false if all topics are eligible for recommendation.
+    Returns errormessage and status code if not."""
+    topics = [topic['topic'] for user in json.values() for topic in user]
+    if len(topics) is 0:
+        return 'No topics submitted.', 400
+    for topic in topics:
+        if re.search('[^a-zA-Z0-9\- ]', topic):
+            return 'Topics can only contain a..z, 0..9, space and dash.', 400
+    return False
+
+
 def score_is_not_float(json):
     """Returns false if all scores are float numbers.
     Returns errormessage and status code if not."""
@@ -112,7 +151,7 @@ def score_is_not_float(json):
         for rec in recommendations:
             try:
                 float(rec['score'])
-            except ValueError:
+            except (ValueError, KeyError):
                 return 'Score must be a float', 400
     return False
 

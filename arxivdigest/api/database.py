@@ -185,6 +185,28 @@ def insert_article_recommendations(recommendations):
     return True
 
 
+def insert_topic_recommendations(recommendations):
+    """Takes in a list of dictionaries containing the following keys:
+    user_id, topic, system_id, date, score
+
+    Each dictionary is inserted into the topic_recommendations table, updating
+    score and date on duplicate primary keys."""
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
+        topics = [(r['topic'],) for r in recommendations]
+        cur.executemany('INSERT IGNORE INTO topics(topic) VALUE(%s)', topics)
+
+        sql = '''INSERT INTO topic_recommendations(
+                 user_id, topic_id, system_id, datestamp, system_score)
+                 VALUES(%(user_id)s, 
+                 (SELECT  topic_id FROM topics WHERE topic = %(topic)s),
+                 %(system_id)s, %(date)s, %(score)s)
+                 ON DUPLICATE KEY UPDATE system_score = values(system_score), 
+                 datestamp = values(datestamp);'''
+        cur.executemany(sql, recommendations)
+    conn.commit()
+
+
 def getSystem(apiKey):
     """Returns the systemID and systemname for the given apikey, if the key is invalid
     it returns none."""
@@ -211,11 +233,37 @@ def get_article_recommendations(ids):
     return users
 
 
+def get_topic_recommendations(ids):
+    """Returns topic recommendation data for the requested userIDs in this
+    format: {userid: { topic: [{'system_id': x, 'score': x, 'date': x],...}}"""
+    with closing(getDb().cursor(dictionary=True)) as cur:
+        sql = """SELECT tr.user_id, tr.system_id, tr.datestamp as date, 
+                 tr.system_score as score, t.topic
+                 FROM topic_recommendations tr  NATURAL JOIN topics t
+                 WHERE user_id IN (%s)""" % ','.join(['%s'] * len(ids))
+
+        cur.execute(sql, ids)
+        users = {int(u_id): defaultdict(list) for u_id in ids}
+        for u in cur.fetchall():
+            users[u.pop('user_id')][u.pop('topic')].append(u)
+
+        return users
+
+
 def get_user_feedback_articles(ids):
-    """Returns feedbackdata for the requested userIDs in this format: {userid:date[{articleID:feedback}}
-    where articleIDs are sorted by score and feedback is a binary number composite of
-    seen_email-bit 0,seen_web-bit 1,clicked_email-bit 2,clicked_web-bit 3, liked-bit 4,
-    where each of these booleans represent one bit in the same order as the list.
+    """Returns article feedback data for the requested userIDs in this format:
+    {userid:
+        date: [
+            {articleID: {
+                'seen_email': date or None,
+                'seen_web': date or None,
+                'clicked_email': date or None,
+                'clicked_web': date or None,
+                'liked': date or None,
+                }, ...
+            }, ...
+        ], ...
+    }
     """
     cur = getDb().cursor(dictionary=True)
     format_strings = ','.join(['%s'] * len(ids))
@@ -227,7 +275,7 @@ def get_user_feedback_articles(ids):
     result = defaultdict(lambda: defaultdict(list))
     for feedback in cur.fetchall():
         user = feedback['user_id']
-        date = feedback['date']
+        date = feedback['date'].strftime('%Y-%m-%d')
         article = feedback['article_id']
 
         article_feedback = {
@@ -239,4 +287,32 @@ def get_user_feedback_articles(ids):
         }
 
         result[user][date].append({article: article_feedback})
-    return result
+    return {'user_feedback': result}
+
+
+def get_user_feedback_topics(ids):
+    """Returns topic feedback data for the requested userIDs in this format:
+    {userid:
+        date: [
+            {topic: {
+                'seen': date or None,
+                'clicked': date or None,
+                }, ...
+            }, ...
+        ], ...
+    }
+    """
+    with closing(getDb().cursor(dictionary=True)) as cur:
+        sql = """SELECT user_id, topic, DATE(datestamp) as date, seen, clicked
+                 FROM topic_recommendations tr NATURAL JOIN topics t
+                 WHERE user_id IN ({}) AND interleaving_order IS NOT 
+                 null ORDER BY  interleaving_order 
+                 DESC""".format(','.join(['%s'] * len(ids)))
+
+        cur.execute(sql, ids)
+        feedback = {int(u_id): defaultdict(list) for u_id in ids}
+        for u in cur.fetchall():
+            date = u.pop('date').strftime('%Y-%m-%d')
+            feedback[u.pop('user_id')][date].append({u.pop('topic'): u})
+
+        return {'user_feedback': feedback}

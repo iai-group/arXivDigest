@@ -31,7 +31,8 @@ def get_article_data(api_key, api_url, article_ids, batch_size=100):
         article_data.update(json.loads(resp.read())['articles'])
 
     for article_id, article in article_data.items():
-        article_data[article_id]['catch_all'] = article['title'] + " " + article['abstract']
+        catch_all = article['title'] + " " + article['abstract']
+        article_data[article_id]['catch_all'] = catch_all
     return article_data
 
 
