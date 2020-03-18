@@ -2,6 +2,8 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
+from datetime import date
+from datetime import datetime
 from functools import wraps
 from uuid import UUID
 
@@ -9,6 +11,7 @@ from flask import g
 from flask import jsonify
 from flask import make_response
 from flask import request
+from flask.json import JSONEncoder
 
 import arxivdigest.api.database as db
 from arxivdigest.core.config import api_config
@@ -53,9 +56,9 @@ def getUserlist(f):
             return make_response(jsonify({'error': 'No IDs supplied.'}, 400))
         if not all([x.isdigit() and int(x) > 0 for x in ids]):  # checks that all ids are valid
             return make_response(jsonify({'error': 'Invalid ids.'}), 400)
-        if len(ids) > api_config['MAX_USERINFO_REQUEST']:
+        if len(ids) > api_config['max_userinfo_request']:
             err = 'You cannot request more than %s users at a time.' % api_config[
-                'MAX_USERINFO_REQUEST']
+                'max_userinfo_request']
             return make_response(jsonify({'error': err}), 400)
 
         users = db.checkUsersExists(ids)
@@ -66,3 +69,20 @@ def getUserlist(f):
         return f(*args, **kwargs)
 
     return wrapper
+
+
+class CustomJSONEncoder(JSONEncoder):
+    """Custom JSON encoder that formats dates in YYYY-MM-dd hh:mm:ss format."""
+
+    def default(self, obj):
+        try:
+            if isinstance(obj, datetime):
+                return obj.strftime('%Y-%m-%d %H:%M:%S')
+            elif isinstance(obj, date):
+                return obj.strftime('%Y-%m-%d')
+            iterable = iter(obj)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        return JSONEncoder.default(self, obj)
