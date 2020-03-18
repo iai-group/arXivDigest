@@ -7,13 +7,13 @@ Systems must have an active API key to access these endpoints.
 ## Configurations
 These are the values that can be configured in the API-section of config.json.
 - `dev_port`: Port the server while be launched on while running in development mode.
-- `MAX_CONTENT_LENGTH`: Maximum request size.
-- `MAX_USERINFO_REQUEST`: The maximal amount of users that info can be retrieved for in one request. More info on [endpoint](#user-information).
-- `MAX_USERID_REQUEST`: The maximal amount of userIds that can be retrieved in one request. More info on [endpoint](#list-of-users).
-- `MAX_ARTICLEDATA_REQUEST`: The maximal amount of articles that info can be retrieved for in one request. More info on [endpoint](#article-data).
-- `MAX_RECOMMENDATION_USERS`:The maximal amount of users that recommendations can be submitted for in each request. More info on [endpoint](#insert-recommendations).
+- `max_content_length`: Maximum request size.
+- `max_userinfo_request`: The maximal amount of users that info can be retrieved for in one request. More info on [endpoint](#user-information).
+- `max_userid_request`: The maximal amount of userIds that can be retrieved in one request. More info on [endpoint](#list-of-users).
+- `max_articledata_request`: The maximal amount of articles that info can be retrieved for in one request. More info on [endpoint](#article-data).
+- `max_users_per_recommendation`:The maximal amount of users that recommendations can be submitted for in each request. More info on [endpoint](#insert-recommendations).
 - `max_recommendations_per_user`: The maximal amount of articles that info can be recommended to each user in one request. More info on [endpoint](#insert-recommendations).
-- `MAX_EXPLANATION_LEN`: The maximal length of an explanation for a recommendation. More info on [endpoint](#insert-recommendations).
+- `max_explanation_len`: The maximal length of an explanation for a recommendation. More info on [endpoint](#insert-recommendations).
 
 ## Endpoints
 * [User data](#user-data)

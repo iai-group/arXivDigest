@@ -45,9 +45,9 @@ def article_recommendation(json):
     if not json:
         return 'No recommendations submitted.', 400
 
-    if len(json) > app.config['MAX_RECOMMENDATION_USERS']:
+    if len(json) > app.config['max_users_per_recommendation']:
         return 'Requests must not contain more than %s users.' % app.config[
-            'MAX_RECOMMENDATION_USERS'], 400
+            'max_users_per_recommendation'], 400
 
     check_funcs = {nonexistent_users,
                    # functions that validate different properties of the json
@@ -71,9 +71,9 @@ def topic_recommendation(json):
     if not json:
         return 'No recommendations submitted.', 400
 
-    if len(json) > app.config['MAX_RECOMMENDATION_USERS']:
+    if len(json) > app.config['max_users_per_recommendation']:
         return 'Requests must not contain more than %s users.' % app.config[
-            'MAX_RECOMMENDATION_USERS'], 400
+            'max_users_per_recommendation'], 400
 
     # functions that validate different properties of the json
     check_funcs = {nonexistent_users,
@@ -171,7 +171,7 @@ def too_long_explanation(json):
     Returns errormessage and status code if not."""
     for recommendations in json.values():
         for rec in recommendations:
-            if len(rec['explanation']) > app.config['MAX_EXPLANATION_LEN']:
+            if len(rec['explanation']) > app.config['max_explanation_len']:
                 return 'Explanations must be shorter than %s.' % app.config[
-                    'MAX_EXPLANATION_LEN'], 400
+                    'max_explanation_len'], 400
     return False

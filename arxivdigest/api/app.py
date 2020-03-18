@@ -56,7 +56,7 @@ def users():
         err = '"from" must be an integer'
         return make_response(jsonify({'error': err}), 400)
 
-    users = db.getUserIDs(fromID, app.config['MAX_USERID_REQUEST'])
+    users = db.getUserIDs(fromID, app.config['max_userid_request'])
     return make_response(jsonify({'users': users}), 200)
 
 
@@ -87,9 +87,9 @@ def article_data():
         ids = request.args.get('article_id').split(',')
     except Exception:
         return make_response(jsonify({'error': 'No IDs supplied.'}, 400))
-    if (len(ids) > app.config['MAX_ARTICLEDATA_REQUEST']):
+    if (len(ids) > app.config['max_articledata_request']):
         err = 'You cannot request more than %s articles at a time.' % app.config[
-            'MAX_ARTICLEDATA_REQUEST']
+            'max_articledata_request']
         return make_response(jsonify({'error': err}), 400)
 
     articles = db.checkArticlesExists(ids)

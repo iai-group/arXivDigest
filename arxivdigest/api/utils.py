@@ -56,9 +56,9 @@ def getUserlist(f):
             return make_response(jsonify({'error': 'No IDs supplied.'}, 400))
         if not all([x.isdigit() and int(x) > 0 for x in ids]):  # checks that all ids are valid
             return make_response(jsonify({'error': 'Invalid ids.'}), 400)
-        if len(ids) > api_config['MAX_USERINFO_REQUEST']:
+        if len(ids) > api_config['max_userinfo_request']:
             err = 'You cannot request more than %s users at a time.' % api_config[
-                'MAX_USERINFO_REQUEST']
+                'max_userinfo_request']
             return make_response(jsonify({'error': err}), 400)
 
         users = db.checkUsersExists(ids)

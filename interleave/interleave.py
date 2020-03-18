@@ -24,7 +24,7 @@ from tdm import multiLeaver
 RECOMMENDATIONS_PER_USER = interleave_config.get('recommendations_per_user')
 SYSTEMS_PER_USER = interleave_config.get('systems_multileaved_per_user')
 BATCH_SIZE = interleave_config.get('users_per_batch')
-BASE_URL = interleave_config.get('webaddress')
+BASE_URL = interleave_config.get('web_address')
 ARTICLES_PER_DATE_IN_MAIL = interleave_config.get('articles_per_date_in_email')
 
 
