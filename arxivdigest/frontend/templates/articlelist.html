@@ -65,12 +65,12 @@
             <br>
         </div>
         <div class="articleIcons">
-            {% if article.liked %}
-                <div class="likeButton Liked glyphicon glyphicon-heart" data-value="{{ article.article_id }}"
-                     title="Unlike this article"></div>
+            {% if article.saved %}
+                <div class="saveButton Saved glyphicon glyphicon-heart" data-value="{{ article.article_id }}"
+                     title="Unsave this article"></div>
             {% else %}
-                <div class="likeButton glyphicon glyphicon-heart" data-value="{{ article.article_id }}"
-                     title="Like this article"></div>
+                <div class="saveButton glyphicon glyphicon-heart" data-value="{{ article.article_id }}"
+                     title="Save this article"></div>
             {% endif %}
             <a href="{{ url_for('articles.click', articleId=article.article_id,pdf=True) }}" target="_blank">
                 <img src="../static/icons/read.png" id="linkButton" title="Read whole article pdf">

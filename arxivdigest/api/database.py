@@ -259,7 +259,7 @@ def get_user_feedback_articles(ids):
                 'seen_web': date or None,
                 'clicked_email': date or None,
                 'clicked_web': date or None,
-                'liked': date or None,
+                'saved': date or None,
                 }, ...
             }, ...
         ], ...
@@ -269,7 +269,7 @@ def get_user_feedback_articles(ids):
     format_strings = ','.join(['%s'] * len(ids))
 
     sql = "SELECT user_id, article_id, DATE(recommendation_date) AS date, " \
-          "seen_email, seen_web, clicked_email, clicked_web, liked, score " \
+          "seen_email, seen_web, clicked_email, clicked_web, saved, score " \
           "FROM article_feedback WHERE user_id IN (%s) ORDER BY score DESC" % format_strings
     cur.execute(sql, ids)
     result = defaultdict(lambda: defaultdict(list))
@@ -283,7 +283,7 @@ def get_user_feedback_articles(ids):
             'seen_web': feedback['seen_web'],
             'clicked_email': feedback['clicked_email'],
             'clicked_web': feedback['clicked_web'],
-            'liked': feedback['liked']
+            'saved': feedback['saved']
         }
 
         result[user][date].append({article: article_feedback})

@@ -84,17 +84,17 @@ def create_mail_content(user_id, user, top_articles, article_data):
         for article_id, explanation in daily_articles:
             article = article_data.get(article_id)
             click_trace = str(uuid4())
-            like_trace = str(uuid4())
+            save_trace = str(uuid4())
 
             articles.append({'title': article.get('title'),
                              'explanation': explanation,
                              'authors': article.get('authors'),
                              'readlink': '%smail/read/%s/%s/%s' % (
                                  BASE_URL, user_id, article_id, click_trace),
-                             'likelink': '%smail/like/%s/%s/%s' % (
-                                 BASE_URL, user_id, article_id, like_trace)
+                             'savelink': '%smail/save/%s/%s/%s' % (
+                                 BASE_URL, user_id, article_id, save_trace)
                              })
-            mail_trace.append((click_trace, like_trace, user_id, article_id))
+            mail_trace.append((click_trace, save_trace, user_id, article_id))
 
         mail_content['data']['articles'].append(
             (calendar.day_name[day], articles, day))

@@ -8,7 +8,7 @@ from collections import defaultdict
 
 
 def getSystemRecommendations(db, startUserID, n):
-    '''This method returns user_id, system_id and article_id in a structure like this:
+    '''This method returns user_id, system_id and article_id in a structure save this:
     {user_id:{system_id:[article_ids]}}.
     '''
     cur = db.cursor()
@@ -44,7 +44,7 @@ def insertUserRecommendations(db, recommendations):
 
 
 def getUserRecommendations(db, startUserID, n):
-    '''This method returns user_id, system_id and article_id in a structure like this:
+    '''This method returns user_id, system_id and article_id in a structure save this:
     {user_id:{date:{article_ids:score}}.
     '''
     cur = db.cursor()
@@ -108,7 +108,7 @@ def get_article_data(db):
 def setSeenEmail(db, articles):
     '''Updates database field if user sees the email'''
     cur = db.cursor()
-    sql = 'UPDATE article_feedback SET seen_email=CURRENT_TIMESTAMP,trace_click_email=%s, trace_like_email=%s WHERE user_id=%s and article_id=%s'
+    sql = 'UPDATE article_feedback SET seen_email=CURRENT_TIMESTAMP,trace_click_email=%s, trace_save_email=%s WHERE user_id=%s and article_id=%s'
     cur.executemany(sql, articles)
 
     users = {str(x[2]) for x in articles}

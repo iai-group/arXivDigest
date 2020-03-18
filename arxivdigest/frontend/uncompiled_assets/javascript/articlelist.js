@@ -18,18 +18,18 @@ $(document).ready(function () {
         }
     });
 
-    $(".likeButton").each(function () {
+    $(".saveButton").each(function () {
         $(this).on("click", function () {
             var button = $(this);
-            var isLiked = button.hasClass("Liked")
-            $.getJSON("/like/" + button.data("value") + "/" + !isLiked, {},
+            var isSaved = button.hasClass("Saved")
+            $.getJSON("/save/" + button.data("value") + "/" + !isSaved, {},
                 function (data) {
                     if (data.result === "Success") {
-                        button.toggleClass("Liked", !isLiked);
-                        if (isLiked) {
-                            button.attr("title", "Like this article");
+                        button.toggleClass("Saved", !isSaved);
+                        if (isSaved) {
+                            button.attr("title", "Save this article");
                         } else {
-                            button.attr("title", "Unlike this article");
+                            button.attr("title", "Unsave this article");
                         }
                     }
                 });
