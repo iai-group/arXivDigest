@@ -180,7 +180,7 @@ class User():
             raise ValidationError('You need to provide at least {} '
                                   'topics.'.format(min_topics))
         for topic in topics:
-            if not re.match('^[0-9a-zA-Z\-]+$',topic):
+            if not re.match('^[0-9a-zA-Z\- ]+$',topic):
                 raise ValidationError('Topics must not contain special characters.')
 
         self._topics = topics

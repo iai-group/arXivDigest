@@ -42,7 +42,7 @@ $(document).ready(function () {
                 input.suggestion_list.hide();
                 return false;
             }
-            if (!value.match(/^[0-9a-zA-Z\-]+$/)){
+            if (!value.match(/^[0-9a-zA-Z\- ]+$/)){
                 input.parent().parent().next().text(
                     "Topics must not contain special symbols.");
                 input.suggestion_list.hide();
