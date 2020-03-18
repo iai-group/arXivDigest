@@ -35,6 +35,7 @@ if not config_file:
 with open(config_file) as file:
     config = json.load(file)
 
+webaddress_config = config.get('webaddress')
 sql_config = config.get('sql_config')
 email_config = config.get('email_config')
 api_config = config.get('api_config')

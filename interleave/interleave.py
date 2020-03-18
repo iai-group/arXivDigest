@@ -17,6 +17,7 @@ from mysql import connector
 import database as db
 from arxivdigest.core.config import email_config
 from arxivdigest.core.config import interleave_config
+from arxivdigest.core.config import webaddress_config
 from arxivdigest.core.config import sql_config
 from arxivdigest.core.mail.mail_server import MailServer
 from tdm import multiLeaver
@@ -24,9 +25,7 @@ from tdm import multiLeaver
 RECOMMENDATIONS_PER_USER = interleave_config.get('recommendations_per_user')
 SYSTEMS_PER_USER = interleave_config.get('systems_multileaved_per_user')
 BATCH_SIZE = interleave_config.get('users_per_batch')
-BASE_URL = interleave_config.get('webaddress')
 ARTICLES_PER_DATE_IN_MAIL = interleave_config.get('articles_per_date_in_email')
-
 
 def multi_leave_recommendations(article_recommendations, multileaver, time):
     """Multileaves the given systemRecommendations and returns
@@ -77,7 +76,7 @@ def create_mail_content(user_id, user, top_articles, article_data):
                     'subject': 'ArXiv Digest',
                     'template': 'weekly',
                     'data': {'name': user['name'], 'articles': [],
-                             'link': BASE_URL}}
+                             'link': webaddress_config}}
     mail_trace = []
     for day, daily_articles in sorted(top_articles.items()):
         articles = []
@@ -90,9 +89,9 @@ def create_mail_content(user_id, user, top_articles, article_data):
                              'explanation': explanation,
                              'authors': article.get('authors'),
                              'readlink': '%smail/read/%s/%s/%s' % (
-                                 BASE_URL, user_id, article_id, click_trace),
+                                 webaddress_config, user_id, article_id, click_trace),
                              'likelink': '%smail/like/%s/%s/%s' % (
-                                 BASE_URL, user_id, article_id, like_trace)
+                                 webaddress_config, user_id, article_id, like_trace)
                              })
             mail_trace.append((click_trace, like_trace, user_id, article_id))
 
