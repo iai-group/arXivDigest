@@ -29,7 +29,7 @@ $(document).ready(function () {
                         if (isSaved) {
                             button.attr("title", "Save this article");
                         } else {
-                            button.attr("title", "Unsave this article");
+                            button.attr("title", "Remove this article");
                         }
                     }
                 });

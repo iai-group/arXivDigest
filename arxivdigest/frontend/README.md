@@ -56,7 +56,7 @@ Routes available:
 
 ``/save/<articleID>/<state> [GET] @requiresLogin``
 
->Saves or unsaves articles from web, depending on current state. Returns "Success" or "Fail".
+>Saves or removes articles from web, depending on current state. Returns "Success" or "Fail".
 
 ``/mail/save/<int:userID>/<string:articleID>/<uuid:trace> [GET]``
 
