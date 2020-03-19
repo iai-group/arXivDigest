@@ -35,12 +35,13 @@ if not config_file:
 with open(config_file) as file:
     config = json.load(file)
 
-sql_config = config.get('sql_config')
-email_config = config.get('email_config')
-api_config = config.get('api_config')
-interleave_config = config.get('interleave_config')
-frontend_config = config.get('frontend_config')
-evaluation_config = config.get('evaluation_config')
+config_web_address = config.get('web_address')
+config_sql = config.get('sql_config')
+config_email = config.get('email_config')
+config_api = config.get('api_config')
+config_interleave = config.get('interleave_config')
+config_frontend = config.get('frontend_config')
+config_evaluation = config.get('evaluation_config')
 
-jwtKey = frontend_config.get('jwt_key')
-secret_key = frontend_config.get('secret_key')
+jwtKey = config_frontend.get('jwt_key')
+secret_key = config_frontend.get('secret_key')
