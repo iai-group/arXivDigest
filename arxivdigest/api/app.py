@@ -16,11 +16,11 @@ import arxivdigest.api.validator as validation
 from arxivdigest.api.utils import CustomJSONEncoder
 from arxivdigest.api.utils import getUserlist
 from arxivdigest.api.utils import validateApiKey
-from arxivdigest.core.config import api_config
+from arxivdigest.core.config import config_api
 
 app = Flask(__name__)
 
-app.config.update(**api_config)
+app.config.update(**config_api)
 app.json_encoder = CustomJSONEncoder
 
 
@@ -170,4 +170,4 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
-    app.run(port=api_config.get('dev_port'), debug=True)
+    app.run(port=config_api.get('dev_port'), debug=True)

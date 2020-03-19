@@ -1,5 +1,5 @@
 from mysql import connector
-from arxivdigest.core.config import sql_config
+from arxivdigest.core.config import config_sql
 
 def insert_topics(conn, topics):
     """inserts the topics into the database topics table."""
@@ -22,7 +22,7 @@ def load_topics(topic_path):
 
 
 if __name__ == '__main__':
-    conn = connector.connect(**sql_config)
+    conn = connector.connect(**config_sql)
     topic_path = "scripts/data/topics.csv" 
     topics = load_topics(topic_path)
     insert_topics(conn, topics)

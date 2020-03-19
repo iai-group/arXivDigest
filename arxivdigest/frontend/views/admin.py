@@ -9,8 +9,8 @@ from flask import jsonify
 from flask import render_template
 from flask import request
 
-from arxivdigest.core.config import email_config
-from arxivdigest.core.config import webaddress_config
+from arxivdigest.core.config import config_email
+from arxivdigest.core.config import config_web_address
 from arxivdigest.core.mail.mail_server import MailServer
 from arxivdigest.frontend.database import admin as db
 from arxivdigest.frontend.utils import requiresLogin
@@ -61,9 +61,9 @@ def toggleSystem(systemID, state):
                 'template': 'systemActivation',
                 'data': {'name': sys['firstname'] + " " + sys['lastname'],
                          'key': sys['api_key'],
-                         'link': webaddress_config}}
+                         'link': config_web_address}}
 
-        Server = MailServer(**email_config)
+        Server = MailServer(**config_email)
         try:
             Server.send_mail(**mail)
         except Exception as e:
