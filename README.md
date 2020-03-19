@@ -1,6 +1,6 @@
 # ArXivDigest: Personalized arXiv Digest
 
-Motivated by the accelerating pace at which scientific knowledge is being produced, we aim to provide a recommendation service that helps researchers to keep up with scientific literature. Based on their interest profiles, researchers can receive an email digest of the most recent papers published at arXiv at regular intervals. Further, users can give explicit feedback (likes/dislikes) to improve future recommendations.
+Motivated by the accelerating pace at which scientific knowledge is being produced, we aim to provide a recommendation service that helps researchers to keep up with scientific literature. Based on their interest profiles, researchers can receive an email digest of the most recent papers published at arXiv at regular intervals. Further, users can give explicit feedback (by saving articles) to improve future recommendations.
 
 
 ## Evaluation Methodology
@@ -17,7 +17,7 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
 ### Front-end:
 
   * Is available at https://arxivdigest.org.
-  * After signing up, users can view the articles that are recommended to them. Articles can be "liked" to improve recommendations and for easily finding these articles later.
+  * After signing up, users can view the articles that are recommended to them. Articles can be saved to a personal library to improve recommendations and for easily finding these articles later.
   * The front-end is implemented as Flask application ([source](arxivdigest/frontend/)).
 
 ### Back-end:

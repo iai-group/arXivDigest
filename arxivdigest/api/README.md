@@ -158,7 +158,7 @@ Fields returned for each user:
     -  "seen_web":     datetime of when article was seen on web
     -  "clicked_email":datetime of when article was clicked in email
     -  "clicked_web":  datetime of when article was clicked on web
-    -  "liked":        datetime of when article was liked
+    -  "saved":        datetime of when article was saved
 
 
 Other fields:
@@ -171,7 +171,7 @@ Example feedback:
   "seen_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
   "clicked_email": null,
   "clicked_web": 'Mon, 16 Mar 2020 00:00:00 GMT',
-  "liked": null
+  "saved": null
 ````
 
 Example request:
@@ -193,7 +193,7 @@ Example request:
               "seen_web": '2020-03-17 17:13:53',
               "clicked_email": null,
               "clicked_web": '2020-03-17 17:13:53',
-              "liked": null
+              "saved": null
             }
           },
           {"article-012": 1
@@ -202,7 +202,7 @@ Example request:
               "seen_web": '2020-03-17 17:13:53',
               "clicked_email": null,
               "clicked_web": '',
-              "liked": null
+              "saved": null
             }
           },
           ...

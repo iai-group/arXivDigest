@@ -36,7 +36,7 @@
         "secret_key": "xPGHuUyNAQaFrlIxtupgu8bnGiSLBpMo4v2w4jcoQ8PCb32Y46WWJhMsSbM2iGzsKravX9l92waqp2qjq7BALke443jbB3uVs7WP08v4JCyrORwvufRY4jKB"
     },
     "evaluation_config": {
-        "liked_weight": 5,
+        "saved_weight": 5,
         "clicked_web_weight": 3,
         "clicked_email_weight": 3
     }
