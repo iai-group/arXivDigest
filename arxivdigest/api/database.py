@@ -9,7 +9,7 @@ from collections import defaultdict
 import mysql.connector
 from flask import g
 
-from arxivdigest.core.config import sql_config
+from arxivdigest.core.config import config_sql
 
 """This module implements methods which the api uses to interface with the database"""
 
@@ -17,7 +17,7 @@ from arxivdigest.core.config import sql_config
 def getDb():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = mysql.connector.connect(**sql_config)
+        db = g._database = mysql.connector.connect(**config_sql)
     return db
 
 

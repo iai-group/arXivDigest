@@ -14,8 +14,8 @@ from datetime import datetime
 
 from mysql import connector
 
-from arxivdigest.core.config import evaluation_config
-from arxivdigest.core.config import sql_config
+from arxivdigest.core.config import config_evaluation
+from arxivdigest.core.config import config_sql
 
 
 def valid_date(date):
@@ -44,7 +44,7 @@ args = parser.parse_args()
 
 
 # retrive user interactions for requested period
-conn = connector.connect(**sql_config)
+conn = connector.connect(**config_sql)
 cur = conn.cursor(dictionary=True)
 sql = '''SELECT user_id, system_id, DATE(recommendation_date) as date,clicked_email,clicked_web,liked
          FROM article_feedback WHERE  DATE(recommendation_date) >= %s AND
@@ -59,11 +59,11 @@ for item in data:
     # give weighted score to each user interaction
     score = 0
     if item[item['clicked_email']]:
-        score += 1 * evaluation_config.get('clicked_email_weight')
+        score += 1 * config_evaluation.get('clicked_email_weight')
     if item[item['clicked_web']]:
-        score += 1 * evaluation_config.get('clicked_web_weight')
+        score += 1 * config_evaluation.get('clicked_web_weight')
     if item[item['liked']]:
-        score += 1 * evaluation_config.get('liked_weight')
+        score += 1 * config_evaluation.get('liked_weight')
 
     date = item['date']
     user = item['user_id']

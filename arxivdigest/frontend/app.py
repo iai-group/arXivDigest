@@ -13,7 +13,7 @@ from flask import request
 from flask_assets import Bundle
 from flask_assets import Environment
 
-from arxivdigest.core.config import frontend_config
+from arxivdigest.core.config import config_frontend
 from arxivdigest.core.config import jwtKey
 from arxivdigest.core.config import secret_key
 from arxivdigest.frontend.views import admin
@@ -25,11 +25,11 @@ app.secret_key = secret_key
 app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
-app.config['max_content_length'] = frontend_config.get('max_content_length')
+app.config['max_content_length'] = config_frontend.get('max_content_length')
 
 assets = Environment(app)
-if frontend_config.get('data_path', None):
-    data_path = frontend_config['data_path']
+if config_frontend.get('data_path', None):
+    data_path = config_frontend['data_path']
     cache_path = os.path.join(data_path, 'cache', '.webassets-cache')
     static_path = os.path.abspath(os.path.join(data_path, 'static'))
 
@@ -92,4 +92,4 @@ def teardownDb(exception):
 if __name__ == '__main__':
     assets.auto_build = True
     app.config['ASSETS_DEBUG'] = True
-    app.run(port=frontend_config.get('dev_port'), debug=True)
+    app.run(port=config_frontend.get('dev_port'), debug=True)

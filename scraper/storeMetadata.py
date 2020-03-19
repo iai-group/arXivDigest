@@ -8,7 +8,7 @@ __copyright__ = 'Copyright 2020, The arXivDigest project'
 
 from mysql import connector
 
-from arxivdigest.core.config import sql_config
+from arxivdigest.core.config import config_sql
 from categories import subCategoryNames
 from scrapeMetadata import getCategories
 from scrapeMetadata import harvestMetadataRss
@@ -82,5 +82,5 @@ def insertCategories(metaData, cursor):
 
 
 if __name__ == '__main__':
-    conn = connector.connect(**sql_config)
+    conn = connector.connect(**config_sql)
     insertIntoDB(harvestMetadataRss(), conn)
