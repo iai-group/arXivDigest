@@ -1,5 +1,6 @@
 from mysql import connector
 from arxivdigest.core.config import config_sql
+import re
 
 def insert_topics(conn, topics):
     """inserts the topics into the database topics table."""
@@ -15,9 +16,9 @@ def load_topics(topic_path):
     topics = []
     with open(topic_path, 'r') as topic_file:
         for line in topic_file:
-            if len(line) > 150:
+            if len(line) > 50 and not re.match('^[0-9a-zA-Z\-\" ]+$',line):
                 continue
-            topics.append((line.strip(), ))
+            topics.append((line.strip().replace('"',''), ))
     return topics
 
 
