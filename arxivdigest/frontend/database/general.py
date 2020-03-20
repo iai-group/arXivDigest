@@ -227,8 +227,8 @@ def get_freetext_feedback(user_id):
 
 
 def get_article_recommendations(user_id):
-    """Get system recommendations for given user. Includes user interaction data
-    if the recommendation has been shown to the user.
+    """Get article recommendations for given user. Includes user interaction
+    data if the recommendation has been shown to the user.
 
     :param user_id: User to get feedback for.
     :return: List of system recommendation instances.
@@ -247,6 +247,26 @@ def get_article_recommendations(user_id):
              WHERE sr.user_id = %s
              ORDER BY sr.recommendation_date desc,
              s.system_name desc, sr.score desc'''
+    cur.execute(sql, (user_id,))
+    return cur.fetchall()
+
+
+def get_topic_recommendations(user_id):
+    """Get topic recommendations for given user. Includes user interaction data
+    if the recommendation has been shown to the user.
+
+    :param user_id: User to get feedback for.
+    :return: List of system recommendation instances.
+    """
+    cur = getDb().cursor(dictionary=True)
+    sql = '''SELECT topic, system_name, datestamp, system_score, 
+             interleaving_order, seen, clicked,  state, interaction_time
+             FROM topic_recommendations tr
+             NATURAL JOIN topics t
+             NATURAL LEFT JOIN user_topics ut
+             NATURAL LEFT JOIN systems s
+             WHERE user_id = %s
+             ORDER BY datestamp desc, system_name desc, system_score desc;'''
     cur.execute(sql, (user_id,))
     return cur.fetchall()
 
@@ -273,7 +293,7 @@ def get_all_userdata(user_id):
 
     return {'user': get_user(user_id),
             'freetext_feedback': get_freetext_feedback(user_id),
-            'topic_recommendations': [],  # TODO when tables are available
+            'topic_recommendations': get_topic_recommendations(user_id),
             'article_recommendations': get_article_recommendations(user_id),
             'systems': get_systems(user_id)}
 
