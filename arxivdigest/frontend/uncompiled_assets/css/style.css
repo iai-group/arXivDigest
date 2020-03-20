@@ -84,6 +84,7 @@ footer {
 form td {
     max-width: 400px;
     position: relative;
+    vertical-align: top;
 }
 
 table input,
@@ -103,6 +104,22 @@ textarea {
 label {
     padding: 12px 12px 12px 0;
     display: inline-block;
+}
+
+td input[type=radio] {
+    width: 20px;
+    margin-left: 50px;
+}
+
+td input[type=checkbox] {
+    width: 20px;
+    margin-left: 0px;
+}
+
+.form_error {
+    font-size: 0.9em;
+    color: rgb(255, 0, 0);
+    margin: 0;
 }
 
 
@@ -217,11 +234,6 @@ input ~ .glyphicon-ok {
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
     font-size: 1.3em;
-}
-
-td input[type=radio] {
-    width: 20px;
-    margin-left: 50px;
 }
 
 * {
@@ -628,19 +640,4 @@ code {
     border: 3px solid rgb(199, 199, 199);
     border-radius: 10px;
     padding: 3px;
-}
-
-.form_error {
-    font-size: 0.9em;
-    color: rgb(255, 0, 0);
-    margin: 0;
-}
-
-#tc_text {
-    text-align: center;
-}
-
-#tc_checkbox {
-    max-width: 12px;
-    margin-left: 40%;
 }

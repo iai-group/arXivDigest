@@ -148,13 +148,14 @@
         <label for="notification_interval" class="signup">Notification interval: *</label>
     </td>
     <td>
-        <br>
-        <p>How often would you like receive a digest email?</p>
-        <input type="radio" name="notification_interval" value="1" required
-                {{ "checked" if not user or user.notification_interval | int ==1 else '' }}>1 day
-        <br>
-        <input type="radio" name="notification_interval" value="7"
-                {{ "checked" if user and user.notification_interval | int ==7 else '' }}>7 days
+        <div style="margin-top:10px;">
+            <p class="hint">How often would you like receive a digest email?</p>
+            <input type="radio" name="notification_interval" value="1" required
+                    {{ "checked" if not user or user.notification_interval | int ==1 else '' }}>1 day
+            <br>
+            <input type="radio" name="notification_interval" value="7"
+                    {{ "checked" if user and user.notification_interval | int ==7 else '' }}>7 days
+        </div>
     </td>
     <td></td>
 </tr>
