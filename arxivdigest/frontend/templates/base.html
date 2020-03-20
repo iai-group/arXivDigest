@@ -84,17 +84,20 @@
         </div>
     {% endfor %} {% endif %} {% endwith %}
 
-<br> {% block content %} {% endblock %}
-<br>
+{% block content %} {% endblock %}
 
 <footer>
     <div class="container">
         <div class="alignleft">
-            <a href="{{ url_for('general.feedbackPage') }}" class="footer_item">Leave us feedback</a>
+            <a href="{{ url_for('general.about') }}" class="footer_item">About</a>
             <span class="footer_item">|</span>
-            <a href="{{ url_for('general.termsandconditions') }}" class="footer_item">Terms and conditions</a>
+            <a href="{{ url_for('general.terms_and_conditions') }}" class="footer_item">Terms and Conditions</a>
+            <span class="footer_item">|</span>
+            <a href="{{ url_for('general.privacy_policy') }}" class="footer_item">Privacy Policy</a>
             <span class="footer_item">|</span>
             <a href="{{ url_for('general.livinglab') }}" class="footer_item">Living Lab</a>
+            <span class="footer_item">|</span>
+            <a href="{{ url_for('general.feedbackPage') }}" class="footer_item">Leave us feedback</a>
         </div>
         <div class="alignright">
             <span class="footer_item">Copyright (c) <a href="http://iai.group/">IAI group</a>, <a href="https://www.uis.no/frontpage/#Studies">University of Stavanger</a></span>

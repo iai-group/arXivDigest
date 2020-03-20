@@ -1,8 +1,10 @@
 {% extends "base.html" %} {% block content %}
     <div class="container">
+        <h2>Sign up</h2>
+        <div class="bottom_border">
+            <p>Fill out this form to register yourself. The fields marked with * are mandatory.</p>
+        </div>
         <fieldset>
-            <legend>Signup:</legend>
-
             <form action="{{ url_for("general.signup") }}" method="POST" id="signupForm" enctype=multipart/form-data>
                 <table>
                     {% include 'user_profile_form.html' %}
@@ -10,28 +12,22 @@
                         <td>
                             <label for="termsandconditions" class="signupLabel">Terms and Conditions: *</label>
                         </td>
-                    <td>
-                        <br>
-                        <p>I have read and accepted the terms and conditions
-                            <a href="{{ url_for("general.termsandconditions") }}">here</a></p>
-                        <input type="checkbox" name="termsandconditions" value="accepted" required id="tc_checkbox">
-                    </td>
-                    <td></td>
+                        <td><input type="checkbox" name="termsandconditions" value="accepted" required id="tc_checkbox">
+                             I have read and accepted the <a href="{{ url_for("general.termsandconditions") }}">Terms and conditions</a>
+                        </td>
+                        <td></td>
                     </tr>
                     <tr>
                         <td></td>
                         <td>
                             <br>
-                            <input class="btn btn-primary" type="submit" value="Signup">
+                            <input class="btn btn-primary" type="submit" value="Register">
                         </td>
                         <td></td>
                     </tr>
-
-
                 </table>
-
             </form>
         </fieldset>
-
+        <p>&nbsp;</p>
     </div>
 {% endblock %}

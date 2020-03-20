@@ -229,10 +229,22 @@ def submitFeedback():
     return redirect('/')
 
 
+@mod.route('/about/', methods=['GET'])
+def about():
+    """Returns about page."""
+    return render_template('about.html')
+
+
 @mod.route('/terms_and_conditions/', methods=['GET'])
-def termsandconditions():
+def terms_and_conditions():
     """Returns terms and conditions page."""
     return render_template('terms_and_conditions.html')
+
+
+@mod.route('/privacy_policy/', methods=['GET'])
+def privacy_policy():
+    """Returns privacy policy page."""
+    return render_template('privacy_policy.html')
 
 
 @mod.route('/topics/search/<search_string>', methods=['GET'])

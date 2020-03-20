@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat|Open+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Montserrat|Open+Sans:300,400,400i,600,700&display=swap');
+
+/* Basic elements */
 
 html {
     position: relative;
@@ -13,6 +15,11 @@ html body {
 body,
 p {
     font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+}
+
+p strong {
+    font-weight: 600;
 }
 
 a,
@@ -22,16 +29,35 @@ a:hover {
 
 h2 {
     font-size: 1.5em;
+    margin-top: 20px;
 }
 
 h3 {
     font-size: 1.25em;
 }
 
-
-.list-group a:hover {
-    text-decoration: none;
+h4 {
+    margin-top: 1em;
+    font-size: 1em;
+    font-weight: bold;
+    text-transform: uppercase;
 }
+
+/* Header */
+
+#navbar .nav {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.navbar-header a.navbar-brand {
+    font-family: 'Montserrat', sans-serif;
+    color: #000000;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+
+/* Footer */
 
 footer {
     position: absolute;
@@ -45,27 +71,75 @@ footer {
     font-size: 0.9em;
 }
 
-#navbar .nav {
-    font-family: 'Montserrat', sans-serif;
+
+/* List groups */
+
+.list-group a:hover {
+    text-decoration: none;
 }
 
-.navbar-header a.navbar-brand {
-    font-family: 'Montserrat', sans-serif;
-    color: #000000;
-    font-weight: bold;
-    font-size: 1.5em;
+
+/* Forms */
+
+form td {
+    max-width: 400px;
+    position: relative;
 }
+
+table input,
+input,
+select,
+textarea {
+    width: 100%;
+    margin: 0.3em 0;
+    padding: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: vertical;
+    font-size: 1em;
+}
+
+label {
+    padding: 12px 12px 12px 0;
+    display: inline-block;
+}
+
+
+/* Common formatting classes */
 
 .red {
     color: #951a1d;
 }
 
+.hint {
+    font-size: 0.8em;
+    color: #9b9b9b;
+}
+
 .alignleft {
 	float: left;
 }
+
 .alignright {
 	float: right;
 }
+
+.bottom_border {
+    border-bottom: 1px solid lightgrey;
+    margin-bottom: 10px;
+}
+
+
+/* Profile/signup page */
+
+label.signup {
+    position: absolute;
+    top: 0;
+}
+
+
+/* STUFF TO BE REVISITED */
 
 .article {
     background-color: #f5f5f5;
@@ -83,11 +157,6 @@ footer {
 input[type=text]:required:valid,
 .touched:valid {
     box-shadow: 0 0 5px #5cd053;
-}
-
-form td {
-    max-width: 400px;
-    position: relative;
 }
 
 .touched:invalid {
@@ -130,11 +199,6 @@ input ~ .glyphicon-ok {
     width: 200px;
 }
 
-.signupLabel {
-    position: absolute;
-    top: 0;
-}
-
 .form_list li {
     position: relative;
 }
@@ -162,12 +226,6 @@ td input[type=radio] {
 
 * {
     box-sizing: border-box;
-}
-
-.signupHint {
-    bottom: 0;
-    line-height: 15px;
-    color: rgb(59, 59, 59);
 }
 
 .autocomplete-suggestions {
@@ -206,23 +264,6 @@ td input[type=radio] {
     background: #f0f0f0;
 }
 
-table input,
-input,
-select,
-textarea {
-    width: 100%;
-    margin: 0.3em 0;
-    padding: 1em;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    resize: vertical;
-}
-
-label {
-    padding: 12px 12px 12px 0;
-    display: inline-block;
-}
 
 .flexContainer {
     position: relative;
