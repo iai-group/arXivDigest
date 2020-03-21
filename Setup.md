@@ -68,4 +68,5 @@ The scripts should be run in the following order:
 
   * [Article scraper](scraper/): Should be run when arXiv releases new articles. The arXiv release schedule can be found [here](https://arxiv.org/help/submit#availability).  Note that articles are not released every day, so this script will not always insert any articles.
   * [Interleaver](interleave/): Should be run after the Article scraper.  Make sure that there is enough time for the recommender systems to generate recommendations between running the two scripts.
+  * [Send digest mail](scripts/send_digest_mail.py): Should be run after the Interleaver, the amount of time in between can be varied based on when one wants to send out the digest mails.
   * [Evaluation](scripts/evaluation.py): Can be run at any time to evaluate the performance of the systems.
