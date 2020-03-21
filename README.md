@@ -1,6 +1,6 @@
 # ArXivDigest: Personalized arXiv Digest
 
-Motivated by the accelerating pace at which scientific knowledge is being produced, we aim to provide a recommendation service that helps researchers to keep up with scientific literature. Based on their interest profiles, researchers can receive an email digest of the most recent papers published at arXiv at regular intervals. Further, users can give explicit feedback (likes/dislikes) to improve future recommendations.
+Motivated by the accelerating pace at which scientific knowledge is being produced, we aim to provide a recommendation service that helps researchers to keep up with scientific literature. Based on their interest profiles, researchers can receive an email digest of the most recent papers published at arXiv at regular intervals. Further, users can give explicit feedback (by saving articles) to improve future recommendations.
 
 
 ## Evaluation Methodology
@@ -17,7 +17,7 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
 ### Front-end:
 
   * Is available at https://arxivdigest.org.
-  * After signing up, users can view the articles that are recommended to them. Articles can be "liked" to improve recommendations and for easily finding these articles later.
+  * After signing up, users can view the articles that are recommended to them. Articles can be saved to a personal library to improve recommendations and for easily finding these articles later.
   * The front-end is implemented as Flask application ([source](arxivdigest/frontend/)).
 
 ### Back-end:
@@ -44,12 +44,12 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
 
 Experimental recommender systems need to follow the following steps for submitting recommendations.  The API is available at https://api.arxivdigest.org.
 
-  1. Call [`GET /users`](/api#list-of-users) to get a list of user IDs.
-  1. Call [`GET /userinfo?ids`](/api#user-information) with user IDs as a parameter to get information about the users.
-  1. Call [`GET /articles`](/api#list-of-articles) to get the list of article IDs that are may be returned as recommendation.
-  1. Call [`GET /articledata?ids`](/api#article-data) with article IDs as a parameter to get information about the articles.
+  1. Call [`GET /users`](/arxivdigest/api#list-of-users) to get a list of user IDs.
+  1. Call [`GET /user_info?ids`](/arxivdigest/api#user-information) with user IDs as a parameter to get information about the users.
+  1. Call [`GET /articles`](/arxivdigest/api#list-of-articles) to get the list of article IDs that are may be returned as recommendation.
+  1. Call [`GET /article_data`](/arxivdigest/api#article-data) with article IDs as a parameter to get information about the articles.
   1. Use the gathered information to generate personalized recommendations for users.
-  1. Submit the generated recommendations to [`POST /recommendations`](/api#insert-recommendations) in batches of maximum 100 users and 10 recommendations per user. Recommendations sent outside of the [recommendation period](#daily-submission-periods) will be ignored.
+  1. Submit the generated recommendations to [`POST /recommendations/articles`](/arxivdigest/api#insert-article-recommendations) in batches of maximum 100 users and 10 recommendations per user. Recommendations sent outside of the [recommendation period](#daily-submission-periods) will be ignored.
 
 ### Daily submission periods
 

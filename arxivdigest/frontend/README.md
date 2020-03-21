@@ -50,17 +50,17 @@ Routes available:
 
 >Returns token in successful login. Else returns error and loginpage.
 
-``/likedarticles [GET] @requiresLogin``
+``/savedarticles [GET] @requiresLogin``
 
->Returns liked articles page with dictionary of liked articles.
+>Returns saved articles page with dictionary of saved articles.
 
-``/like/<articleID>/<state> [GET] @requiresLogin``
+``/save/<articleID>/<state> [GET] @requiresLogin``
 
->Likes or unlikes articles from web, depending on current state. Returns "Success" or "Fail".
+>Saves or removes articles from web, depending on current state. Returns "Success" or "Fail".
 
-``/mail/like/<int:userID>/<string:articleID>/<uuid:trace> [GET]``
+``/mail/save/<int:userID>/<string:articleID>/<uuid:trace> [GET]``
 
->Likes article directly from email based on userid, articleid and a trace from the email.
+>Saves article directly from email based on userid, articleid and a trace from the email.
 
 ``/mail/read/<int:userID>/<string:articleID>/<uuid:trace> [GET]``
 
@@ -108,7 +108,7 @@ These are the values that can be configured in the frontend-section of config.js
 
 - `data_path`: Path where the application will store caches and compiled static files. There will be created folders named 'static' and 'cache' in this location, or if these folders already exist the content will be deleted. Files will be created inside of package install location if left empty.
 - `dev_port`: Port the server while be launched on while running in development mode.
-- `MAX_CONTENT_LENGTH`: Maximum request size.
+- `max_content_length`: Maximum request size.
 - `jwt_key`: Secret key for signing JWTs.
 - `secret_key`: Secret key used by flask.
 
@@ -127,7 +127,7 @@ These are the values that can be configured in the frontend-section of config.js
 | categories | category_id, category, subcategory, category_name |
 | article_recommendations | user_id, article_id, system_id, score, recommendation_date, explanation |
 | systems | system_id, api_key, system_name, active, admin_user_id |
-| article_feedback | user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email, explanation |
+| article_feedback | user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, saved, trace_save_email, trace_click_email, explanation |
 | feedback | feedback_id, user_id, article_id, type, feedback_text |
 | topic_recommendations | recommendation_id, user_id, topic_id, system_id, datestamp, system_score, interleaving_order, seen, clicked |
 

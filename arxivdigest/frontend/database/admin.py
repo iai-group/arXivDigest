@@ -31,7 +31,9 @@ def getSystems():
 def getSystem(ID):
     '''Returns requested system.'''
     cur = getDb().cursor(dictionary=True)
-    cur.execute('SELECT * FROM systems where system_id = %s', (ID,))
+    cur.execute('''SELECT * FROM systems left join users
+                on users.user_id = systems.admin_user_id 
+                where system_id = %s''', (ID,))
     data = cur.fetchone()
     cur.close()
     return data

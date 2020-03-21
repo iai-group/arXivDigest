@@ -23,7 +23,7 @@ mod = Blueprint('articles', __name__)
 def genArticleList(getArticles):
     '''Returns dictionary with: current interval selection, number of articles per page(5), current page, 
     current sort method, pages for pagination div,  number of articles, the articles, values for timedropdown
-    and values for sortdropdown. Is a helper function used for showing long list of articles like in index and likedArticles'''
+    and values for sortdropdown. Is a helper function used for showing long list of articles save in index and savedArticles'''
     pageNr = request.args.get('pageNr', 1, type=int)
     if pageNr < 1:
         pageNr = 1
@@ -68,34 +68,34 @@ def index():
     return render_template('index.html', endpoint='articles.index', ** genArticleList(db.getUserRecommendations))
 
 
-@mod.route('/likedArticles', methods=['GET'])
+@mod.route('/savedArticles', methods=['GET'])
 @requiresLogin
-def likedArticles():
-    '''Returns likedarticles page with list of liked articles'''
-    return render_template('likes.html', endpoint='articles.likedArticles', ** genArticleList(db.getLikedArticles))
+def savedArticles():
+    '''Returns savedarticles page with list of saved articles'''
+    return render_template('saves.html', endpoint='articles.savedArticles', ** genArticleList(db.getSavedArticles))
 
 
-@mod.route('/like/<articleID>/<state>', methods=['GET'])
+@mod.route('/save/<articleID>/<state>', methods=['GET'])
 @requiresLogin
-def like(articleID, state):
-    '''Endpoint for liking and unliking articles, sets like-value for article with <articleID> to <state>'''
+def save(articleID, state):
+    '''Endpoint for liking and unliking articles, sets save-value for article with <articleID> to <state>'''
     state = True if state.lower() == "true" else False
-    if db.likeArticle(articleID, g.user, state):
+    if db.saveArticle(articleID, g.user, state):
         return jsonify(result='Success')
     return jsonify(result='Fail')
 
 
-@mod.route('/mail/like/<int:userID>/<string:articleID>/<uuid:trace>', methods=['GET'])
-def likeEmail(articleID, userID, trace):
+@mod.route('/mail/save/<int:userID>/<string:articleID>/<uuid:trace>', methods=['GET'])
+def saveEmail(articleID, userID, trace):
     '''Endpoint for liking an article directly from from email. 
     Uses a combination of 3 values to make randomly guessing and bruteforcing almost impossible.'''
-    success = db.likeArticleEmail(articleID, userID, str(trace))
+    success = db.saveArticleEmail(articleID, userID, str(trace))
     if not success:
         return "Some error occurred."
     if g.loggedIn:
-        flash("Liked article %s" % articleID, "success")
+        flash("Saved article %s" % articleID, "success")
         return redirect(url_for("articles.index"))
-    flash("Liked article %s" % articleID, "success")
+    flash("Saved article %s" % articleID, "success")
     return redirect(url_for("general.loginPage"))
 
 

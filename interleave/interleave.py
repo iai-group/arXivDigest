@@ -15,18 +15,17 @@ from uuid import uuid4
 from mysql import connector
 
 import database as db
-from arxivdigest.core.config import email_config
-from arxivdigest.core.config import interleave_config
-from arxivdigest.core.config import sql_config
+from arxivdigest.core.config import config_email
+from arxivdigest.core.config import config_interleave
+from arxivdigest.core.config import config_web_address
+from arxivdigest.core.config import config_sql
 from arxivdigest.core.mail.mail_server import MailServer
 from tdm import multiLeaver
 
-RECOMMENDATIONS_PER_USER = interleave_config.get('recommendations_per_user')
-SYSTEMS_PER_USER = interleave_config.get('systems_multileaved_per_user')
-BATCH_SIZE = interleave_config.get('users_per_batch')
-BASE_URL = interleave_config.get('webaddress')
-ARTICLES_PER_DATE_IN_MAIL = interleave_config.get('articles_per_date_in_email')
-
+RECOMMENDATIONS_PER_USER = config_interleave.get('recommendations_per_user')
+SYSTEMS_PER_USER = config_interleave.get('systems_multileaved_per_user')
+BATCH_SIZE = config_interleave.get('users_per_batch')
+ARTICLES_PER_DATE_IN_MAIL = config_interleave.get('articles_per_date_in_email')
 
 def multi_leave_recommendations(article_recommendations, multileaver, time):
     """Multileaves the given systemRecommendations and returns
@@ -48,8 +47,8 @@ def multi_leave_recommendations(article_recommendations, multileaver, time):
 
 def sendMail(conn):
     """Sends emails to users about new recommendations."""
-    article_data = db.getArticleData(conn)
-    server = MailServer(**email_config)
+    article_data = db.get_article_data(conn)
+    server = MailServer(**config_email)
 
     for i in range(0, db.getHighestUserID(conn) + BATCH_SIZE, BATCH_SIZE):
         mail_batch, trace_batch = create_mail_batch(i, article_data, conn)
@@ -77,24 +76,24 @@ def create_mail_content(user_id, user, top_articles, article_data):
                     'subject': 'ArXiv Digest',
                     'template': 'weekly',
                     'data': {'name': user['name'], 'articles': [],
-                             'link': BASE_URL}}
+                             'link': config_web_address}}
     mail_trace = []
     for day, daily_articles in sorted(top_articles.items()):
         articles = []
         for article_id, explanation in daily_articles:
             article = article_data.get(article_id)
             click_trace = str(uuid4())
-            like_trace = str(uuid4())
+            save_trace = str(uuid4())
 
             articles.append({'title': article.get('title'),
                              'explanation': explanation,
                              'authors': article.get('authors'),
                              'readlink': '%smail/read/%s/%s/%s' % (
-                                 BASE_URL, user_id, article_id, click_trace),
-                             'likelink': '%smail/like/%s/%s/%s' % (
-                                 BASE_URL, user_id, article_id, like_trace)
+                                 config_web_address, user_id, article_id, click_trace),
+                             'savelink': '%smail/save/%s/%s/%s' % (
+                                 config_web_address, user_id, article_id, save_trace)
                              })
-            mail_trace.append((click_trace, like_trace, user_id, article_id))
+            mail_trace.append((click_trace, save_trace, user_id, article_id))
 
         mail_content['data']['articles'].append(
             (calendar.day_name[day], articles, day))
@@ -163,7 +162,7 @@ def get_top_articles_each_date(article_feedback):
 def run():
     """Multileaves system recommendations and inserts the new lists into the
     database, then sends notification email to user."""
-    conn = connector.connect(**sql_config)
+    conn = connector.connect(**config_sql)
 
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     ml = multiLeaver(RECOMMENDATIONS_PER_USER, SYSTEMS_PER_USER)
