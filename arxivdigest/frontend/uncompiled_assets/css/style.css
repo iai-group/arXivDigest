@@ -645,3 +645,19 @@ code {
     border-radius: 10px;
     padding: 3px;
 }
+
+.topic-symbol{
+    cursor: pointer;
+    font-size: 17px;
+    position: relative;
+}
+
+.topic-end{
+    color: #949494;
+    text-align: center;
+}
+
+.topic-error{
+    text-align: center;
+    font-size: 0.9em;
+}

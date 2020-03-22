@@ -303,3 +303,34 @@ def search_topics(search_string, max_results=50):
         LIKE CONCAT(LOWER(%s), '%') LIMIT %s'''
         cur.execute(sql, (search_string, max_results))
         return [x[0] for x in cur.fetchall()]
+
+def get_user_topics(user_id, nr):
+    """Returns list of top nr recommended topics for a user."""
+    conn = getDb()
+    cur = conn.cursor(dictionary=True)
+    sql = '''select topic_recommendations.topic_id, topic from 
+          topic_recommendations inner join topics on 
+          topics.topic_id = topic_recommendations.topic_id 
+          left join user_topics on user_topics.topic_id =
+          topic_recommendations.topic_id where 
+          user_topics.state is NULL and topic_recommendations.user_id
+          = %s and topic_recommendations.datestamp = 
+          (select max(datestamp) from topic_recommendations
+          where user_id = %s) order by
+          topic_recommendations.interleaving_order DESC limit %s'''
+    cur.execute(sql, (user_id, user_id, nr))
+    topics = cur.fetchall()
+    cur.close()
+    return topics
+
+def update_user_topic(topic_id, user_id, state):
+    """Sets interaction time, state and seen flag for the supplied topic
+    to the current datetime."""
+    conn = getDb()
+    cur = conn.cursor(dictionary=True)
+    user_topics_sql = '''insert into user_topics values (%s,%s,%s,%s)'''
+    topic_recommendations_sql = '''update topic_recommendations set clicked = %s
+    where user_id = %s and topic_id = %s and interleaving_order is not null'''
+    cur.execute(user_topics_sql, (user_id, topic_id, state, datetime.utcnow()))
+    cur.execute(topic_recommendations_sql, (datetime.utcnow(), user_id, topic_id))
+    conn.commit()

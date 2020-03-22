@@ -263,6 +263,16 @@ def download_personal_data():
     user_data = json.dumps(user_data, sort_keys=True).encode('utf-8')
     return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')
 
+@mod.route('/update_topic/<topic_id>/<state>', methods=['GET'])
+@requiresLogin
+def update_topic(topic_id, state):
+    try:
+        db.update_user_topic(topic_id, g.user, state)
+    except Exception as e:
+        print(e)
+        return jsonify(result='fail')
+    return jsonify(result='success')
+
 
 def make_auth_token_response(user_id, email, next_page):
     """Creates a Response object that redirects to 'next_page' with

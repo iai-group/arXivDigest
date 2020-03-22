@@ -51,6 +51,7 @@ js_bundle = Bundle('javascript/autocomplete.js',
                    'javascript/forms.js',
                    'javascript/articlelist.js',
                    'javascript/admin.js',
+                   'javascript/index.js',
                    filters='jsmin',
                    output='generated/js/base.%(version)s.js')
 

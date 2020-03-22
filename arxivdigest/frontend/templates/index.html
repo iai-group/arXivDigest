@@ -1,8 +1,17 @@
 {% extends "base.html" %} {% block content %}
+<script>
+    suggested_topics = {{ suggested_topics | tojson }};
+</script>
+
 <div class="container" id="indexDiv">
-    <div class="col-lg-8 col-lg-offset-2">
+    <div class="col-lg-8 col-lg-offset-1">
         <h3 id="indexTitle">Your personal article recommendations</h3>
         {% include 'articlelist.html' %}
+    </div>
+
+    <div class="col-md-3">
+        <ul class="list-group rightmenu" id="index_topic_list"></ul>
+        <p class="red topic-error" id="topic_error"></p>
     </div>
 </div>
 {% endblock %}
