@@ -334,3 +334,4 @@ def update_user_topic(topic_id, user_id, state):
     cur.execute(user_topics_sql, (user_id, topic_id, state, datetime.utcnow()))
     cur.execute(topic_recommendations_sql, (datetime.utcnow(), user_id, topic_id))
     conn.commit()
+    cur.close()
