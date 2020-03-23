@@ -22,6 +22,7 @@ from arxivdigest.frontend.models.validate import validPassword
 from arxivdigest.frontend.utils import create_gzip_response
 from arxivdigest.frontend.utils import encode_auth_token
 from arxivdigest.frontend.utils import requiresLogin
+from arxivdigest.frontend.utils import send_confirmation_email
 
 mod = Blueprint('general', __name__)
 
@@ -52,7 +53,7 @@ def login():
 @mod.route('/login', methods=['GET'])
 def loginPage():
     """Returns login page or index page if already logged in"""
-    if g.loggedIn:
+    if g.loggedIn and not g.inactive:
         return redirect(url_for('articles.index'))
     next = request.args.get('next')
     if next:
@@ -75,7 +76,7 @@ def logout():
 @mod.route('/signup', methods=['POST'])
 def signup():
     """Takes data from signup form and creates an userobject. Sends user object to signup database function. Returns
-    signup page with relevant error or index page and authToken"""
+    signup page with relevant error or confirm email page and authToken"""
     if g.loggedIn:
         flash('You can not sign up while you are already logged in.', 'danger')
         return redirect(url_for('articles.index'))
@@ -94,7 +95,7 @@ def signup():
     id = db.insertUser(user)
 
     return make_auth_token_response(id, user.email,
-                                    url_for('general.signupPage'))
+                                    url_for('general.confirm_email_page'))
 
 
 @mod.route('/signup', methods=['GET'])
@@ -269,6 +270,40 @@ def download_personal_data():
     user_data = json.dumps(user_data, sort_keys=True).encode('utf-8')
     return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')
 
+@mod.route('/confirm_email', methods=['GET'])
+def confirm_email_page():
+    """Returns page for users that have not confirmed their 
+    email address"""
+    if not g.inactive:
+        return redirect(url_for('articles.index'))
+    next = request.args.get('next')
+    if next:
+        err = 'You must confirm your email to access this endpoint'
+        flash(err, 'danger')
+        return render_template('confirm_email.html', next=next, email=g.email)
+    send_confirmation_email(g.email)
+    return render_template('confirm_email.html', email=g.email)
+
+@mod.route('/send_email', methods=['POST'])
+def send_email():
+    """Updates the user with email from form and sends new email."""
+    email = request.form.to_dict()
+    if not db.update_email(email, g.user):
+        flash('Email is already in use.', 'danger')
+        return redirect(url_for('general.confirm_email_page'))
+    send_confirmation_email(email['email'])
+    flash('New email has been sent.', 'success')
+    return redirect(url_for('general.confirm_email_page'))
+
+@mod.route('/email_confirm/<uuid:trace>', methods=['GET'])
+def activate_user(trace):
+    """Activates a user and logs them out. Returns loginpage."""
+    db.activate_user(str(trace))
+    resp = make_response(redirect(url_for('general.loginPage')))
+    resp.set_cookie('auth', '', expires=0)
+    g.user = None
+    g.loggedIn = False
+    return resp
 
 def make_auth_token_response(user_id, email, next_page):
     """Creates a Response object that redirects to 'next_page' with

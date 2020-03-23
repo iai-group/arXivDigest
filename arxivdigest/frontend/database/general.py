@@ -213,6 +213,7 @@ def insertFeedback(user_id, article_id, type, feedback_text):
             return "Unknown article id."
         raise
     conn.commit()
+    cur.close()
 
 def get_freetext_feedback(user_id):
     """Get freetext feedback from given user.
@@ -323,3 +324,42 @@ def search_topics(search_string, max_results=50):
         LIKE CONCAT(LOWER(%s), '%') LIMIT %s'''
         cur.execute(sql, (search_string, max_results))
         return [x[0] for x in cur.fetchall()]
+
+def is_activated(user_id):
+    """Checks if a user has activated their account. Returns True or false"""
+    cur = getDb().cursor()
+    cur.execute('SELECT inactive FROM users where user_id=%s', (user_id,))
+    inactive = cur.fetchone()[0]
+    cur.close()
+    return True if inactive is 1 else False
+
+def add_activate_trace(trace, email):
+    """Connects the trace from the activation email to the user."""
+    conn = getDb()
+    cur = conn.cursor()
+    sql = '''update users set activate_trace = %s where email = %s'''
+    cur.execute(sql, (trace, email))
+    conn.commit()
+    cur.close()
+
+def activate_user(trace):
+    """Activates the user with the supplied trace."""
+    conn = getDb()
+    cur = conn.cursor()
+    sql = '''update users set inactive = 0 where activate_trace = %s'''
+    cur.execute(sql, (trace, ))
+    conn.commit()
+    cur.close()
+
+def update_email(email, user_id):
+    """Updates the mail for a user. Returns false on error"""
+    conn = getDb()
+    cur = conn.cursor()
+    sql = '''update users set email = %s where user_id = %s'''
+    try:
+        cur.execute(sql, (email, user_id))
+        conn.commit()
+        cur.close()
+    except:
+        return False
+    return True
