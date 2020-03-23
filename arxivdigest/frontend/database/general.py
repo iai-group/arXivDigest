@@ -345,11 +345,11 @@ def add_activate_trace(trace, email):
 def activate_user(trace):
     """Activates the user with the supplied trace."""
     conn = getDb()
-    cur = conn.cursor()
-    sql = '''update users set inactive = 0 where activate_trace = %s'''
-    cur.execute(sql, (trace, ))
-    conn.commit()
-    cur.close()
+    with closing(conn.cursor()) as cur:
+        sql = '''update users set inactive = 0 where activate_trace = %s'''
+        cur.execute(sql, (trace, ))
+        conn.commit()
+        return cur.rowcount == 1
 
 def update_email(email, user_id):
     """Updates the email for a user."""

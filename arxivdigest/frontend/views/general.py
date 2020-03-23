@@ -284,7 +284,6 @@ def confirm_email_page():
         err = 'You must confirm your email to access this endpoint'
         flash(err, 'danger')
         return render_template('confirm_email.html', next=next, email=g.email)
-    send_confirmation_email(g.email)
     return render_template('confirm_email.html', email=g.email)
 
 @mod.route('/send_email', methods=['POST'])
@@ -304,13 +303,15 @@ def send_email():
 
 @mod.route('/email_confirm/<uuid:trace>', methods=['GET'])
 def activate_user(trace):
-    """Activates a user and logs them out. Returns loginpage."""
-    db.activate_user(str(trace))
-    resp = make_response(redirect(url_for('general.loginPage')))
-    resp.set_cookie('auth', '', expires=0)
-    g.user = None
-    g.loggedIn = False
-    return resp
+    """Activates a user. Returns index if logged in, loginpage if not."""
+    if not db.activate_user(str(trace)):
+        flash('Invalid activation link.', 'danger')
+        return redirect(url_for('general.confirm_email_page'))
+    if g.loggedIn:
+        return make_auth_token_response(g.user, g.email,
+                                        url_for('articles.index'))
+    else:
+        return redirect(url_for('general.loginPage'))
 
 def make_auth_token_response(user_id, email, next_page):
     """Creates a Response object that redirects to 'next_page' with
