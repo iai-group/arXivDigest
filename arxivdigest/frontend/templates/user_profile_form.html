@@ -26,12 +26,12 @@
 </script>
 <tr>
     <td>
-        <label for="email" class="signupLabel">Email: *</label>
+        <label for="email" class="signup">Email: *</label>
     </td>
     <td>
-        <p class="signupHint">Your email will not be distributed.</p>
         <input type="email" id="email" name="email" placeholder="Your email.." required onblur="inputTouched(this)"
                autofocus size="254" onfocus="removeTouched(this)" value="{{ user.email if user else '' }}">
+        <p class="hint">Your email address will not be shared with anyone!</p>
         <p class="form_error"></p>
     </td>
     <td></td>
@@ -39,17 +39,15 @@
 {% if signup %}
     <tr>
         <td>
-            <label for="password" class="signupLabel">Password: *</label>
+            <label for="password" class="signup">Password: *</label>
         </td>
         <td>
-            <br>
-            <p class="signupHint">Password must contain atleast one lowercase character, one uppercase
-                character, one number, one symbol
-                and be more than 8 charcters long.</p>
             <input type="password" id="password" name="password" placeholder="Your password.."
                    pattern="(?=^.{9,256}$)(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" required
                    onblur="inputTouched(this)" size="256" oninput="this.value==confirmPassword.value ? confirmPassword.setCustomValidity(''):
                             confirmPassword.setCustomValidity('Passwords must match.')" onfocus="removeTouched(this)">
+            <p class="hint">Password must contain at least one lowercase character, one uppercase
+                character, one number, one symbol, and be more than 8 characters long.</p>
             <p class="form_error"></p>
         </td>
         <td></td>
@@ -105,19 +103,18 @@
 
 <tr>
     <td>
-        <label for="topics_input" class="signupLabel">Topics: *</label>
+        <label for="topics_input" class="signup">Topics: *</label>
     </td>
     <td>
-        <br>
-        <p class="signupHint">Select topics from the suggestion list or submit your own, press
-            enter or add to submit currently selected topic. Submit at least 3 topics.
-        </p>
         <div class="flexContainer">
             <div>
                 <input id="topic_input" type="text" name="topics_input" placeholder="Your topics.." maxlength=50>
             </div>
             <button id="add_topic" class="btn btn-primary">Add</button>
         </div>
+        <p class="hint">Select topics from the suggestion list or enter your own.
+            <strong>You'll need to provide at least 3 topics.</strong>
+        </p>
         <p class="form_error"></p>
 
         <ul id="topic_list" class="list-group  form_list"></ul>
@@ -127,20 +124,19 @@
 </tr>
 <tr>
     <td>
-        <label for="interests" class="signupLabel">Interests:</label>
+        <label for="interests" class="signup">Interests:</label>
     </td>
     <td>
-        <br>
-        <p class="signupHint">Select categories and/or subcategories you"re interested in, press
-            enter or add to submit currently
-            selected category, you can select both categories and subcategories.
-        </p>
         <div class="flexContainer">
             <div>
                 <input id="interestsInput" type="text" name="interests" placeholder="Your interests.." size="300">
                 <button id="addCategory" class="btn btn-primary">Add</button>
             </div>
         </div>
+        <p class="hint">Select one or multiple arXiv categories you're interested in.
+            Press enter or click add to submit the currently selected category.
+            You can select both categories and subcategories.
+        </p>
         <ul id="interestsList" class="list-group form_list"></ul>
         <input type="hidden" name="categories" id="categoriesInput">
     </td>
@@ -149,16 +145,17 @@
 </tr>
 <tr>
     <td>
-        <label for="notification_interval" class="signupLabel">Notification interval: *</label>
+        <label for="notification_interval" class="signup">Notification interval: *</label>
     </td>
     <td>
-        <br>
-        <p>How often would you save receive a digest email?</p>
-        <input type="radio" name="notification_interval" value="1" required
-                {{ "checked" if not user or user.notification_interval | int ==1 else '' }}>1 day
-        <br>
-        <input type="radio" name="notification_interval" value="7"
-                {{ "checked" if user and user.notification_interval | int ==7 else '' }}>7 days
+        <div style="margin-top:10px;">
+            <p class="hint">How often would you like receive a digest email?</p>
+            <input type="radio" name="notification_interval" value="1" required
+                    {{ "checked" if not user or user.notification_interval | int ==1 else '' }}>1 day
+            <br>
+            <input type="radio" name="notification_interval" value="7"
+                    {{ "checked" if user and user.notification_interval | int ==7 else '' }}>7 days
+        </div>
     </td>
     <td></td>
 </tr>
