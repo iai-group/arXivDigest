@@ -94,6 +94,7 @@ def signup():
 
     id = db.insertUser(user)
 
+    send_confirmation_email(user.email)
     return make_auth_token_response(id, user.email,
                                     url_for('general.confirm_email_page'))
 
@@ -274,6 +275,8 @@ def download_personal_data():
 def confirm_email_page():
     """Returns page for users that have not confirmed their 
     email address"""
+    if not g.loggedIn:
+        return redirect(url_for('general.loginPage'))
     if not g.inactive:
         return redirect(url_for('articles.index'))
     next = request.args.get('next')
@@ -287,11 +290,15 @@ def confirm_email_page():
 @mod.route('/send_email', methods=['POST'])
 def send_email():
     """Updates the user with email from form and sends new email."""
-    email = request.form.to_dict()
-    if not db.update_email(email, g.user):
+    if not g.loggedIn:
+        return redirect(url_for('general.loginPage'))
+
+    email = request.form.to_dict()['email']
+    if db.userExist(email):
         flash('Email is already in use.', 'danger')
         return redirect(url_for('general.confirm_email_page'))
-    send_confirmation_email(email['email'])
+    db.update_email(email, g.user)
+    send_confirmation_email(email)
     flash('New email has been sent.', 'success')
     return redirect(url_for('general.confirm_email_page'))
 

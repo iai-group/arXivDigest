@@ -352,14 +352,9 @@ def activate_user(trace):
     cur.close()
 
 def update_email(email, user_id):
-    """Updates the mail for a user. Returns false on error"""
+    """Updates the email for a user."""
     conn = getDb()
-    cur = conn.cursor()
-    sql = '''update users set email = %s where user_id = %s'''
-    try:
+    with closing(conn.cursor()) as cur:
+        sql = '''update users set email = %s where user_id = %s'''
         cur.execute(sql, (email, user_id))
         conn.commit()
-        cur.close()
-    except:
-        return False
-    return True
