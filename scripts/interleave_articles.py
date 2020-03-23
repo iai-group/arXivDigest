@@ -2,7 +2,7 @@
 import logging
 import sys
 
-from arxivdigest.core.mail import digest_mail
+from arxivdigest.core.interleave import multileave_articles
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -12,4 +12,4 @@ if __name__ == '__main__':
             logging.StreamHandler(sys.stdout)
         ]
     )
-    digest_mail.send_digest_mail()
+    multileave_articles.run()

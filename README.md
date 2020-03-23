@@ -27,8 +27,12 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
     - For experimental recommender systems to upload personalized recommendations.
   * [Scraper](scraper/)
     - It continuously monitors the arXiv RSS feed for new articles, and downloads their metadata (authors, title, abstract, etc.)
-  * [Interleave processes](interleave/)
-    - It includes the interleaving mechanism for combining the recommendations of multiple experimental recommender systems. It also send the personalized recommendations to users in the form of daily digest emails.
+  * [Interleave processes](scripts/interleave_articles.py)
+    - It includes the interleaving mechanism for combining the article recommendations of multiple experimental recommender systems. 
+  * [Digest email processes](scripts/send_digest_mail.py)
+    - It sends the personalized recommendations to users in the form of daily digest emails. 
+  * [Init topics script](scripts/init_topic_list.py)
+    - It adds a initial list of topics to the database.
   * [Database](db/)
     - All data is stored in a MySQL database.
   * Evaluation

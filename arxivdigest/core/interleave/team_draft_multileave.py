@@ -29,14 +29,17 @@ class TeamDraftMultiLeaver:
     without giving credit to any system.
     """
 
-    def __init__(self, ranking_length, systems_per_ranking):
+    def __init__(self, ranking_length, systems_per_ranking,
+                 common_prefix=False):
         """Creates a team draft multileaver object.
         :param ranking_length: The desired length of the resulting ranking.
         :param systems_per_ranking: The desired number of systems multileaved
         per ranking.
+        :param common_prefix: Whether common prefixes will give credit or not.
         """
         self.ranking_length = ranking_length
         self.systems_per_ranking = systems_per_ranking
+        self.common_prefix = common_prefix
         self.impressions = defaultdict(int)
 
     def select_systems_for_multileaving(self, systems):
@@ -75,9 +78,12 @@ class TeamDraftMultiLeaver:
         systems = self.select_systems_for_multileaving(systems)
         rankings = {system: deque(rankings[system]) for system in systems}
         round_queue = None
+        multileaved_ranking = []
+        credit = []
 
-        multileaved_ranking = list(commonprefix(rankings.values()))
-        credit = [None for uncredited_element in multileaved_ranking]
+        if self.common_prefix:
+            multileaved_ranking.extend(commonprefix(rankings.values()))
+            credit.extend([None for uncredited_element in multileaved_ranking])
 
         while len(multileaved_ranking) < self.ranking_length and systems:
             if not round_queue:  # New round, if no system in queue.
