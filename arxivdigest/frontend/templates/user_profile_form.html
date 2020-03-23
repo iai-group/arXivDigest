@@ -1,4 +1,4 @@
-{% macro input(name,placeholder="", value="", label="", type="text", size=20, required=false) -%}
+{% macro input(name,placeholder="", value="", label="", type="text", maxlength=20, required=false) -%}
     <td>
         <label for="{{ name }}Input">
             {{ label }}{% if required %} *{% endif %}
@@ -13,7 +13,7 @@
                onfocus="removeTouched(this);"
                value="{{ value|e }}"
                {% if required %}required{% endif %}
-               size="{{ size }}">
+               maxlength="{{ maxlength }}">
         <p class="form_error"></p>
 
     </td>
@@ -67,37 +67,37 @@
 {% endif %}
 <tr>
     {{ input("firstname",placeholder="Your first name..",
-                        label="First name:", size=60, required=true,value=user.firstname
+                        label="First name:", maxlength=60, required=true,value=user.firstname
                          if user else "") }}
 </tr>
 <tr>
     {{ input("lastname",placeholder="Your last name..",
-                        label="Last name:", size=60, required=true,
+                        label="Last name:", maxlength=60, required=true,
                         value=user.lastname if user else "") }}
 </tr>
 <tr>
     {{ input("organization",placeholder="Your Organization..",
-                        label="Organization:", size=60, required=true,
+                        label="Organization:", maxlength=100, required=true,
                         value=user.organization if user else "") }}
 </tr>
 <tr>
     {{ input("personal_website",placeholder="Your personal/organizational website..",
-                        label="Personal website:", size=256,
+                        label="Personal website:", maxlength=120,
                         value=user.personal_website if user else "") }}
 </tr>
 <tr>
     {{ input("dblp_profile",placeholder="Your DBLP profile page..",
-                    label="DBLP profile:", size=256,
+                    label="DBLP profile:", maxlength=120,
                     value=user.dblp_profile if user else "" ) }}
 </tr>
 <tr>
     {{ input("google_scholar_profile",placeholder="Your Google Scholar profile..",
-                        label="Google Scholar profile:", size=256,
+                        label="Google Scholar profile:", maxlength=120,
                         value=user.google_scholar_profile if user else "") }}
 </tr>
 <tr>
     {{ input("semantic_scholar_profile",placeholder="Your Semantic Scholar profile..",
-                        label="Semantic Scholar profile:", size=256,
+                        label="Semantic Scholar profile:", maxlength=120,
                         value=user.semantic_scholar_profile if user else "") }}
 </tr>
 
@@ -108,7 +108,7 @@
     <td>
         <div class="flexContainer">
             <div>
-                <input id="topic_input" type="text" name="topics_input" placeholder="Your topics.." size="300">
+                <input id="topic_input" type="text" name="topics_input" placeholder="Your topics.." maxlength=50>
             </div>
             <button id="add_topic" class="btn btn-primary">Add</button>
         </div>

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
@@ -13,6 +14,7 @@ from flask import render_template
 from flask import request
 from flask import url_for
 
+from arxivdigest.core.config import CONSTANTS
 from arxivdigest.frontend.database import general as db
 from arxivdigest.frontend.models.errors import ValidationError
 from arxivdigest.frontend.models.user import User
@@ -171,6 +173,10 @@ def profile():
 def registerSystem():
     """Registers a system or returns an error if something went wrong."""
     form = request.form.to_dict()
+    if len(form['name']) > CONSTANTS.max_system_name_length:
+        flash('System name must be under {} characters.'.format(
+            CONSTANTS.max_system_name_length), 'danger')
+        return render_template('register_system.html')
     err, key = db.insertSystem(form['name'], g.user)
     if err:
         flash(err, 'danger')

@@ -8,7 +8,7 @@ from collections import defaultdict
 
 
 def getSystemRecommendations(db, startUserID, n):
-    '''This method returns user_id, system_id and article_id in a structure like this:
+    '''This method returns user_id, system_id and article_id in a structure save this:
     {user_id:{system_id:[article_ids]}}.
     '''
     cur = db.cursor()
@@ -44,7 +44,7 @@ def insertUserRecommendations(db, recommendations):
 
 
 def getUserRecommendations(db, startUserID, n):
-    '''This method returns user_id, system_id and article_id in a structure like this:
+    '''This method returns user_id, system_id and article_id in a structure save this:
     {user_id:{date:{article_ids:score}}.
     '''
     cur = db.cursor()
@@ -91,11 +91,14 @@ def getHighestUserID(db):
     return users
 
 
-def getArticleData(db):
+def get_article_data(db):
     '''Returns article data with authors in a dictionary'''
     cur = db.cursor()
-    sql = '''SELECT article_id,title, GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ') FROM article_authors natural join articles
-    WHERE datestamp >=DATE_SUB(UTC_DATE(),INTERVAL 8 DAY) GROUP BY article_id'''
+    sql = '''SELECT article_id,title, 
+             GROUP_CONCAT(concat(firstname," ",lastname)  SEPARATOR ', ')
+             FROM article_authors natural join articles
+             WHERE datestamp >=DATE_SUB(UTC_DATE(),INTERVAL 8 DAY) 
+             GROUP BY article_id'''
     cur.execute(sql)
     articles = {x[0]: {'title': x[1], 'authors': x[2]} for x in cur.fetchall()}
     cur.close()
@@ -105,7 +108,7 @@ def getArticleData(db):
 def setSeenEmail(db, articles):
     '''Updates database field if user sees the email'''
     cur = db.cursor()
-    sql = 'UPDATE article_feedback SET seen_email=CURRENT_TIMESTAMP,trace_click_email=%s, trace_like_email=%s WHERE user_id=%s and article_id=%s'
+    sql = 'UPDATE article_feedback SET seen_email=CURRENT_TIMESTAMP,trace_click_email=%s, trace_save_email=%s WHERE user_id=%s and article_id=%s'
     cur.executemany(sql, articles)
 
     users = {str(x[2]) for x in articles}

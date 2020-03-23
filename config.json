@@ -1,4 +1,5 @@
 {
+    "web_address": "http://127.0.0.1/",
     "sql_config": {
         "user": "root",
         "password": "root",
@@ -13,30 +14,29 @@
     },
     "api_config": {
         "dev_port": 5000,
-        "MAX_CONTENT_LENGTH": 10000000,
-        "MAX_USERINFO_REQUEST": 100,
-        "MAX_USERID_REQUEST": 10000,
-        "MAX_ARTICLEDATA_REQUEST": 100,
-        "MAX_RECOMMENDATION_USERS": 100,
-        "MAX_RECOMMENDATION_ARTICLES": 10,
-        "MAX_EXPLANATION_LEN": 700
+        "max_content_length": 10000000,
+        "max_userinfo_request": 100,
+        "max_userid_request": 10000,
+        "max_articledata_request": 100,
+        "max_users_per_recommendation": 100,
+        "max_recommendations_per_user": 10,
+        "max_explanation_len": 400
     },
     "interleave_config": {
         "systems_multileaved_per_user": 3,
         "recommendations_per_user": 30,
         "users_per_batch": 100,
-        "webaddress": "http://127.0.0.1/",
         "articles_per_date_in_email": 3
     },
     "frontend_config": {
         "data_path": "",
         "dev_port": 80,
-        "MAX_CONTENT_LENGTH": 10000000,
+        "max_content_length": 10000000,
         "jwt_key": "mn643745hb6436l,75687kj37hb26vg3wazsefewms5474.,m4nb4q23vqcxwazsmw46n3bvqcawzwab3241vcawqz,6lk4mj3hbavesww",
         "secret_key": "xPGHuUyNAQaFrlIxtupgu8bnGiSLBpMo4v2w4jcoQ8PCb32Y46WWJhMsSbM2iGzsKravX9l92waqp2qjq7BALke443jbB3uVs7WP08v4JCyrORwvufRY4jKB"
     },
     "evaluation_config": {
-        "liked_weight": 5,
+        "saved_weight": 5,
         "clicked_web_weight": 3,
         "clicked_email_weight": 3
     }

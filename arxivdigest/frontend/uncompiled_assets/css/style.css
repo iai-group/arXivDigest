@@ -464,7 +464,7 @@ code {
     margin: 5px 5px 0px 0px;
 }
 
-#indexDiv, #likedDiv {
+#indexDiv, #savedDiv {
     margin-left: 0px;
     width: 100%;
 }
@@ -572,7 +572,7 @@ code {
     font-size: 0.9em;
 }
 
-.likeButton {
+.saveButton {
     color: white;
     background-color: #b7b7b7;
     border: none;
@@ -592,27 +592,27 @@ code {
     margin-top: 10px;
 }
 
-.articleIcons .Liked {
+.articleIcons .Saved {
     background-color: coral;
 }
 
-.likeButton:hover {
+.saveButton:hover {
     background-color: coral;
 }
 
-.likeButton:active {
+.saveButton:active {
     background-color: rgb(228, 100, 54);
 }
 
-.likeButtonLiked:hover {
+.saveButtonSaved:hover {
     background-color: #b7b7b7;
 }
 
-.likeButtonLiked:active {
+.saveButtonSaved:active {
     background-color: #979797;
 }
 
-#indexDiv a, #likedDiv a {
+#indexDiv a, #savedDiv a {
     color: black;
     text-decoration: none;
 }

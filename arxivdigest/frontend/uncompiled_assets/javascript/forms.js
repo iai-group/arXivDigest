@@ -42,6 +42,12 @@ $(document).ready(function () {
                 input.suggestion_list.hide();
                 return false;
             }
+            if (!value.match(/^[0-9a-zA-Z\- ]+$/)){
+                input.parent().parent().next().text(
+                    "Topics must not contain special symbols.");
+                input.suggestion_list.hide();
+                return false;
+            }
             input.parent().parent().next("form_error").text("");
             input.submitted.push(value);
             const li = create_removable_list_element(value, value, input, hidden_input);
@@ -201,9 +207,13 @@ $(document).ready(function () {
 $(document).ready(function () {
 
     let websiteInputs = [
-        {"id": "#dblp_profileInput", "prefix": "dblp.org/"},
-        {"id": "#google_scholar_profileInput", "prefix": "scholar.google.com/"},
-        {"id": "#semantic_scholar_profileInput", "prefix": "semanticscholar.org/author/"},
+        {"id": "#dblp_profileInput", "prefix": ["https://dblp.org/", "https://dblp.uni-trier.de/", 
+            "dblp.uni-trier.de/", "dblp.org/"]},
+        {"id": "#google_scholar_profileInput", "prefix": ["scholar.google.com/", 
+            "https://scholar.google.com/"]},
+        {"id": "#semantic_scholar_profileInput", "prefix": ["semanticscholar.org/author/", 
+            "https://www.semanticscholar.org/author/","www.semanticscholar.org/author/",
+            "https://semanticscholar.org/author/"]},
     ];
 
     for (const websiteInput of websiteInputs) {
@@ -213,13 +223,22 @@ $(document).ready(function () {
             if (!text.length) {
                 input.get(0).nextElementSibling.textContent = "";
                 input.get(0).setCustomValidity("")
-            } else if (text.startsWith(websiteInput["prefix"])) {
-                input.get(0).nextElementSibling.textContent = "";
-                input.get(0).setCustomValidity("")
             } else {
-                let msg = "Address must start with: " + websiteInput["prefix"];
-                input.get(0).nextElementSibling.textContent = msg;
-                input.get(0).setCustomValidity(msg)
+                for (const address_option of websiteInput["prefix"]){
+                    if (text.startsWith(address_option)){
+                        input.get(0).nextElementSibling.textContent = "";
+                        input.get(0).setCustomValidity("")
+                        break;
+                    }
+                    else{
+                        let msg = "Address must start with one of the following: ";
+                        for (const option of websiteInput["prefix"]){
+                            msg += "\"" + option + "\" ";
+                        };
+                        input.get(0).nextElementSibling.textContent = msg;
+                        input.get(0).setCustomValidity(msg)
+                    }
+                }
             }
         });
     }

@@ -24,7 +24,7 @@ This script interacts with the following tables in the database.
 |article_authors| article_id, author_id, firstname, lastname|
 |users| user_id, email, firstname, lastname, notification_interval, last_recommendation_date|
 |article_recommendations| user_id, article_id, system_id, score, recommendation_date|
-|article_feedback|user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, liked, trace_like_email, trace_click_email|
+|article_feedback|user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, saved, trace_save_email, trace_click_email|
 
 ## Usage
 

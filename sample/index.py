@@ -5,14 +5,12 @@ __copyright__ = 'Copyright 2018, 2020, The arXivDigest project'
 import json
 from urllib import request
 
-from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
 
-def get_article_ids(api_key, api_url, date):
+def get_article_ids(api_key, api_url):
     """Get a list of the article_ids from the arXivDigest API for the date object supplied, defaults to the current date."""
     url = '{}articles'.format(api_url)
-    url = url + '?date=' + date.strftime("%Y-%m-%d") if date else url
     req = request.Request(url, headers={'api-key': api_key})
     resp = request.urlopen(req)
     return json.loads(resp.read())
@@ -25,14 +23,16 @@ def get_article_data(api_key, api_url, article_ids, batch_size=100):
     article_data = {}
     for i in range(0, len(article_ids), batch_size):
         id_batch = ','.join(article_ids[i:i + batch_size])
-        req = request.Request('{}articledata?article_id={}'.format(api_url, id_batch),
+        req = request.Request('{}article_data?article_id={}'
+                              .format(api_url, id_batch),
                               headers={'api-key': api_key})
 
         resp = request.urlopen(req)
         article_data.update(json.loads(resp.read())['articles'])
 
     for article_id, article in article_data.items():
-        article_data[article_id]['catch_all'] = article['title'] + " " + article['abstract']
+        catch_all = article['title'] + " " + article['abstract']
+        article_data[article_id]['catch_all'] = catch_all
     return article_data
 
 
@@ -50,11 +50,11 @@ def bulk_insert_articles(es, index, article_data):
     bulk(es, bulk_docs, request_timeout=10)
 
 
-def run_indexing(es, index, api_key, api_url, date=None):
+def run_indexing(es, index, api_key, api_url):
     """Indexes article data for new additions to the arXivDigest
      database for the given date object, defaults to the current date."""
     print('Retrieving article IDs')
-    article_ids = get_article_ids(api_key, api_url, date)['articles']['article_ids']
+    article_ids = get_article_ids(api_key, api_url)['articles']
     print('Retriving article data')
     article_data = get_article_data(api_key, api_url, article_ids)
     print('Starting bulk insertion of article data into index')
