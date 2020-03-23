@@ -45,3 +45,31 @@ config_evaluation = config.get('evaluation_config')
 
 jwtKey = config_frontend.get('jwt_key')
 secret_key = config_frontend.get('secret_key')
+
+
+class Constants:
+    """This class contains constants that are not configurable."""
+
+    def __init__(self):
+        # General
+        self.max_human_name_length = 60
+        self.max_system_name_length = 40
+        self.max_email_length = 60
+        self.max_url_length = 120
+        self.min_url_length = 5
+
+        # Users
+        self.min_topics_per_user = 3
+        self.max_organization_length = 100
+
+        # Topics
+        self.max_topic_length = 50
+
+        # Articles
+        self.max_title_length = 300
+        self.max_journal_length = 300
+        self.max_license_length = 120
+        self.max_affiliation_length = 300
+
+
+CONSTANTS = Constants()
