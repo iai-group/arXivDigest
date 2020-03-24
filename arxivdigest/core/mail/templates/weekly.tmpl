@@ -54,7 +54,7 @@
             <h2>{{ day[0] }}</h2>
             {%for article in day[1] %}
 
-            <a href="{{article.readlink}}">
+            <a href="{{article.read_link}}">
                 <h3>{{article.title}}</h3>
             </a>
             <span class="authors">{{ article.authors }}</span>
@@ -62,7 +62,7 @@
             <br>
             <span class="explanation">{{ article.explanation }}</span>
 
-            <a href={{article.savelink}}>
+            <a href={{article.save_link}}>
                 <p>Save</p>
             </a>
             <br> {%endfor%} {% endfor %}
