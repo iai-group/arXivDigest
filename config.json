@@ -20,7 +20,7 @@
         "max_articledata_request": 100,
         "max_users_per_recommendation": 100,
         "max_recommendations_per_user": 10,
-        "max_explanation_len": 700
+        "max_explanation_len": 400
     },
     "interleave_config": {
         "systems_multileaved_per_user": 3,

@@ -213,6 +213,7 @@ def insertFeedback(user_id, article_id, type, feedback_text):
             return "Unknown article id."
         raise
     conn.commit()
+    cur.close()
 
 def get_freetext_feedback(user_id):
     """Get freetext feedback from given user.
@@ -227,8 +228,8 @@ def get_freetext_feedback(user_id):
 
 
 def get_article_recommendations(user_id):
-    """Get system recommendations for given user. Includes user interaction data
-    if the recommendation has been shown to the user.
+    """Get article recommendations for given user. Includes user interaction
+    data if the recommendation has been shown to the user.
 
     :param user_id: User to get feedback for.
     :return: List of system recommendation instances.
@@ -247,6 +248,26 @@ def get_article_recommendations(user_id):
              WHERE sr.user_id = %s
              ORDER BY sr.recommendation_date desc,
              s.system_name desc, sr.score desc'''
+    cur.execute(sql, (user_id,))
+    return cur.fetchall()
+
+
+def get_topic_recommendations(user_id):
+    """Get topic recommendations for given user. Includes user interaction data
+    if the recommendation has been shown to the user.
+
+    :param user_id: User to get feedback for.
+    :return: List of system recommendation instances.
+    """
+    cur = getDb().cursor(dictionary=True)
+    sql = '''SELECT topic, system_name, datestamp, system_score, 
+             interleaving_order, seen, clicked,  state, interaction_time
+             FROM topic_recommendations tr
+             NATURAL JOIN topics t
+             NATURAL LEFT JOIN user_topics ut
+             NATURAL LEFT JOIN systems s
+             WHERE user_id = %s
+             ORDER BY datestamp desc, system_name desc, system_score desc;'''
     cur.execute(sql, (user_id,))
     return cur.fetchall()
 
@@ -273,7 +294,7 @@ def get_all_userdata(user_id):
 
     return {'user': get_user(user_id),
             'freetext_feedback': get_freetext_feedback(user_id),
-            'topic_recommendations': [],  # TODO when tables are available
+            'topic_recommendations': get_topic_recommendations(user_id),
             'article_recommendations': get_article_recommendations(user_id),
             'systems': get_systems(user_id)}
 
@@ -303,3 +324,37 @@ def search_topics(search_string, max_results=50):
         LIKE CONCAT(LOWER(%s), '%') LIMIT %s'''
         cur.execute(sql, (search_string, max_results))
         return [x[0] for x in cur.fetchall()]
+
+def is_activated(user_id):
+    """Checks if a user has activated their account. Returns True or false"""
+    cur = getDb().cursor()
+    cur.execute('SELECT inactive FROM users where user_id=%s', (user_id,))
+    inactive = cur.fetchone()[0]
+    cur.close()
+    return True if inactive is 1 else False
+
+def add_activate_trace(trace, email):
+    """Connects the trace from the activation email to the user."""
+    conn = getDb()
+    cur = conn.cursor()
+    sql = '''update users set activate_trace = %s where email = %s'''
+    cur.execute(sql, (trace, email))
+    conn.commit()
+    cur.close()
+
+def activate_user(trace):
+    """Activates the user with the supplied trace."""
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
+        sql = '''update users set inactive = 0 where activate_trace = %s'''
+        cur.execute(sql, (trace, ))
+        conn.commit()
+        return cur.rowcount == 1
+
+def update_email(email, user_id):
+    """Updates the email for a user."""
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
+        sql = '''update users set email = %s where user_id = %s'''
+        cur.execute(sql, (email, user_id))
+        conn.commit()

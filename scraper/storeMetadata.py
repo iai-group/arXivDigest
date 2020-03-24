@@ -9,6 +9,7 @@ __copyright__ = 'Copyright 2020, The arXivDigest project'
 from mysql import connector
 
 from arxivdigest.core.config import config_sql
+from arxivdigest.core.config import CONSTANTS
 from categories import subCategoryNames
 from scrapeMetadata import getCategories
 from scrapeMetadata import harvestMetadataRss
@@ -18,37 +19,71 @@ def insertIntoDB(metaData, conn):
     '''Inserts the supplied articles into the database. Duplicate articles are ignored.'''
     print('Trying to insert %d elements into the database.' % len(metaData))
 
+    cur = conn.cursor()
     try:
-        cur = conn.cursor()
-        i = 0
         insertCategories(metaData, cur)
-        # if article already exists in the database it will be overwritten with the new version
-        articlestmt = 'insert ignore into articles values(%s,%s,%s,%s,%s,%s,%s,%s)'
-        articlecategorystmt = 'insert into article_categories values(%s,%s)'
-        authorstmt = 'insert into article_authors values(null,%s,%s,%s)'
-        affiliationstmt = 'insert into author_affiliations values(%s,%s)'
+        article_category_sql = 'insert into article_categories values(%s,%s)'
 
-        for id, value in metaData.items():
-            data = [id, value['title'], value['description'], value['doi'],
-                    value['comments'], value['license'], value['journal'], value['datestamp']]
-            cur.execute(articlestmt, data)
+        for i, (article_id, article) in enumerate(metaData.items()):
+            insert_article(cur, article_id, article)
+
             if cur.rowcount == 0:  # if article already in database ignore article
                 continue
-            for category in value['categories']:
-                cur.execute(articlecategorystmt, (id, category))
-            for author in value['authors']:
-                cur.execute(
-                    authorstmt, (id, author['firstname'], author['lastname']))
-                authorId = cur.lastrowid
-                for affiliation in author['affiliations']:
-                    cur.execute(affiliationstmt, (authorId, affiliation))
+            for category in article['categories']:
+                cur.execute(article_category_sql, (article_id, category))
+            for author in article['authors']:
+                insert_author(cur, article_id, author['firstname'],
+                              author['lastname'], author['affiliations'])
+
             conn.commit()
-            i += 1
             print('\rInserted {} elements.'.format(i), end='')
-        print('Successfully inserted the elements.')
+        print('\nSuccessfully inserted the elements.')
     finally:
         cur.close()
         conn.close()
+
+
+def truncate_value(value, max_length):
+    err_msg = 'Value: {} was to long for column and was truncated to {}.'
+    if value and len(value) > max_length:
+        old_value = value
+        value = value[:CONSTANTS.max_human_name_length]
+        print(err_msg.format(old_value, value))
+    return value
+
+
+def insert_article(cur, article_id, article):
+    """Inserts article into articles table."""
+    sql = 'INSERT IGNORE INTO articles VALUES(%s,%s,%s,%s,%s,%s,%s,%s)'
+    title = truncate_value(article['title'], CONSTANTS.max_title_length)
+    journal = truncate_value(article['journal'], CONSTANTS.max_journal_length)
+    license = truncate_value(article['license'], CONSTANTS.max_license_length)
+
+    data = [article_id, title, article['description'], article['doi'],
+            article['comments'], license, journal, article['datestamp']]
+    cur.execute(sql, data)
+
+
+def insert_author(cur, article_id, firstname, lastname, affiliations):
+    """Inserts author into authors table."""
+
+    sql = 'INSERT INTO article_authors VALUES(null,%s,%s,%s)'
+    firstname = truncate_value(firstname, CONSTANTS.max_human_name_length)
+    lastname = truncate_value(lastname, CONSTANTS.max_human_name_length)
+
+    cur.execute(sql, (article_id, firstname, lastname))
+    insert_affiliations(cur, cur.lastrowid, affiliations)
+
+
+def insert_affiliations(cur, author_id, affiliations):
+    """Inserts affiliations for author into author_affiliations."""
+    sql = 'INSERT INTO author_affiliations VALUES(%s,%s)'
+    data = []
+    for affiliation in affiliations:
+        affiliation = truncate_value(affiliation,
+                                     CONSTANTS.max_affiliation_length)
+        data.append((author_id, affiliation))
+    cur.executemany(sql, data)
 
 
 def insertCategories(metaData, cursor):

@@ -2,11 +2,13 @@
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
+import re
+
+from arxivdigest.core.config import CONSTANTS
 from arxivdigest.frontend.models.errors import ValidationError
 from arxivdigest.frontend.models.validate import validEmail
 from arxivdigest.frontend.models.validate import validPassword
 from arxivdigest.frontend.models.validate import validString
-import re
 
 
 class User():
@@ -34,7 +36,7 @@ class User():
     @email.setter
     def email(self, email):
         """Checks if email is valid email format"""
-        if not validEmail(email):
+        if len(email) > CONSTANTS.max_email_length or not validEmail(email):
             raise ValidationError('Invalid email.')
         self._email = email
 
@@ -55,7 +57,7 @@ class User():
     @firstname.setter
     def firstname(self, firstname):
         """Checks if firstname seems valid"""
-        if not validString(firstname, 1, 255):
+        if not validString(firstname, 1, CONSTANTS.max_human_name_length):
             raise ValidationError('Invalid firstname format.')
         self._firstname = firstname
 
@@ -66,7 +68,7 @@ class User():
     @lastname.setter
     def lastname(self, lastname):
         """Checks if lastname seems valid"""
-        if not validString(lastname, 1, 255):
+        if not validString(lastname, 1, CONSTANTS.max_human_name_length):
             raise ValidationError('Invalid  lastname fromat.')
         self._lastname = lastname
 
@@ -77,7 +79,7 @@ class User():
     @organization.setter
     def organization(self, organization):
         """Checks if organization name seems valid"""
-        if not validString(organization, 1, 255):
+        if not validString(organization, 1, CONSTANTS.max_organization_length):
             raise ValidationError('Invalid organization name format.')
         self._organization = organization
 
@@ -91,7 +93,9 @@ class User():
             self._dblp_profile = ''
             return
 
-        if not validString(dblp_profile, 5, 255):
+        min_length = CONSTANTS.min_url_length
+        max_length = CONSTANTS.max_url_length
+        if not validString(dblp_profile, min_length, max_length):
             raise ValidationError('Invalid DBLP profile.')
 
         allowed_prefixes = ('https://dblp.org/', 'https://dblp.uni-trier.de/', 
@@ -112,7 +116,9 @@ class User():
             self._google_scholar_profile = ''
             return
 
-        if not validString(google_scholar_profile, 5, 255):
+        min_length = CONSTANTS.min_url_length
+        max_length = CONSTANTS.max_url_length
+        if not validString(google_scholar_profile, min_length, max_length):
             raise ValidationError('Invalid Google Scholar profile.')
 
         allowed_prefixes = ('scholar.google.com/', 'https://scholar.google.com/')
@@ -129,12 +135,16 @@ class User():
         if not semantic_scholar_profile:
             self._semantic_scholar_profile = ''
             return
-        if not validString(semantic_scholar_profile, 5, 256):
+
+        min_length = CONSTANTS.min_url_length
+        max_length = CONSTANTS.max_url_length
+        if not validString(semantic_scholar_profile, min_length, max_length):
             raise ValidationError('Invalid Semantic Scholar profile.')
 
-        allowed_prefixes = ('semanticscholar.org/author/', 
-            'https://www.semanticscholar.org/author/', 'www.semanticscholar.org/author/',
-            'https://semanticscholar.org/author/')
+        allowed_prefixes = ('semanticscholar.org/author/',
+                            'https://www.semanticscholar.org/author/',
+                            'www.semanticscholar.org/author/',
+                            'https://semanticscholar.org/author/')
         if not semantic_scholar_profile.startswith(allowed_prefixes):
             raise ValidationError('Semantic Scholar url prefix does not match Semantic Scholar links.')
 
@@ -150,8 +160,9 @@ class User():
         if not personal_website:
             self._personal_website = ''
             return
-
-        if not validString(personal_website, 5, 256):
+        min_length = CONSTANTS.min_url_length
+        max_length = CONSTANTS.max_url_length
+        if not validString(personal_website, min_length, max_length):
             raise ValidationError('Invalid personal website.')
         self._personal_website = personal_website
 
@@ -170,16 +181,22 @@ class User():
         return self._topics
 
     @topics.setter
-    def topics(self, topics, min_topics=3, min_topic_length=3):
+    def topics(self, topics):
+        min_topics = CONSTANTS.min_topics_per_user
+        max_length = CONSTANTS.max_topic_length
+
         if isinstance(topics, str):
-            topics = [topic.strip() for topic in topics.lower().splitlines()
-                      if len(topic.strip()) >= min_topic_length]
+            topics = [topic.strip() for topic in topics.lower().splitlines()]
         else:
             raise ValidationError('Topics must be a newline separated string.')
         if len(topics) < min_topics:
             raise ValidationError('You need to provide at least {} '
                                   'topics.'.format(min_topics))
+
         for topic in topics:
+            if not validString(topic, 1, max_length):
+                raise ValidationError(
+                    'Topics must be shorter than {}.'.format(max_length))
             if not re.match('^[0-9a-zA-Z\- ]+$',topic):
                 raise ValidationError('Topics must not contain special characters.')
 

@@ -9,7 +9,7 @@ This document contains instructions on how to install and deploy the arXivDigest
       * [Python 3.6+](https://www.python.org/downloads/)
       * [MySQL server](https://www.mysql.com/)
   1. Clone this repository to a location of your choice (will be referred to as `REPO_PATH` below).
-  2. Execute all SQL scripts under [db/](db/) in sequential order, starting with [db/database.sql](db/database.sql) then V1, V2, etc.
+  2. Execute all SQL scripts under [db/](db/) in sequential order, starting with [db/database_v1.sql](db/database.sql) then v2, v3, etc.
   3. Run `pip install .` while inside `REPO_PATH` to install the `arxivdigest` Python package and its dependencies.
       * If installing with the purpose of development, use the command `pip install -e .` instead, to allow editing of the installed package.
       * If running the service under an Apache Web Server, you may need to grant access to the respective user (e.g., www-data on Ubuntu) to the installed package.

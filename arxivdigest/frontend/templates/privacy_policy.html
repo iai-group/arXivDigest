@@ -1,0 +1,120 @@
+{% extends "base.html" %} {% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h2>Privacy Policy</h2>
+                <p><i>(last revision: 2020-03-20)</i></p>
+                <p>We are committed to maintaining your confidence and trust with respect to your privacy. Please read
+                    this privacy policy carefully to understand our practices about how we collect, use and share your
+                    personal information.</p>
+                <p>This privacy policy applies when you visit or use our websites and other services
+                    that refer or link to this privacy policy (each, a “Service”). If you do not agree with the
+                    terms of this privacy policy, do not access or use the Services. This privacy policy may be
+                    supplemented by additional privacy statements, terms or notices provided to you.</p>
+
+                <h4>Information we collect</h4>
+
+                <p><strong>Anonymous browsing information</strong>: We automatically collect certain information from
+                    you when you visit arXivDigest. This data is used to gather metrics on site usage including
+                    geographic location of visitors (IP address), pathways navigated through the website, what type of
+                    internet browser is used (user-agent). No attempt is made to deanonymize information we collect.</p>
+
+                <p><strong>Personal information</strong>: To use our Service, we require you to register as a User.
+                    The types of personal information that we collect directly from you may include:
+                <ul>
+                    <li>Contact details, such as your name, email, affiliation, websites;</li>
+                    <li>Account login credentials, such as usernames and passwords, password hints and similar security
+                        information;
+                    </li>
+                    <li>Other account registration and profile information, including educational, professional and
+                        other background information, such as research area and topics of interests;
+                    </li>
+                    <li>Information that you communicate to us, such as questions or feedback either via online forms or
+                        in email sent to admin@arxivdigest.org;
+                    </li>
+                    <li>Data that you provide to us as part of interacting with the Service, such as recommendations you
+                        click on and save, and/or search queries;
+                    </li>
+                    <li>Communications preferences, such as the frequency, type and format of the alerts you sign up to
+                        receive.
+                    </li>
+                </ul>
+                All information associated with your user account can be viewed and downloaded from your
+                <a href="{{ url_for('general.profile') }}">user profile</a>.</p>
+                <p>We retain your information for as long as necessary to provide the Service. Your information will be
+                    stored and processed by the IAI research group at the University of Stavanger, in Norway.</p>
+
+                <h4>How we use your information</h4>
+                <p>We use gathered information to track user behavior and site usage with the overall goal of improving
+                    our visitors’ experience and optimizing our services. More specifically, we use information to
+                    conduct scientific research, offer you customized content and other personalization to make the
+                    Service more efficient for you, and develop and provide additional features. We also use the
+                    information to administer this website and prevent abuse.</p>
+
+                <h4>With whom we share your information</h4>
+                <p>Information we gather may be shared with third-parties via the arXivDigest API for the purpose
+                    of academic research. However, we will not sell this data to third-parties for their use in direct
+                    marketing, advertising, or for the promotion of their products and services.</p>
+                <p><strong>Information shared via the API</strong>:
+                    Approved users of the arXivDigest API may get access to the following information:
+                <ul>
+                    <li>Your name, affiliation, websites, research areas, and topics of interest provided on your
+                        profile;
+                    </li>
+                    <li>The recommendations you have received, and how you interacted with them (specifically, whether
+                        you clicked on them and/or saved them, with timestamps).
+                    </li>
+                </ul>
+                We will not share:
+                <ul>
+                    <li>Your email address;</li>
+                    <li>Free text feedback you have provided either via the Feedback form or via email.</li>
+                </ul>
+                Users of the arXivDigest API are subject to the <a href="">API Terms of Service</a>, and are required to
+                update arXivDigest content daily, and are not allowed to store user-specific data for more than 24
+                hours. Data obtained via the arXivDigest API may only may be displayed to others or published in a
+                scientific or technical context, solely for the purpose of describing the research and development and
+                related issues, provided that specific individuals cannot be identified.
+                </p>
+
+                <h4>Cookies</h4>
+                <p>We use cookies to keep you logged into secure areas of the website and/or to keep track of
+                    your preferences as you interact with certain services. We also use Google Analytics for collecting
+                    anonymized data on our visitors. </p>
+                <p>You can control cookies through your browser’s settings and other tools. However, if you choose to
+                    block certain cookies, you may not be able to register, login, or access certain parts or make full
+                    use of the Service. </p>
+
+                <h4>Protecting your information</h4>
+                <p>ArXivDigest follows standard practices to protect against the loss, misuse, or alteration of the
+                    information that is under our control.</p>
+
+                <h4>Special Notice for EU Residents</h4>
+                <p>If you are located within the European Economic Area (European Union, Norway, Liechtenstein, and
+                    Iceland), we acknowledge the rights granted to you under the General Data Protection Regulation
+                    (GDPR).</p>
+                <p>These rights may include:
+                <ul>
+                    <li>Right to access your information held by us.</li>
+                    <li>Right to correct inaccurate or incorrect information about you.</li>
+                    <li>Right to the erasure of your information when it is no longer necessary for us to retain it.
+                    </li>
+                    <li>Right to restrict processing of your personal information in specific situations.</li>
+                    <li>Right to object to processing your information, including sending you communications that may be
+                        considered direct-marketing materials.
+                    </li>
+                    <li>Right to object to automated decision-making and profiling, where applicable.</li>
+                    <li>Right to complain to a supervisory authority in your jurisdiction within the EU.</li>
+                </ul>
+                </p>
+
+                <h4>Contact</h4>
+                <p>For questions about arXivDigest privacy policies or technical support please contact:
+                    admin@arxivdigest.org</p>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
