@@ -85,7 +85,6 @@ def get_article_recommendations(limit, offset):
         sql = '''SELECT ar.user_id, ar.system_id, ar.article_id, ar.explanation 
         FROM article_recommendations ar Left JOIN article_feedback  af  
         on ar.article_id = af.article_id AND ar.user_id = af.user_id 
-        AND ar.system_id = af.system_id
         JOIN users u on ar.user_id = u.user_id
         JOIN articles a on a.article_id = ar.article_id
         RIGHT JOIN (SELECT user_id FROM users ORDER BY user_id 
