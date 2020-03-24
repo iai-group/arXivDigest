@@ -63,6 +63,7 @@ def create_mail_batch(offset, article_data):
     recommendations = get_multileaved_articles(BATCH_SIZE, offset)
     mail_batch = []
     trace_batch = []
+    unsubscribe_traces = []
     for user_id, user in users.items():
         top_articles = get_top_articles_each_date(recommendations[user_id])
 
@@ -89,10 +90,11 @@ def create_mail_batch(offset, article_data):
             continue
         logging.info('User {}: added to batch.'.format(user_id))
 
-        mail, trace = create_mail_content(user_id, user, articles, article_data)
+        mail, trace, unsubscribe_trace = create_mail_content(user_id, user, articles, article_data)
         mail_batch.append(mail)
         trace_batch.extend(trace)
-    return mail_batch, trace_batch
+        unsubscribe_traces.extend(unsubscribe_trace)
+    return mail_batch, {'article_traces':trace_batch, 'unsubscribe_traces':unsubscribe_traces}
 
 
 def create_mail_content(user_id, user, top_articles, article_data):
@@ -104,11 +106,14 @@ def create_mail_content(user_id, user, top_articles, article_data):
     :param article_data: Info about the articles
     :return:
     """
+    unsubscribe_trace = {'user_id': user_id,
+                         'trace': str(uuid4())}
+
     mail_content = {'to_address': user['email'],
                     'subject': 'arXivDigest article recommendations',
                     'template': 'weekly',
                     'data': {'name': user['name'], 'articles': [],
-                             'link': BASE_URL}}
+                             'link': BASE_URL, 'unsibscribe_link': '%smail/unsubscribe/%s' % (BASE_URL, unsubscribe_trace['trace'])}}
     mail_trace = []
     for day, daily_articles in sorted(top_articles.items()):
         articles = []
@@ -196,7 +201,7 @@ def get_article_data():
         return {x[0]: {'title': x[1], 'authors': x[2]} for x in cur.fetchall()}
 
 
-def insert_mail_trackers(article_traces):
+def insert_mail_trackers(trace_batch):
     """Inserts mail trackers into the article feedback table."""
     connection = database.get_connection()
     with closing(connection.cursor(dictionary=True)) as cur:
@@ -207,6 +212,7 @@ def insert_mail_trackers(article_traces):
                  u.last_email_date=UTC_DATE()
                  WHERE af.user_id=%(user_id)s AND af.article_id=%(article_id)s
                  AND u.user_id = %(user_id)s'''
+        cur.executemany(sql, trace_batch['article_traces'])
 
-        cur.executemany(sql, article_traces)
+        unsubscribe_sql = '''update users set''' #TODO finish
     connection.commit()
