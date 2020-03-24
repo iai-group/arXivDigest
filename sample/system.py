@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+import logging
+
+__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
+__copyright__ = 'Copyright 2020, The arXivDigest project'
+
 import json
 import os
 import sys
@@ -99,9 +105,7 @@ def send_recommendations(recommendations, api_key, api_url, batch_size=100):
         try:
             request.urlopen(req)
         except urllib.error.HTTPError as e:
-            print('Response:', e.read().decode())
-            print('System exiting.')
-            sys.exit(1)
+            logger.error('Response:', e.read().decode())
 
 
 def make_user_recommendation(es, topics, index, n_topics_explanation=3):
@@ -113,7 +117,9 @@ def make_user_recommendation(es, topics, index, n_topics_explanation=3):
     included in the explanation."""
     articles = defaultdict(list)
     for topic in topics:
-        for article in get_articles_by_topic(es, topic, index)['hits']['hits']:
+        topic_search = get_articles_by_topic(es, topic, index)['hits']['hits']
+        logger.debug('%d articles matches topic %s', len(topic_search), topic)
+        for article in topic_search:
             articles[article['_id']].append((article['_score'], topic))
 
     result = []
@@ -136,35 +142,35 @@ def make_recommendations(es, user_info, index, n_articles=10):
     recommendations = {}
     for user, info in user_info.items():
         if not info['topics']:
-            print('User {} has no topics and was skipped.'.format(user))
+            logger.info('User {}: skipped (no topics provided).'.format(user))
             continue
+        logger.debug('User %s topics: %s.', user, ', '.join(info['topics']))
         articles = make_user_recommendation(es, info['topics'], index)
         articles = sorted(articles, key=lambda k: k['score'], reverse=True)
-        if articles:
-            recommendations[user] = articles[0:n_articles]
+
+        recommendations[user] = articles[0:n_articles]
+        n_recommended = len(recommendations[user])
+        logger.info(
+            'User {}: recommended {} articles.'.format(user, n_recommended))
     return recommendations
 
 
 def recommend(es, api_key, api_url, index):
     """Makes and sends recommendations to all users."""
     total_users = get_user_ids(0, api_key, api_url)['users']['num']
-    print('Starting recommending articles for {} users'.format(total_users))
+    logger.info(
+        'Starting recommending articles for {} users'.format(total_users))
     recommendation_count = 0
     while recommendation_count < total_users:
         user_ids = get_user_ids(0, api_key, api_url)['users']['user_ids']
         user_info = get_user_info(user_ids, api_key, api_url)
+
         recommendations = make_recommendations(es, user_info, index)
 
-        user_ids_set = {str(u) for u in user_ids}
-        not_recommended_users = user_ids_set - set(recommendations.keys())
-
-        if not_recommended_users:
-            print('Unable to make recommendations for the following users: '
-                  '{}'.format(','.join(sorted(not_recommended_users))))
         if recommendations:
             send_recommendations(recommendations, api_key, api_url)
         recommendation_count += len(user_ids)
-        print('Processed {} users'.format(recommendation_count))
+        logger.info('Processed {} users'.format(recommendation_count))
 
 
 def run(api_key, api_url, index):
@@ -175,11 +181,23 @@ def run(api_key, api_url, index):
         """
     es = Elasticsearch(hosts=[ELASTICSEARCH_HOST])
     if not es.indices.exists(index=index):
+        logger.info('Creating index')
         init_index(es, index)
+    logger.info('Indexing articles from arXivDigest API.')
     run_indexing(es, index, api_key, api_url)
     recommend(es, api_key, api_url, index)
-    print('\nFinished recommending articles')
+    logger.info('\nFinished recommending articles.')
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger(__name__)
+
+    logging.basicConfig(
+        level=logging.ERROR,
+        format='%(asctime)s [%(levelname)s] %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ],
+    )
+    logger.setLevel(config_file.get('log_level', logging.INFO))
     run(API_KEY, API_URL, INDEX)
