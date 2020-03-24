@@ -28,7 +28,7 @@ def getUserIDs(fromID, max):
     cur = getDb().cursor()
 
     cur.execute("SELECT COUNT(*) FROM users where inactive = 0")
-    sql = "SELECT user_id FROM where users inactive = 0 ORDER BY user_id ASC LIMIT %s, %s"
+    sql = "SELECT user_id FROM users where inactive = 0 ORDER BY user_id ASC LIMIT %s, %s"
     count = cur.fetchone()[0]
     cur.execute(sql, (fromID, max))
     userList = cur.fetchall()
