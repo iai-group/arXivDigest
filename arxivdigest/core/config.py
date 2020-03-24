@@ -34,8 +34,10 @@ if not config_file:
 
 with open(config_file) as file:
     config = json.load(file)
+    
+_base_url = config.get('web_address')
 
-config_web_address = config.get('web_address')
+config_web_address = _base_url if _base_url.endswith('/') else _base_url + '/'
 config_sql = config.get('sql_config')
 config_email = config.get('email_config')
 config_api = config.get('api_config')
