@@ -206,6 +206,6 @@ if __name__ == '__main__':
             logging.StreamHandler(sys.stdout)
         ],
     )
-    log_level = config_file.get('log_level', 'INFO')
-    logger.setLevel(log_levels.get(log_level.lower(), 20))
+    log_level = config_file.get('log_level', 'INFO').upper()
+    logger.setLevel(log_levels.get(log_level, 20))
     run(API_KEY, API_URL, INDEX)
