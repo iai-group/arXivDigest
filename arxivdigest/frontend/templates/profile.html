@@ -69,7 +69,10 @@
                     </tr>
                     <tr>
                         <td>Notification Interval:</td>
-                        <td>{% if user.notification_interval == 1 %}daily{% else %}weekly{% endif %}</td>
+                        <td>{% if user.notification_interval == 1 %}daily
+                            {% elif user.notification_interval == 7 %}weekly
+                            {% else %}never
+                            {% endif %}</td>
                     </tr>
                     </tbody>
                 </table>
