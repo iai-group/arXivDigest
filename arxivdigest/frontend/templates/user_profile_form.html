@@ -152,7 +152,7 @@
             <p class="hint">How often would you like receive a digest email?</p>
             {% if not signup%}
             <input type="radio" name="notification_interval" value="0"
-                    {{ "checked" if user and user.notification_interval | int ==7 else '' }}>I dont want a digest email
+                    {{ "checked" if user and user.notification_interval | int ==0 else '' }}>I dont want a digest email
             <br>
             {% endif %}
             <input type="radio" name="notification_interval" value="1" required

@@ -5,6 +5,7 @@ __copyright__ = 'Copyright 2020, The arXivDigest project'
 
 
 from contextlib import closing
+from uuid import uuid4
 
 from arxivdigest.core import database
 
@@ -25,7 +26,18 @@ def get_users(limit, offset):
     """
     with closing(database.get_connection().cursor(dictionary=True)) as cur:
         sql = '''SELECT u.user_id, u.email, u.firstname as name, 
-                 u.notification_interval FROM users u ORDER BY user_id 
+                 u.notification_interval, unsubscribe_trace FROM users u ORDER BY user_id 
                  LIMIT %s OFFSET %s'''
         cur.execute(sql, (limit, offset))
         return {u.pop('user_id'): u for u in cur.fetchall()}
+
+def assign_unsubscribe_trace(user_id):
+    """Gives a user an unsubscribe trace if they dont have one."""
+    trace = str(uuid4())
+    connection = database.get_connection()
+    with closing(connection.cursor(dictionary=True)) as cur:
+        sql = '''update users set unsubscribe_trace = %s where user_id = %s'''
+        cur.execute(sql, (trace, user_id))
+
+    connection.commit()
+    return trace

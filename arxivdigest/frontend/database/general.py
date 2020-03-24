@@ -76,14 +76,15 @@ def insertUser(user):
         sql = '''INSERT INTO users(email, salted_hash, firstname, lastname,
                  notification_interval, registered, organization, 
                  dblp_profile, google_scholar_profile, 
-                 semantic_scholar_profile, personal_website) 
-                 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
+                 semantic_scholar_profile, personal_website, unsubscribe_trace) 
+                 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 
         cur.execute(sql, (user.email, user.hashed_password, user.firstname,
                           user.lastname, user.notification_interval,
                           user.registered, user.organization, user.dblp_profile,
                           user.google_scholar_profile,
-                          user.semantic_scholar_profile, user.personal_website))
+                          user.semantic_scholar_profile, user.personal_website, 
+                          str(uuid4())))
 
         user_id = cur.lastrowid
 
@@ -358,3 +359,14 @@ def update_email(email, user_id):
         sql = '''update users set email = %s where user_id = %s'''
         cur.execute(sql, (email, user_id))
         conn.commit()
+
+def digest_unsubscribe(trace):
+    """Unsubscribes the user with the supplied trace from the
+    digest email and assigns a new unsubscribe trace to the user."""
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
+        sql = '''update users set notification_interval = 0,
+              unsubscribe_trace = %s where unsubscribe_trace = %s'''
+        cur.execute(sql, (str(uuid4()) , trace))
+        conn.commit()
+        return cur.rowcount == 1

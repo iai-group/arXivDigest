@@ -14,13 +14,14 @@ from uuid import uuid4
 from arxivdigest.core import database
 from arxivdigest.core.config import config_email
 from arxivdigest.core.config import config_interleave
+from arxivdigest.core.config import config_web_address
 from arxivdigest.core.database import users_db
 from arxivdigest.core.mail.mail_server import MailServer
 
 RECOMMENDATIONS_PER_USER = config_interleave.get('recommendations_per_user')
 SYSTEMS_PER_USER = config_interleave.get('systems_multileaved_per_user')
 BATCH_SIZE = config_interleave.get('users_per_batch')
-BASE_URL = config_interleave.get('web_address')
+BASE_URL = config_web_address
 ARTICLES_PER_DATE_IN_MAIL = config_interleave.get('articles_per_date_in_email')
 
 
@@ -90,11 +91,10 @@ def create_mail_batch(offset, article_data):
             continue
         logging.info('User {}: added to batch.'.format(user_id))
 
-        mail, trace, unsubscribe_trace = create_mail_content(user_id, user, articles, article_data)
+        mail, trace = create_mail_content(user_id, user, articles, article_data)
         mail_batch.append(mail)
         trace_batch.extend(trace)
-        unsubscribe_traces.extend(unsubscribe_trace)
-    return mail_batch, {'article_traces':trace_batch, 'unsubscribe_traces':unsubscribe_traces}
+    return mail_batch, trace_batch
 
 
 def create_mail_content(user_id, user, top_articles, article_data):
@@ -106,14 +106,14 @@ def create_mail_content(user_id, user, top_articles, article_data):
     :param article_data: Info about the articles
     :return:
     """
-    unsubscribe_trace = {'user_id': user_id,
-                         'trace': str(uuid4())}
+    if not user['unsubscribe_trace']:
+        user['unsubscribe_trace'] = users_db.assign_unsubscribe_trace(user_id)
 
     mail_content = {'to_address': user['email'],
                     'subject': 'arXivDigest article recommendations',
                     'template': 'weekly',
                     'data': {'name': user['name'], 'articles': [],
-                             'link': BASE_URL, 'unsibscribe_link': '%smail/unsubscribe/%s' % (BASE_URL, unsubscribe_trace['trace'])}}
+                             'link': BASE_URL, 'unsubscribe_link': '%smail/unsubscribe/%s' % (BASE_URL, user['unsubscribe_trace'])}}
     mail_trace = []
     for day, daily_articles in sorted(top_articles.items()):
         articles = []
@@ -201,7 +201,7 @@ def get_article_data():
         return {x[0]: {'title': x[1], 'authors': x[2]} for x in cur.fetchall()}
 
 
-def insert_mail_trackers(trace_batch):
+def insert_mail_trackers(article_traces):
     """Inserts mail trackers into the article feedback table."""
     connection = database.get_connection()
     with closing(connection.cursor(dictionary=True)) as cur:
@@ -212,7 +212,6 @@ def insert_mail_trackers(trace_batch):
                  u.last_email_date=UTC_DATE()
                  WHERE af.user_id=%(user_id)s AND af.article_id=%(article_id)s
                  AND u.user_id = %(user_id)s'''
-        cur.executemany(sql, trace_batch['article_traces'])
+        cur.executemany(sql, article_traces)
 
-        unsubscribe_sql = '''update users set''' #TODO finish
     connection.commit()
