@@ -95,7 +95,7 @@ def send_confirmation_email(email):
 
     trace = str(uuid4())
     mail_content = {'to_address': email,
-                    'subject': 'ArXiv Digest: Confirm Email',
+                    'subject': 'arXivDigest email confirmation',
                     'template': 'confirm_email',
                     'data': {'activate_link': '%semail_confirm/%s'  % (config_web_address, trace),
                              'link': config_web_address}}
