@@ -63,7 +63,8 @@ def getUserRecommendations(db, startUserID, n):
 def getUsers(db, startUserID, n):
     '''This method returns user_id, name, notification_interval and email in a dictionary.'''
     cur = db.cursor()
-    sql = 'SELECT user_id,email,firstname,notification_interval FROM users WHERE user_id between %s AND %s'
+    sql = '''SELECT user_id,email,firstname,notification_interval FROM users WHERE user_id 
+          between %s AND %s and inactive = 0'''
     cur.execute(sql, (startUserID, startUserID + n - 1))
     users = {x[0]: {'email': x[1], 'name': x[2], 'notification_interval': x[3]}
              for x in cur.fetchall()}
@@ -74,7 +75,7 @@ def getUsers(db, startUserID, n):
 def getNumberOfUsers(db):
     '''This method returns the number of users in the database.'''
     cur = db.cursor()
-    sql = 'SELECT count(*) FROM users'
+    sql = 'SELECT count(*) FROM users where inactive = 0'
     cur.execute(sql)
     users = cur.fetchone()[0]
     cur.close()
@@ -84,7 +85,7 @@ def getNumberOfUsers(db):
 def getHighestUserID(db):
     '''This method returns the highest userID in the database.'''
     cur = db.cursor()
-    sql = 'SELECT max(user_id) FROM users'
+    sql = 'SELECT max(user_id) FROM users where inactive = 0'
     cur.execute(sql)
     users = cur.fetchone()[0]
     cur.close()

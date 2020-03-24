@@ -5,6 +5,7 @@ __copyright__ = 'Copyright 2020, The arXivDigest project'
 import datetime
 import gzip
 from functools import wraps
+from uuid import uuid4
 
 import jwt
 from flask import g
@@ -14,7 +15,11 @@ from flask import request
 from flask import url_for
 
 import arxivdigest.frontend.database.admin as admin
+import arxivdigest.frontend.database.general as general
 from arxivdigest.core.config import jwtKey
+from arxivdigest.core.config import config_email
+from arxivdigest.core.mail.mail_server import MailServer
+from arxivdigest.core.config import config_web_address
 
 
 def requiresLogin(f):
@@ -22,7 +27,10 @@ def requiresLogin(f):
     def wrapper(*args, **kwargs):
         """Decorator to use before paths where users must be logged in to access.
          Checks if users are logged in and redirects to login page if not."""
-        if g.loggedIn:
+        if g.inactive:
+            return make_response(redirect(url_for('general.confirm_email_page',
+                                                  next=request.script_root + request.full_path)))
+        elif g.loggedIn:
             return f(*args, **kwargs)
         else:
             return make_response(redirect(url_for('general.loginPage',
@@ -36,7 +44,8 @@ def encode_auth_token(id, email):
         'exp': datetime.datetime.now() + datetime.timedelta(days=10),
         'sub': id,
         'admin': admin.isAdmin(id),
-        'email': email
+        'email': email,
+        'inactive': general.is_activated(id)
     }
     return jwt.encode(payload, jwtKey, algorithm='HS256').decode()
 
@@ -79,3 +88,18 @@ def create_gzip_response(content_bytes, filename):
     response.set_data(gzip.compress(content_bytes))
     response.headers['Content-Disposition'] = 'attachment;filename=' + filename
     return response
+
+def send_confirmation_email(email):
+    """Sends an email to the user to confirm their email."""
+    server = MailServer(**config_email)
+
+    trace = str(uuid4())
+    mail_content = {'to_address': email,
+                    'subject': 'arXivDigest email confirmation',
+                    'template': 'confirm_email',
+                    'data': {'activate_link': '%semail_confirm/%s'  % (config_web_address, trace),
+                             'link': config_web_address}}
+
+    general.add_activate_trace(trace, email)
+    server.send_mail(**mail_content)
+    server.close()
