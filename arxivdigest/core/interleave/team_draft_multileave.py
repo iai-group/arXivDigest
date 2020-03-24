@@ -82,7 +82,7 @@ class TeamDraftMultiLeaver:
         credit = []
 
         if self.common_prefix:
-            multileaved_ranking.extend(commonprefix(rankings.values()))
+            multileaved_ranking.extend(common_prefix(rankings.values()))
             credit.extend([None for uncredited_element in multileaved_ranking])
 
         while len(multileaved_ranking) < self.ranking_length and systems:
@@ -103,7 +103,7 @@ class TeamDraftMultiLeaver:
         return multileaved_ranking, credit
 
 
-def commonprefix(lists):
+def common_prefix(lists):
     """Given an iterable of iterables, returns the longest common prefix.
     Finds the first and last sublist when sorted lexicographically. Then
     compare how many elements these share, every sublist between these will

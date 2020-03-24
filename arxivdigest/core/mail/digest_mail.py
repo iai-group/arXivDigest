@@ -56,7 +56,7 @@ def create_mail_batch(offset, article_data):
     :param article_data: Data about all the articles that are recommended.
     :return:
         A batch of emails that can be sent by a 'MailServer'
-        and a list of traces that should be inserted into the data base, used
+        and a list of traces that should be inserted into the database, used
         for tracing mail interaction from users.
     """
     users = users_db.get_users(BATCH_SIZE, offset)
@@ -105,7 +105,7 @@ def create_mail_content(user_id, user, top_articles, article_data):
     :return:
     """
     mail_content = {'to_address': user['email'],
-                    'subject': 'ArXiv Digest',
+                    'subject': 'arXivDigest article recommendations',
                     'template': 'weekly',
                     'data': {'name': user['name'], 'articles': [],
                              'link': BASE_URL}}
@@ -120,9 +120,9 @@ def create_mail_content(user_id, user, top_articles, article_data):
             articles.append({'title': article.get('title'),
                              'explanation': explanation,
                              'authors': article.get('authors'),
-                             'readlink': '%smail/read/%s/%s/%s' % (
+                             'read_link': '%smail/read/%s/%s/%s' % (
                                  BASE_URL, user_id, article_id, click_trace),
-                             'likelink': '%smail/like/%s/%s/%s' % (
+                             'save_link': '%smail/save/%s/%s/%s' % (
                                  BASE_URL, user_id, article_id, save_trace)
                              })
             mail_trace.append({'click_trace': click_trace,
