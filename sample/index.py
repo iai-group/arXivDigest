@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2018, 2020, The arXivDigest project'
 
@@ -53,10 +54,6 @@ def bulk_insert_articles(es, index, article_data):
 def run_indexing(es, index, api_key, api_url):
     """Indexes article data for new additions to the arXivDigest
      database for the given date object, defaults to the current date."""
-    print('Retrieving article IDs')
     article_ids = get_article_ids(api_key, api_url)['articles']
-    print('Retriving article data')
     article_data = get_article_data(api_key, api_url, article_ids)
-    print('Starting bulk insertion of article data into index')
     bulk_insert_articles(es, index, article_data)
-    print('Bulk insertion complete')

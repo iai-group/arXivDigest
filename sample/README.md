@@ -30,6 +30,7 @@ The file should be in JSON format and include the following keys:
    * `api_key` : An active API key for the arXivDigest API
    * `elasticsearch_host` : Address and port of the Elasticsearch server
    * `index_name` : Name of the index that will be used
+   * `log_level` : Level of messages to log accepts: 'FATAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'
 
 Example:
 
