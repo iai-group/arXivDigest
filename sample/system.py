@@ -190,6 +190,13 @@ def run(api_key, api_url, index):
 
 
 if __name__ == '__main__':
+    log_levels = {
+        'FATAL': 50,
+        'ERROR': 40,
+        'WARNING': 30,
+        'INFO': 20,
+        'DEBUG': 10,
+    }
     logger = logging.getLogger(__name__)
 
     logging.basicConfig(
@@ -199,5 +206,6 @@ if __name__ == '__main__':
             logging.StreamHandler(sys.stdout)
         ],
     )
-    logger.setLevel(config_file.get('log_level', logging.INFO))
+    log_level = config_file.get('log_level', 'INFO')
+    logger.setLevel(log_levels.get(log_level.lower(), 20))
     run(API_KEY, API_URL, INDEX)
