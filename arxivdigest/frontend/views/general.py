@@ -313,6 +313,13 @@ def activate_user(trace):
     else:
         return redirect(url_for('general.loginPage'))
 
+@mod.route('/mail/unsubscribe/<uuid:trace>', methods=['GET'])
+def unsubscribe(trace):
+    if not db.digest_unsubscribe(str(trace)):
+        flash('Invalid unsubscribe link.', 'danger')
+        return redirect(url_for('articles.index'))
+    return render_template('unsubscribed.html')
+
 def make_auth_token_response(user_id, email, next_page):
     """Creates a Response object that redirects to 'next_page' with
     an authorization token containing the current users info.

@@ -1,82 +1,29 @@
-<!DOCTYPE html>
-<html>
+{% extends "email_base.tmpl" %} {% block content %}
 
-<head>
-    <style>
-        html {
-            font-family: 'Trebuchet MS'
-        }
+<div class="text">
+    <h2>Hi {{name}}</h2>
+    <p>Here are personalized suggestions for articles to read based on your arXivDigest profile:</p>
+</div>
+<hr>
+<div class="content text">
 
-        .centerDiv {
-            margin: 0 auto;
-            width: 800px;
-            background-color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 5px;
-        }
+    {% for day in articles %}
+    <h2>{{ day[0] }}</h2>
+    {%for article in day[1] %}
 
-        .text {
-            text-align: center;
-            color: rgb(59, 59, 59);
-        }
+    <a href="{{article.read_link}}">
+        <h3>{{article.title}}</h3>
+    </a>
+    <span class="authors">{{ article.authors }}</span>
 
-        .authors {
-            color: rgb(185, 185, 185);
-            font-size: 0.9em;
-        }
+    <br>
+    <span class="small_grey">{{ article.explanation }}</span>
 
-        .explanation {
-            color: rgb(165, 165, 165);
-            font-size: o.9em;
-        }
+    <a href={{article.save_link}}>
+        <p>Save</p>
+    </a>
+    <br> {%endfor%} {% endfor %}
 
-        h3 {
-            margin-bottom: 2px;
-        }
+</div>
 
-        ul {
-            list-style: none;
-        }
-    </style>
-</head>
-
-<body style="background-color:#dddddd">
-    <div class="centerDiv">
-        <div class="text">
-            <h2>Hi {{name}}</h2>
-            <p>Here are personalized suggestions for articles to read based on your arXivDigest profile:</p>
-        </div>
-        <hr>
-        <div class="content text">
-
-            {% for day in articles %}
-            <h2>{{ day[0] }}</h2>
-            {%for article in day[1] %}
-
-            <a href="{{article.read_link}}">
-                <h3>{{article.title}}</h3>
-            </a>
-            <span class="authors">{{ article.authors }}</span>
-
-            <br>
-            <span class="explanation">{{ article.explanation }}</span>
-
-            <a href={{article.save_link}}>
-                <p>Save</p>
-            </a>
-            <br> {%endfor%} {% endfor %}
-
-        </div>
-        <hr>
-        <div class="text">
-            <p>You are receiving this email because you have registered with arXivDigest</p>
-            <p>Go to our webpage for more info:</p>
-            <a href="{{link}}">
-                <p>arXivDigest</p>
-            </a>
-        </div>
-    </div>
-</body>
-
-</html>
+{% endblock %}

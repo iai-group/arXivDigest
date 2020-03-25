@@ -211,8 +211,10 @@ class User():
         """Sets value of notification_interval"""
         if notification_interval == '7':
             notification_interval = 7
+        elif notification_interval == '0':
+            notification_interval = 0
         elif notification_interval == '1':
             notification_interval = 1
-        if notification_interval not in [1, 7]:
+        if notification_interval not in [1, 7, 0]:
             raise ValidationError('Invalid value:Digest Frequency')
         self._notification_interval = notification_interval

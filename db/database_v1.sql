@@ -16,6 +16,7 @@ CREATE TABLE users(
     personal_website         varchar(120) DEFAULT '',
     inactive boolean default true,
     activate_trace char(36) unique default null,
+    unsubscribe_trace char(36) unique default null,
     primary key (user_id)
 ) DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 

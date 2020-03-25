@@ -105,11 +105,16 @@ def create_mail_content(user_id, user, top_articles, article_data):
     :param article_data: Info about the articles
     :return:
     """
+    if not user['unsubscribe_trace']:
+        user['unsubscribe_trace'] = users_db.assign_unsubscribe_trace(user_id)
+
     mail_content = {'to_address': user['email'],
                     'subject': 'arXivDigest article recommendations',
                     'template': 'weekly',
                     'data': {'name': user['name'], 'articles': [],
-                             'link': BASE_URL}}
+                             'link': BASE_URL, 'unsubscribe_link': 
+                             '%smail/unsubscribe/%s' % (BASE_URL, 
+                             user['unsubscribe_trace'])}}
     mail_trace = []
     for day, daily_articles in sorted(top_articles.items()):
         articles = []
@@ -208,6 +213,6 @@ def insert_mail_trackers(article_traces):
                  u.last_email_date=UTC_DATE()
                  WHERE af.user_id=%(user_id)s AND af.article_id=%(article_id)s
                  AND u.user_id = %(user_id)s'''
-
         cur.executemany(sql, article_traces)
+
     connection.commit()
