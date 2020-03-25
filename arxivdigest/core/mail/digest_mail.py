@@ -14,13 +14,14 @@ from uuid import uuid4
 from arxivdigest.core import database
 from arxivdigest.core.config import config_email
 from arxivdigest.core.config import config_interleave
+from arxivdigest.core.config import config_web_address
 from arxivdigest.core.database import users_db
 from arxivdigest.core.mail.mail_server import MailServer
 
 RECOMMENDATIONS_PER_USER = config_interleave.get('recommendations_per_user')
 SYSTEMS_PER_USER = config_interleave.get('systems_multileaved_per_user')
 BATCH_SIZE = config_interleave.get('users_per_batch')
-BASE_URL = config_interleave.get('web_address')
+BASE_URL = config_web_address
 ARTICLES_PER_DATE_IN_MAIL = config_interleave.get('articles_per_date_in_email')
 
 
