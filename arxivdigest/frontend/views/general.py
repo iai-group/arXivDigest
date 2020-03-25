@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
@@ -13,6 +14,7 @@ from flask import render_template
 from flask import request
 from flask import url_for
 
+from arxivdigest.core.config import CONSTANTS
 from arxivdigest.frontend.database import general as db
 from arxivdigest.frontend.models.errors import ValidationError
 from arxivdigest.frontend.models.user import User
@@ -20,6 +22,7 @@ from arxivdigest.frontend.models.validate import validPassword
 from arxivdigest.frontend.utils import create_gzip_response
 from arxivdigest.frontend.utils import encode_auth_token
 from arxivdigest.frontend.utils import requiresLogin
+from arxivdigest.frontend.utils import send_confirmation_email
 
 mod = Blueprint('general', __name__)
 
@@ -50,7 +53,7 @@ def login():
 @mod.route('/login', methods=['GET'])
 def loginPage():
     """Returns login page or index page if already logged in"""
-    if g.loggedIn:
+    if g.loggedIn and not g.inactive:
         return redirect(url_for('articles.index'))
     next = request.args.get('next')
     if next:
@@ -73,7 +76,7 @@ def logout():
 @mod.route('/signup', methods=['POST'])
 def signup():
     """Takes data from signup form and creates an userobject. Sends user object to signup database function. Returns
-    signup page with relevant error or index page and authToken"""
+    signup page with relevant error or confirm email page and authToken"""
     if g.loggedIn:
         flash('You can not sign up while you are already logged in.', 'danger')
         return redirect(url_for('articles.index'))
@@ -91,8 +94,9 @@ def signup():
 
     id = db.insertUser(user)
 
+    send_confirmation_email(user.email)
     return make_auth_token_response(id, user.email,
-                                    url_for('general.signupPage'))
+                                    url_for('general.confirm_email_page'))
 
 
 @mod.route('/signup', methods=['GET'])
@@ -171,6 +175,10 @@ def profile():
 def registerSystem():
     """Registers a system or returns an error if something went wrong."""
     form = request.form.to_dict()
+    if len(form['name']) > CONSTANTS.max_system_name_length:
+        flash('System name must be under {} characters.'.format(
+            CONSTANTS.max_system_name_length), 'danger')
+        return render_template('register_system.html')
     err, key = db.insertSystem(form['name'], g.user)
     if err:
         flash(err, 'danger')
@@ -273,6 +281,54 @@ def update_topic(topic_id, state):
         return jsonify(result='fail')
     return jsonify(result='success')
 
+@mod.route('/confirm_email', methods=['GET'])
+def confirm_email_page():
+    """Returns page for users that have not confirmed their 
+    email address"""
+    if not g.loggedIn:
+        return redirect(url_for('general.loginPage'))
+    if not g.inactive:
+        return redirect(url_for('articles.index'))
+    next = request.args.get('next')
+    if next:
+        err = 'You must confirm your email to access this endpoint'
+        flash(err, 'danger')
+        return render_template('confirm_email.html', next=next, email=g.email)
+    return render_template('confirm_email.html', email=g.email)
+
+@mod.route('/send_email', methods=['POST'])
+def send_email():
+    """Updates the user with email from form and sends new email."""
+    if not g.loggedIn:
+        return redirect(url_for('general.loginPage'))
+
+    email = request.form.to_dict()['email']
+    if db.userExist(email):
+        flash('Email is already in use.', 'danger')
+        return redirect(url_for('general.confirm_email_page'))
+    db.update_email(email, g.user)
+    send_confirmation_email(email)
+    flash('New email has been sent.', 'success')
+    return redirect(url_for('general.confirm_email_page'))
+
+@mod.route('/email_confirm/<uuid:trace>', methods=['GET'])
+def activate_user(trace):
+    """Activates a user. Returns index if logged in, loginpage if not."""
+    if not db.activate_user(str(trace)):
+        flash('Invalid activation link.', 'danger')
+        return redirect(url_for('general.confirm_email_page'))
+    if g.loggedIn:
+        return make_auth_token_response(g.user, g.email,
+                                        url_for('articles.index'))
+    else:
+        return redirect(url_for('general.loginPage'))
+
+@mod.route('/mail/unsubscribe/<uuid:trace>', methods=['GET'])
+def unsubscribe(trace):
+    if not db.digest_unsubscribe(str(trace)):
+        flash('Invalid unsubscribe link.', 'danger')
+        return redirect(url_for('articles.index'))
+    return render_template('unsubscribed.html')
 
 def make_auth_token_response(user_id, email, next_page):
     """Creates a Response object that redirects to 'next_page' with

@@ -74,12 +74,14 @@ def before_request():
         g.user = payload.get('sub', None)
         g.email = payload.get('email', None)
         g.admin = payload.get('admin', False)
+        g.inactive = payload.get('inactive', True)
         g.loggedIn = True
     except Exception:
         g.user = None
         g.email = None
         g.admin = False
         g.loggedIn = False
+        g.inactive = True
 
 
 @app.teardown_appcontext

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
@@ -12,6 +13,7 @@ from flask import make_response
 from flask import request
 
 import arxivdigest.api.database as db
+from arxivdigest.core.config import CONSTANTS
 
 
 def validate_json(validator_func):
@@ -141,6 +143,9 @@ def contains_ineligible_topics(json):
     for topic in topics:
         if re.search('[^a-zA-Z0-9\- ]', topic):
             return 'Topics can only contain a..z, 0..9, space and dash.', 400
+        if len(topic) > CONSTANTS.max_topic_length:
+            msg = 'Topics must be shorter than {}.'
+            return msg.format(CONSTANTS.max_topic_length), 400
     return False
 
 

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        html {
+            font-family: 'Trebuchet MS'
+        }
+
+        .centerDiv {
+            margin: 0 auto;
+            width: 800px;
+            background-color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .text {
+            text-align: center;
+            color: rgb(59, 59, 59);
+        }
+
+        .authors {
+            color: rgb(185, 185, 185);
+            font-size: 0.9em;
+        }
+
+        .small_grey {
+            color: rgb(165, 165, 165);
+            font-size: 0.9em;
+        }
+
+        h3 {
+            margin-bottom: 2px;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .unsubscribe{
+            font-size: 0.8em;
+        }
+        .red {
+            color: #951a1d;
+        }
+    </style>
+</head>
+<body style="background-color:#dddddd">
+    <div class="centerDiv">
+
+        <h1 class="text">ar<span class="red">X</span>ivDigest</h1>
+        <hr>
+
+        {% block content %} {% endblock %}
+
+        <hr>
+        <div class="text">
+            <p>You are receiving this email because you have registered with arXivDigest</p>
+            <p>Go to our webpage for more info:</p>
+            <a href="{{link}}">
+                <p>arXivDigest</p>
+            </a>
+
+            {%if articles%}
+                <p class="small_grey">Click here if you want to unsubscribe from these emails<p>
+                <a href="{{unsubscribe_link}}" class="small_grey">
+                    <p>Unsubscibe<p>
+                </a>
+            {%endif%}
+        </div>
+    </div>
+</body>
+
+</html>

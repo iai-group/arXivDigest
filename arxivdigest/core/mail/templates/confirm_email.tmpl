@@ -1,0 +1,10 @@
+{% extends "email_base.tmpl" %} {% block content %}
+
+<div class="text">
+    <h2>Please click this link to activate your account:</h2>
+    <a href="{{activate_link}}">
+        <p>Activate account</p>
+    </a>
+</div>
+
+{% endblock %}
