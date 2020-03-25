@@ -64,7 +64,6 @@ def create_mail_batch(offset, article_data):
     recommendations = get_multileaved_articles(BATCH_SIZE, offset)
     mail_batch = []
     trace_batch = []
-    unsubscribe_traces = []
     for user_id, user in users.items():
         top_articles = get_top_articles_each_date(recommendations[user_id])
 
@@ -113,7 +112,9 @@ def create_mail_content(user_id, user, top_articles, article_data):
                     'subject': 'arXivDigest article recommendations',
                     'template': 'weekly',
                     'data': {'name': user['name'], 'articles': [],
-                             'link': BASE_URL, 'unsubscribe_link': '%smail/unsubscribe/%s' % (BASE_URL, user['unsubscribe_trace'])}}
+                             'link': BASE_URL, 'unsubscribe_link': 
+                             '%smail/unsubscribe/%s' % (BASE_URL, 
+                             user['unsubscribe_trace'])}}
     mail_trace = []
     for day, daily_articles in sorted(top_articles.items()):
         articles = []
