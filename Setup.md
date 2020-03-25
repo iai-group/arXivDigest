@@ -18,7 +18,7 @@ This document contains instructions on how to install and deploy the arXivDigest
       * `/etc/arxivdigest/config.json`
       * `%cwd%/config.json`
   5. Run the `init_topic_list.py` script in the `/scripts/` folder to populate the database with an initial topic list of general topics that the user can select from.
-      * Under `REPO_PATH`, execute the command: `python .\scripts\init_topic_list.py`
+      * Under `REPO_PATH`, execute the command: `python scripts/init_topic_list.py`
 
 
 ## Installing updates
