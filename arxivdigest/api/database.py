@@ -29,7 +29,7 @@ def getUserIDs(fromID, max):
 
     cur.execute('SELECT COUNT(*) FROM users WHERE NOT inactive')
     sql = '''SELECT user_id FROM users WHERE NOT inactive 
-        ORDER BY user_id ASC LIMIT %s, %s'''
+             ORDER BY user_id ASC LIMIT %s, %s'''
     count = cur.fetchone()[0]
     cur.execute(sql, (fromID, max))
     userList = cur.fetchall()
@@ -54,8 +54,8 @@ def getUsers(ids):
     sql = '''SELECT user_id, firstname as first_name, lastname as last_name, 
              registered, organization, dblp_profile, google_scholar_profile,
              semantic_scholar_profile, personal_website
-             FROM users WHERE user_id IN (%s) AND NOT inactive''' % \
-          format_strings
+             FROM users WHERE user_id IN (%s) 
+             AND NOT inactive''' % format_strings
     cur.execute(sql, ids)
 
     users = {}
@@ -113,8 +113,8 @@ def checkUsersExists(ids):
     cur = getDb().cursor()
     format_strings = ','.join(['%s'] * len(ids))
 
-    sql = 'SELECT user_id FROM users WHERE user_id IN (%s) AND NOT inactive' % \
-          format_strings
+    sql = '''SELECT user_id FROM users WHERE user_id IN (%s) 
+             AND NOT inactive''' % format_strings
     cur.execute(sql, ids)
     users = [str(x[0]) for x in cur.fetchall()]
 
