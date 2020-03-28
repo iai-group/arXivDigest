@@ -1,53 +1,56 @@
 {% extends "base.html" %} {% block content %}
-
+    {% import 'macros/form.html' as macros %}
     <div class="container">
         <div class="row">
             <div class="col-lg-6 col-lg-offset-3">
-                <h1>Feedback</h1>
-        <form action="{{ url_for('general.submitFeedback') }}" method="POST"  enctype=multipart/form-data>
-                    <table class="table">
-                        <tbody>
-                        <tr>
-                            <td><label for="feedback_type">Feedback type:</label></td>
+                {% if article %}
+                    <h2>Feedback on article recommendation</h2>
 
-                            <td>
-                                <select id="feedbackType" name="feedback_type" required>
-                                    {% if article_id %}
-                                        <option value="Explanation">Feedback on explanation</option>
-                                        <option value="Recommendation">Feedback on recommendation</option>
-                                    {% endif %}
-                                    {% if not article_id %}
-                                        <option value="Bug">Found a bug</option>
-                                        <option value="Feature">Feature request</option>
-                                        <option value="Other">Other</option>
-                                    {% endif %}
-                                </select>
-                            </td>
-                        </tr>
-                        {% if article_id %}
-                            <tr>
-                                <td><label for="article_id">Article ID:</label></td>
-                                <td>
-                                    <a href="{{ url_for('articles.click', articleId=article_id) }}" target="_blank" id="article_id">
-                                        {{ article_id }}
-                                    </a>
-                                        <input type="text" name="article_id" value={{ article_id }} hidden>
-                                </td>
-                            </tr>
-                        {% endif %}
-                        <tr>
-                            <td><label for="feedback_text">Feedback:</label></td>
-                            <td>
-                                <textarea name="feedback_text" required></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2"><input class="btn btn-primary" type="submit" value="Submit"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </form>
+                    <div class="panel panel-primary">
+                        <div class="panel-heading clearfix">
+                            <h3 class="panel-title">Recommendation</h3>
+                        </div>
+                        <div class="panel-body">
+
+
+                            <label>Article ID: </label>
+                            <div><a href="{{ url_for('articles.click', articleId=article.article_id) }}"
+                                    target="_blank">
+                                {{ article.article_id }}
+                            </a></div>
+                            <br>
+                            <label> Article title:</label>
+                            <div>{{ article.title }}</div>
+                            <br><label>Explanation: </label>
+                            <div>{{ article.explanation }}</div>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <h2>Feedback</h2>
+                {% endif %}
+
+                {% call macros.render_form(form, action_text='Send feedback',
+                                        class_='') %}
+                    {{ form.csrf_token }}
+                    {{ macros.render_field(form.feedback_type) }}
+
+                    {% if article %}
+
+                        {{ macros.render_radio_field(form.relevance, 'radio-inline') }}
+                        {{ macros.render_radio_field(form.expl_satisfaction, 'radio-inline') }}
+                        {{ macros.render_radio_field(form.expl_persuasiveness, 'radio-inline') }}
+                        {{ macros.render_radio_field(form.expl_transparency, 'radio-inline') }}
+                        {{ macros.render_radio_field(form.expl_scrutability, 'radio-inline') }}
+                    {% endif %}
+
+
+                    {{ macros.render_field(form.feedback_text) }}
+
+                {% endcall %}
+
             </div>
         </div>
     </div>
+    <br>
 {% endblock %}

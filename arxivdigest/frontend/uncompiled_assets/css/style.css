@@ -88,9 +88,8 @@ form td {
 }
 
 table input,
-input,
 select,
-textarea {
+table textarea {
     width: 100%;
     margin: 0.3em 0;
     padding: 1em;
@@ -101,7 +100,12 @@ textarea {
     font-size: 1em;
 }
 
-label {
+textarea#feedback_text {
+    resize: vertical;
+    height: 10em;
+}
+
+table label {
     padding: 12px 12px 12px 0;
     display: inline-block;
 }

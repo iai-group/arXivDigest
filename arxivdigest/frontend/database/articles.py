@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from contextlib import closing
+
+from flask import g
+
 from arxivdigest.frontend.database.db import getDb
 
 
@@ -117,3 +121,21 @@ def seenArticle(articles):
     cur.close()
     conn.commit()
     return True
+
+
+def article_is_recommended_for_user(article_id):
+    """Checks if article has been shown to user."""
+    with closing(getDb().cursor()) as cur:
+        cur.execute('''SELECT EXISTS(SELECT article_id FROM article_feedback 
+                       WHERE user_id = %s AND article_id = %s)''',
+                    (g.user, article_id))
+        return cur.fetchone()[0] == 1
+
+
+def get_article_feedback(article_id):
+    """Checks if article has been shown to user."""
+    with closing(getDb().cursor(dictionary=True)) as cur:
+        cur.execute('''SELECT * FROM articles NATURAL JOIN article_feedback
+                    WHERE article_id = %s AND user_id = %s''',
+                    [article_id, g.user])
+        return cur.fetchone()
