@@ -322,7 +322,9 @@ def send_email():
     db.update_email(email, g.user)
     send_confirmation_email(email)
     flash('New email has been sent.', 'success')
-    return redirect(url_for('general.confirm_email_page'))
+    return make_auth_token_response(g.user, email,
+                                    url_for('general.confirm_email_page'))
+
 
 @mod.route('/email_confirm/<uuid:trace>', methods=['GET'])
 def activate_user(trace):
@@ -353,6 +355,6 @@ def make_auth_token_response(user_id, email, next_page):
     :return: Response object that redirects to 'next_page', with an auth_token.
     """
     auth_token = encode_auth_token(user_id, email)
-    resp = make_response(redirect(next_page))
+    resp = redirect(next_page)
     resp.set_cookie('auth', auth_token, max_age=60 * 60 * 24 * 10)
     return resp

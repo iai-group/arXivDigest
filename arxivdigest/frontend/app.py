@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
@@ -12,6 +13,7 @@ from flask import g
 from flask import request
 from flask_assets import Bundle
 from flask_assets import Environment
+from flask_wtf import CSRFProtect
 
 from arxivdigest.core.config import config_frontend
 from arxivdigest.core.config import jwtKey
@@ -27,6 +29,7 @@ app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
 app.config['max_content_length'] = config_frontend.get('max_content_length')
 
+csrf = CSRFProtect(app)
 assets = Environment(app)
 if config_frontend.get('data_path', None):
     data_path = config_frontend['data_path']
