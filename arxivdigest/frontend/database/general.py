@@ -394,6 +394,7 @@ def get_user_topics(user_id):
             multileave_topics.run(user_id)
             cur.execute(sql, (user_id, user_id,datetime.utcnow()))
             topics = cur.fetchall()
+        print(topics)
 
         seen_sql = '''update topic_recommendations set
                    seen = %s where topic_id = %s

@@ -294,7 +294,7 @@ def download_personal_data():
     user_data = json.dumps(user_data, sort_keys=True).encode('utf-8')
     return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')
 
-@mod.route('/update_topic/<topic_id>/<state>', methods=['GET'])
+@mod.route('/update_topic/<topic_id>/<state>', methods=['PUT'])
 @requiresLogin
 def update_topic(topic_id, state):
     """Updates the state of the topics to system approved or rejected."""

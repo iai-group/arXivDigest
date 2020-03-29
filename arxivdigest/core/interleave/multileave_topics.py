@@ -8,7 +8,7 @@ from datetime import datetime
 
 from arxivdigest.core import database
 from arxivdigest.core.config import config_interleave
-from arxivdigest.core.database import users_db #TODO make new file for topics db?
+from arxivdigest.core.database import users_db 
 from arxivdigest.core.interleave.team_draft_multileave import TeamDraftMultiLeaver
 
 TOPICS_PER_USER = config_interleave.get('topics_multileaved_per_batch')
@@ -48,7 +48,8 @@ def get_user_suggested_topics(user_id):
     """Gets suggested topics per system for one user.
     Returns {system_id:[topic_id, topic_id, topic_id, ... ], ...
         } with score decending"""
-    with closing(database.get_connection().cursor(dictionary=True)) as cur:
+    connection = database.get_connection()
+    with closing(connection.cursor(dictionary=True)) as cur:
         sql = '''select topic_recommendations.topic_id, 
                 topic_recommendations.system_id from 
                 topic_recommendations inner join topics on 

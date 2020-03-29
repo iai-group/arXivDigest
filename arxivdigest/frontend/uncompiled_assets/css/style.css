@@ -234,7 +234,7 @@ input ~ .glyphicon-ok {
     max-width: 95%;
 }
 
-.glyphicon.glyphicon-remove {
+.removable_list_element {
     color: lightgrey;
     position: absolute;
     right: 0.5em;
@@ -652,8 +652,9 @@ code {
 
 .topic-symbol{
     cursor: pointer;
-    font-size: 17px;
-    position: relative;
+    font-size: 21px;
+    margin-right: 5px;
+    margin-top: 3px;
 }
 
 .topic-end{
