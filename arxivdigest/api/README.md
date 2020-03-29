@@ -20,7 +20,7 @@ These are the values that can be configured in the API-section of config.json.
   + [List of users](#list-of-users)
   + [User information](#user-information)
   + [User feedback articles](#user-feedback-articles)
-  + [User feedback topics](#user-feedback-topcis)
+  + [User feedback topics](#user-feedback-topics)
 * [Article data](#article-data)
   + [List of articles](#list-of-articles)
   + [Article data](#article-data-1)
