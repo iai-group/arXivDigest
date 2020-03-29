@@ -135,7 +135,7 @@ CREATE TABLE topics(
 CREATE TABLE user_topics(
     user_id          int                                                                               NOT NULL,
     topic_id         int                                                                               NOT NULL,
-    state            enum ('USER_ADDED', 'SYSTEM_RECOMMENDED_ACCEPTED', 'SYSTEM_RECOMMENDED_REJECTED', 'REFRESHED', 'EXPIRED') NOT NULL,
+    state enum ('USER_ADDED', 'SYSTEM_RECOMMENDED_ACCEPTED', 'SYSTEM_RECOMMENDED_REJECTED', 'REFRESHED', 'EXPIRED', 'USER_REJECTED') NOT NULL,
     interaction_time datetime                                                                          NOT NULL,
     foreign key (user_id) references users (user_id) on delete cascade,
     foreign key (topic_id) references topics (topic_id) on delete cascade,
@@ -164,6 +164,7 @@ CREATE TABLE topic_recommendations(
     interleaving_order int,
     seen               datetime DEFAULT NULL,
     clicked            datetime DEFAULT NULL,
+    interleaving_batch datetime default null,
     foreign key (user_id) references users (user_id) on delete cascade,
     foreign key (topic_id) references topics (topic_id) on delete cascade,
     foreign key (system_id) references systems (system_id) on delete cascade,
