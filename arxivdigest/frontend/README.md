@@ -98,6 +98,14 @@ Routes available:
 
 >Returns page for system registration.
 
+``/update_topic/<topic_id>/<state> [PUT]``
+
+>Updates the state of a topic recommended to a user.
+
+``/refresh_topics [GET]``
+
+>Refreshes the list of topics recommended to a user by running the topic interleaving process.
+
 ``@requiresLogin``
 
 >Decorator that checks if you are logged in before accessing the route it is used on. If you are not logged in it returns login page and error message.
