@@ -144,15 +144,15 @@ CREATE TABLE user_topics(
 
 
 CREATE TABLE feedback(
-                         feedback_id     int auto_increment,
-                         user_id         int,
-                         article_id      varchar(20),
-                         type            enum ('Explanation', 'Recommendation', 'Bug', 'Feature', 'Other') NOT NULL,
-                         feedback_text   varchar(2500)                                                     NOT NULL,
-                         feedback_values VARCHAR(1000)                                                     NOT NULL DEFAULT '',
-                         foreign key (user_id) references users (user_id) on delete cascade,
-                         foreign key (article_id) references articles (article_id) on delete cascade,
-                         primary key (feedback_id)
+     feedback_id     int auto_increment,
+     user_id         int,
+     article_id      varchar(20),
+     type            enum ('Explanation', 'Recommendation', 'Bug', 'Feature', 'Other') NOT NULL,
+     feedback_text   varchar(2500)                                                     NOT NULL,
+     feedback_values VARCHAR(1000)                                                     NOT NULL DEFAULT '',
+     foreign key (user_id) references users (user_id) on delete cascade,
+     foreign key (article_id) references articles (article_id) on delete cascade,
+     primary key (feedback_id)
 ) DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 
