@@ -225,13 +225,29 @@ def getCategoryNames():
     cur.close()
     return [[x[0], x[1]] for x in data]
 
-def insertFeedback(user_id, article_id, type, feedback_text):
-    """Inserts feedback into the database. Returns None if successful and an error if not."""
+
+def insertFeedback(user_id, article_id, type, feedback_text, feedback_values):
+    """Inserts feedback into the database.
+
+    :param user_id: ID of user that gave feedback or None if unknown.
+    :param article_id: ID of article feedback is about if article
+    recommendation feedback
+    :param type: Type of feedback
+    :param feedback_text: Freetext feedback
+    :param feedback_values: Dictionary of key: value feedback pairs
+    :return None or error string
+    """
     conn = getDb()
     cur = conn.cursor()
-    sql = 'INSERT INTO feedback (user_id, article_id, type, feedback_text) VALUES(%s, %s, %s, %s)'
+    feedback_values = ','.join(['{}:{}'.format(k, v)
+                                for k, v in feedback_values.items()])
+
     try:
-        cur.execute(sql, (user_id, article_id, type, feedback_text))
+        cur.execute('''INSERT INTO feedback 
+                    (user_id, article_id, type, feedback_text, feedback_values)
+                    VALUES(%s, %s, %s, %s, %s)''',
+                    (user_id, article_id, type, feedback_text, feedback_values))
+
     except mysql.connector.errors.IntegrityError as e:
         if e.errno == errorcode.ER_NO_REFERENCED_ROW_2:
             return "Unknown article id."
@@ -239,13 +255,14 @@ def insertFeedback(user_id, article_id, type, feedback_text):
     conn.commit()
     cur.close()
 
+
 def get_freetext_feedback(user_id):
     """Get freetext feedback from given user.
     :param user_id: User to get feedback for.
     :return: List of feedback instances.
     """
     cur = getDb().cursor(dictionary=True)
-    sql = '''SELECT article_id, type, feedback_text 
+    sql = '''SELECT article_id, type, feedback_text, feedback_values
              FROM feedback WHERE user_id = %s'''
     cur.execute(sql, (user_id,))
     return cur.fetchall()

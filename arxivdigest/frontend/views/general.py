@@ -16,6 +16,10 @@ from flask import url_for
 
 from arxivdigest.core.config import CONSTANTS
 from arxivdigest.frontend.database import general as db
+from arxivdigest.frontend.database.articles import article_is_recommended_for_user
+from arxivdigest.frontend.database.articles import get_article_feedback
+from arxivdigest.frontend.forms.feedback_form import ArticleFeedbackForm
+from arxivdigest.frontend.forms.feedback_form import FeedbackForm
 from arxivdigest.frontend.models.errors import ValidationError
 from arxivdigest.frontend.models.user import User
 from arxivdigest.frontend.models.validate import validPassword
@@ -203,38 +207,57 @@ def livinglab():
                            user=db.get_user(g.user))
 
 
-@mod.route('/feedback/', methods=['GET'])
-@requiresLogin
-def feedbackPage():
-    """Returns feedback page with list of articles."""
-    article_id = request.args.get('articleID', '', type=str)
-    return render_template('feedback.html', endpoint='general.feedback',
-                           article_id=article_id)
+@mod.route('/feedback/', methods=['GET', 'POST'])
+def feedback():
+    """Endpoint for general feedback."""
+    form = FeedbackForm()
+    if form.validate_on_submit():
+        err = db.insertFeedback(g.user, None, form.feedback_type.data,
+                                form.feedback_text.data, {})
+        if err:
+            flash(err, 'danger')
+            return render_template('feedback.html', form=form)
+
+        flash('Successfully sent feedback.', 'success')
+        return redirect('/')
+
+    return render_template('feedback.html', form=form)
 
 
-@mod.route('/feedback/', methods=['POST'])
+@mod.route('/feedback/articles/<article_id>', methods=['GET', 'POST'])
 @requiresLogin
-def submitFeedback():
+def article_feedback(article_id):
     """Submits the feedback form."""
-    form = request.form.to_dict()
-    try:
-        feedback_type = form['feedback_type']
-        feedback_text = form['feedback_text']
-        if feedback_type in ['Explanation', 'Recommendation']:
-            article_id = form['article_id']
-        else:
-            article_id = None
-    except KeyError:
-        flash('All fields must be filled in.', 'danger')
-        return render_template('feedback.html', endpoint='general.feedback')
+    form = ArticleFeedbackForm()
+    if not article_is_recommended_for_user(article_id):
+        flash('You can only leave feedback on articles recommended to you.',
+              'danger')
+        return redirect('/')
 
-    err = db.insertFeedback(g.user, article_id, feedback_type, feedback_text)
-    if err:
-        flash(err, 'danger')
-        return render_template('feedback.html', endpoint='general.feedback')
+    if form.validate_on_submit():
+        feedback_vals = {}
+        if form.relevance.data is not None:
+            feedback_vals['relevance'] = form.relevance.data
+        if form.expl_satisfaction.data is not None:
+            feedback_vals['expl_satisfaction'] = form.expl_satisfaction.data
+        if form.expl_persuasiveness.data is not None:
+            feedback_vals['expl_persuasiveness'] = form.expl_persuasiveness.data
+        if form.expl_transparency.data is not None:
+            feedback_vals['expl_transparency'] = form.expl_transparency.data
+        if form.expl_scrutability.data is not None:
+            feedback_vals['expl_scrutability'] = form.expl_scrutability.data
 
-    flash('Successfully sent feedback.', 'success')
-    return redirect('/')
+        err = db.insertFeedback(g.user, article_id, form.feedback_type.data,
+                                form.feedback_text.data, feedback_vals)
+        if err:
+            flash(err, 'danger')
+            return render_template('feedback.html', form=form,
+                                   article_id=article_id)
+
+        flash('Successfully sent feedback.', 'success')
+        return redirect('/')
+    return render_template('feedback.html', form=form,
+                           article=get_article_feedback(article_id))
 
 
 @mod.route('/about/', methods=['GET'])
@@ -316,7 +339,9 @@ def send_email():
     db.update_email(email, g.user)
     send_confirmation_email(email)
     flash('New email has been sent.', 'success')
-    return redirect(url_for('general.confirm_email_page'))
+    return make_auth_token_response(g.user, email,
+                                    url_for('general.confirm_email_page'))
+
 
 @mod.route('/email_confirm/<uuid:trace>', methods=['GET'])
 def activate_user(trace):
@@ -347,6 +372,6 @@ def make_auth_token_response(user_id, email, next_page):
     :return: Response object that redirects to 'next_page', with an auth_token.
     """
     auth_token = encode_auth_token(user_id, email)
-    resp = make_response(redirect(next_page))
+    resp = redirect(next_page)
     resp.set_cookie('auth', auth_token, max_age=60 * 60 * 24 * 10)
     return resp

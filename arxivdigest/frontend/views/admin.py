@@ -7,7 +7,6 @@ from flask import Blueprint
 from flask import g
 from flask import jsonify
 from flask import render_template
-from flask import request
 
 from arxivdigest.core.config import config_email
 from arxivdigest.core.config import config_web_address
@@ -46,7 +45,7 @@ def getAdmins():
     return jsonify({'success': True, 'admins': db.getAdmins()})
 
 
-@mod.route('/systems/toggleActive/<int:systemID>/<state>', methods=['GET'])
+@mod.route('/systems/toggleActive/<int:systemID>/<state>', methods=['PUT'])
 @requiresLogin
 def toggleSystem(systemID, state):
     """Endpoint for activating and deactivating systems, sets active-value

@@ -1,4 +1,5 @@
 {% macro input(name,placeholder="", value="", label="", type="text", maxlength=20, required=false) -%}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <td>
         <label for="{{ name }}Input">
             {{ label }}{% if required %} *{% endif %}

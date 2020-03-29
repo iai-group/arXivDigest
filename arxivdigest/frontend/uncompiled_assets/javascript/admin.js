@@ -27,19 +27,22 @@ $(document).ready(function () {
                 return
             }
         }
-        $.getJSON("/admin/systems/toggleActive/" + box.data("value") + "/" + !box.active, {},
-            function (data) {
-                console.log(data);
+        $.ajax({
+            url: "/admin/systems/toggleActive/" + box.data("value") + "/" + !box.active,
+            type: 'PUT',
+            success: function (data) {
                 if (data.result === "Success") {
                     box.active = !box.active
                 }
                 if (data.err === "Email error") {
                     alert("Failed to send email.")
                 }
-            }).always(function (d) {
+            }
+        }).always(function (d) {
             box.prop("checked", box.active);
             box.prop("title", box.prop("checked") ? "Deactivate this system." : "Activate this system.");
         });
+
     });
 
     $("ul.nav a[href ='#general']").bind("show.bs.tab", function () {
@@ -96,7 +99,8 @@ $(document).ready(function () {
             tabs.tab("show");
         }
     }
-});
+})
+;
 
 function generateSystemTableHtml(systems) {
     let html = "<tr>";
