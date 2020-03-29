@@ -75,7 +75,7 @@ def savedArticles():
     return render_template('saves.html', endpoint='articles.savedArticles', ** genArticleList(db.getSavedArticles))
 
 
-@mod.route('/save/<articleID>/<state>', methods=['GET'])
+@mod.route('/save/<articleID>/<state>', methods=['PUT'])
 @requiresLogin
 def save(articleID, state):
     '''Endpoint for liking and unliking articles, sets save-value for article with <articleID> to <state>'''

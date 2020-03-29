@@ -21,9 +21,11 @@ $(document).ready(function () {
     $(".saveButton").each(function () {
         $(this).on("click", function () {
             var button = $(this);
-            var isSaved = button.hasClass("Saved")
-            $.getJSON("/save/" + button.data("value") + "/" + !isSaved, {},
-                function (data) {
+            var isSaved = button.hasClass("Saved");
+            $.ajax({
+                url: "/save/" + button.data("value") + "/" + !isSaved,
+                type: 'PUT',
+                success: function (data) {
                     if (data.result === "Success") {
                         button.toggleClass("Saved", !isSaved);
                         if (isSaved) {
@@ -32,7 +34,8 @@ $(document).ready(function () {
                             button.attr("title", "Remove this article");
                         }
                     }
-                });
+                }
+            });
         })
     });
 });

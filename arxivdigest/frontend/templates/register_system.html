@@ -4,6 +4,7 @@
         <legend>Register system:</legend>
 
         <form action="{{ url_for('general.registerSystem') }}" method="POST" enctype=multipart/form-data>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <table>
                 <tr>
                     <td>

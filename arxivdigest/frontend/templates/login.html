@@ -16,6 +16,7 @@
                     <fieldset>
                         <legend>Login</legend>
                         <form action="{{ url_for('general.login',next=next) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <table>
 
                                 <tr>

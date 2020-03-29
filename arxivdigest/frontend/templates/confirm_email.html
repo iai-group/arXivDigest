@@ -8,6 +8,7 @@
 
                 <h5>If you registered using the wrong email you can modify it here or click the button to send the mail again.</h5>
                 <form action="{{ url_for('general.send_email') }}" method="POST" id="signupForm" enctype=multipart/form-data>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <table>
                     <tr>
                         <td>
