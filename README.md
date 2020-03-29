@@ -25,7 +25,7 @@ Check the [Setup guide](/Setup.md) for information on how to run the system.
   * [RESTful API](arxivdigest/api/) for experimental recommender systems
     - For accessing article and user data.
     - For experimental recommender systems to upload personalized recommendations.
-  * [Scraper](scraper/)
+  * [Scraper](scripts/scrape_arxiv.py)
     - It continuously monitors the arXiv RSS feed for new articles, and downloads their metadata (authors, title, abstract, etc.)
   * [Interleave processes](scripts/interleave_articles.py)
     - It includes the interleaving mechanism for combining the article recommendations of multiple experimental recommender systems. 
