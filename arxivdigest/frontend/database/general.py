@@ -15,6 +15,7 @@ from mysql.connector import errorcode
 from passlib.hash import pbkdf2_sha256
 
 from arxivdigest.frontend.database.db import getDb
+from arxivdigest.core.interleave import multileave_topics
 
 
 def get_user(user_id):
@@ -42,7 +43,8 @@ def get_user(user_id):
 
     # Add topics to user
     sql = '''SELECT t.topic_id, t.topic FROM user_topics ut 
-             NATURAL JOIN topics t WHERE user_id = %s AND NOT t.filtered'''
+             NATURAL JOIN topics t WHERE user_id = %s AND NOT t.filtered
+             and ut.state in ('USER_ADDED','SYSTEM_RECOMMENDED_ACCEPTED')'''
     cur.execute(sql, (user_id,))
     user['topics'] = sorted(cur.fetchall(), key=lambda x: x['topic'])
     cur.close()
@@ -105,7 +107,6 @@ def insertSystem(system_name, user_id):
         cur.execute(sql, (key, system_name, user_id))
     except connector.errors.IntegrityError as e:
         col = str(e).split("key ", 1)[1]
-        print(col)
         if col == "'system_name'":
             return "System name already in use by another system.", None
         else:
@@ -128,46 +129,68 @@ def update_user(user_id, user):
                           user.dblp_profile, user.google_scholar_profile,
                           user.semantic_scholar_profile,
                           user.notification_interval, user_id))
-        set_user_categories_and_topics(user_id, user)
+        set_user_categories(user_id, user)
+        set_user_topics(user_id, user)
     conn.commit()
 
-def set_user_categories_and_topics(user_id, user):
-    """Helper function for setting user categories and inputs, does not
+def set_user_categories(user_id, user):
+    """Helper function for setting user categories does not
     commit."""
     conn = getDb()
     with closing(conn.cursor()) as cur:
-        # Update categories.
         cur.execute('DELETE FROM user_categories WHERE user_ID = %s', [user_id])
         data = [(user_id, category_id) for category_id in user.categories]
         cur.executemany('INSERT INTO user_categories VALUES(%s, %s)', data)
 
-        # Update topics.
+def set_user_topics(user_id, user):
+    """Helper function for setting user topics, does not
+    commit."""
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
         cur.executemany('INSERT IGNORE INTO topics(topic) VALUE(%s)',
                         [(t,) for t in user.topics])
 
-        sql = '''DELETE ut FROM user_topics ut 
-                 NATURAL JOIN topics t WHERE user_ID = %s'''
-        if user.topics:
-            placeholders = ','.join(['%s'] * len(user.topics))
-            sql += ' AND t.topic NOT IN ({})'.format(placeholders)
+        placeholders = ','.join(['%s']*len(user.topics))
+        select_topics = '''SELECT topic_id FROM topics where topic
+                        in ({})'''.format(placeholders)
 
-        cur.execute(sql, [user_id, *user.topics])
-        cur.execute('''SELECT t.topic FROM topics t NATURAL JOIN user_topics ut
-                        WHERE ut.user_id = %s''', [user_id])
-        current_topics = [t[0] for t in cur.fetchall()]
+        cur.execute(select_topics, user.topics)
+        topic_ids = cur.fetchall()
 
-        data = [(user_id, topic, 'USER_ADDED', datetime.utcnow())
-                for topic in user.topics if topic not in current_topics]
-        sql = '''INSERT INTO 
-                 user_topics(user_id, topic_id, state, interaction_time)
-                 VALUES(%s, (SELECT  topic_id FROM topics WHERE topic=%s),
-                 %s, %s)'''
-        cur.executemany(sql, data)
+        current_time = datetime.utcnow()
+        topic_ids = [t[0] for t in topic_ids]
 
+        topic_update_sql = '''insert ignore into user_topics(user_id, topic_id, state,
+                           interaction_time) values(%s, %s, 'USER_ADDED', %s)'''
+        cur.executemany(topic_update_sql, [(user_id, t, current_time) for t in topic_ids])
+
+        topic_update_sql = '''update user_topics set state = 'USER_REJECTED', 
+                           interaction_time = %s where
+                           user_id = %s and state = 'USER_ADDED' and topic_id 
+                           not in ({})'''.format(placeholders)
+        cur.execute(topic_update_sql, [current_time, user_id, *topic_ids])
+
+        topic_update_sql = '''update user_topics set state = 'SYSTEM_RECOMMENDED_REJECTED', 
+                           interaction_time =%s where
+                           user_id = %s and state = 'SYSTEM_RECOMMENDED_ACCEPTED' and topic_id 
+                           not in ({})'''.format(placeholders)
+        cur.execute(topic_update_sql, [current_time, user_id, *topic_ids])
+
+        topic_update_sql = '''update user_topics set state = 'SYSTEM_RECOMMENDED_ACCEPTED', 
+                           interaction_time = %s where
+                           user_id = %s and state in ('SYSTEM_RECOMMENDED_REJECTED', 'EXPIRED', 
+                           'REFRESHED') and topic_id in ({})'''.format(placeholders)
+        cur.execute(topic_update_sql, [current_time, user_id, *topic_ids])
+
+        topic_update_sql = '''update user_topics set state = 'USER_ADDED', 
+                           interaction_time = %s where
+                           user_id = %s and state = 'USER_REJECTED' and topic_id 
+                           in ({})'''.format(placeholders)
+        cur.execute(topic_update_sql, [current_time, user_id, *topic_ids])
 
 def validatePassword(email, password):
-    """Checks if users password is correct. Returns userid if correct password, none if user does not exists and
-    false if incorrect password"""
+    """Checks if users password is correct. Returns userid if correct password, 
+    none if user does not exists and false if incorrect password"""
     cur = getDb().cursor()
     sql = 'SELECT user_id,salted_Hash FROM users WHERE email = %s'
     cur.execute(sql, (email,))
@@ -326,37 +349,80 @@ def search_topics(search_string, max_results=50):
         cur.execute(sql, (search_string, max_results))
         return [x[0] for x in cur.fetchall()]
 
-def get_user_topics(user_id, nr):
-    """Returns list of top nr recommended topics for a user."""
+def get_user_topics(user_id):
+    """Returns list of top nr recommended topics for a user and marks
+    these topics as seen."""
     conn = getDb()
-    cur = conn.cursor(dictionary=True)
-    sql = '''select topic_recommendations.topic_id, topic from 
-          topic_recommendations inner join topics on 
-          topics.topic_id = topic_recommendations.topic_id 
-          left join user_topics on user_topics.topic_id =
-          topic_recommendations.topic_id where 
-          user_topics.state is NULL and topic_recommendations.user_id
-          = %s and topic_recommendations.datestamp = 
-          (select max(datestamp) from topic_recommendations
-          where user_id = %s) order by
-          topic_recommendations.interleaving_order DESC limit %s'''
-    cur.execute(sql, (user_id, user_id, nr))
-    topics = cur.fetchall()
-    cur.close()
+    with closing(conn.cursor(dictionary=True)) as cur:
+        sql = '''select topic_recommendations.topic_id, 
+            topics.topic from 
+            topic_recommendations inner join topics on 
+            topics.topic_id = topic_recommendations.topic_id 
+            left join user_topics on user_topics.topic_id =
+            topic_recommendations.topic_id where 
+            topic_recommendations.user_id = %s and 
+            user_topics.state is NULL and
+            topic_recommendations.interleaving_batch = 
+            (select max(interleaving_batch) from topic_recommendations
+            where user_id = %s and interleaving_batch > 
+            DATE_SUB(%s, INTERVAL 24 HOUR)) order by
+            topic_recommendations.interleaving_order DESC'''
+        cur.execute(sql, (user_id, user_id, datetime.utcnow()))
+        topics = cur.fetchall()
+
+        if not topics:
+            # Marks any previous suggested topics as expired if any.
+            # Then runs topic interleaver for new topics
+            clear_suggested_user_topics(user_id,'EXPIRED')
+            multileave_topics.run(user_id)
+            cur.execute(sql, (user_id, user_id,datetime.utcnow()))
+            topics = cur.fetchall()
+
+        seen_sql = '''update topic_recommendations set
+                   seen = %s where topic_id = %s
+                   and user_id = %s and interleaving_batch is
+                   not NULL and seen is NULL'''
+        current_time = datetime.utcnow()
+        data = [(current_time, topic['topic_id'], user_id) for topic in topics]
+        cur.executemany(seen_sql, data)
+        conn.commit()
+
     return topics
+
+def clear_suggested_user_topics(user_id, state):
+    """Clears the users current suggested topics by setting the values for that topic
+    to the supplied state(REFRESHED/EXPIRED) for that user"""
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
+        select_topics_sql = '''select topic_recommendations.topic_id from 
+                            topic_recommendations left join 
+                            user_topics on user_topics.topic_id = 
+                            topic_recommendations.topic_id where user_topics.state is null
+                            and topic_recommendations.interleaving_batch is not null and 
+                            topic_recommendations.user_id = %s'''
+        cur.execute(select_topics_sql, (user_id, ))
+        topics = cur.fetchall()
+
+        clear_sql = '''insert into user_topics (user_id, topic_id, state, interaction_time)
+                    values(%s, %s, %s, %s)'''
+        current_time = datetime.utcnow()
+        data = [(user_id, int(topic[0]), state, current_time) for topic in topics]
+        cur.executemany(clear_sql, data)
+        conn.commit()
 
 def update_user_topic(topic_id, user_id, state):
     """Sets interaction time, state and seen flag for the supplied topic
     to the current datetime."""
     conn = getDb()
-    cur = conn.cursor(dictionary=True)
-    user_topics_sql = '''insert into user_topics values (%s,%s,%s,%s)'''
-    topic_recommendations_sql = '''update topic_recommendations set clicked = %s
-    where user_id = %s and topic_id = %s and interleaving_order is not null'''
-    cur.execute(user_topics_sql, (user_id, topic_id, state, datetime.utcnow()))
-    cur.execute(topic_recommendations_sql, (datetime.utcnow(), user_id, topic_id))
-    conn.commit()
-    cur.close()
+    with closing(conn.cursor(dictionary=True)) as cur:
+        user_topics_sql = '''insert into user_topics values (%s,%s,%s,%s)'''
+        topic_recommendations_sql = '''update topic_recommendations set clicked = %s
+        where user_id = %s and topic_id = %s and interleaving_order is not null'''
+        current_time = datetime.utcnow()
+        cur.execute(user_topics_sql, (user_id, topic_id, state, current_time))
+        cur.execute(topic_recommendations_sql, (current_time, user_id, topic_id))
+        conn.commit()
+        return cur.rowcount == 1
 
 def is_activated(user_id):
     """Checks if a user has activated their account. Returns True or false"""

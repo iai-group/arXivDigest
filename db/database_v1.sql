@@ -135,7 +135,7 @@ CREATE TABLE topics(
 CREATE TABLE user_topics(
     user_id          int                                                                               NOT NULL,
     topic_id         int                                                                               NOT NULL,
-    state            enum ('USER_ADDED', 'SYSTEM_RECOMMENDED_ACCEPTED', 'SYSTEM_RECOMMENDED_REJECTED') NOT NULL,
+    state            enum ('USER_ADDED', 'SYSTEM_RECOMMENDED_ACCEPTED', 'SYSTEM_RECOMMENDED_REJECTED', 'REFRESHED', 'EXPIRED') NOT NULL,
     interaction_time datetime                                                                          NOT NULL,
     foreign key (user_id) references users (user_id) on delete cascade,
     foreign key (topic_id) references topics (topic_id) on delete cascade,

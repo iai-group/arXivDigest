@@ -67,7 +67,7 @@ def genArticleList(getArticles):
 def index():
     '''Returns index page with list of articles'''
     return render_template('index.html', endpoint='articles.index', ** genArticleList(db.getUserRecommendations),
-                           suggested_topics = get_user_topics(g.user,30))
+                           suggested_topics = get_user_topics(g.user))
 
 
 @mod.route('/savedArticles', methods=['GET'])

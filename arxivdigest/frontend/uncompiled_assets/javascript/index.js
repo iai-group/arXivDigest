@@ -9,12 +9,7 @@ function show_topics(){
     topic_list.empty();
     var title = $("<li class='list-group-item'><h4 style='text-align: center;'>Suggested Topics:</h4></li>");
     topic_list.append(title);
-    for (var i = 0; i < 8; i++){
-        if (suggested_topics[i] == null){
-            var end = $("<li class='list-group-item topic-end'><h5>-No more suggested topics at the moment-</h5></li>")
-            topic_list.append(end);
-            return null
-        }
+    for (var i = 0; i < suggested_topics.length; i++){
         var new_topic_element = $("<li class='list-group-item'></li>");
         var ok_button = $(`<div class='glyphicon glyphicon-ok alignright topic-symbol' title='Add this topic to your profile'
                           data-value=`+ suggested_topics[i]['topic_id']+` onclick='add_topic(this)' style='color:rgb(103, 134, 103); padding-right:20px;'></div>`);
@@ -26,6 +21,12 @@ function show_topics(){
         new_topic_element.append(topic_text);
         topic_list.append(new_topic_element);            
     }
+    if (suggested_topics.length == 0){
+        var end = $("<li class='list-group-item topic-end'><h5>-No more suggested topics at the moment-</h5></li>");
+        topic_list.append(end);
+    }
+    var refresh = $("<li class='list-group-item'><input class='btn btn-primary' type='submit' value='Refresh suggestions' onclick='refresh_topics()'></li>");
+    topic_list.append(refresh);
 }
 
 function add_topic(div){
@@ -55,6 +56,16 @@ function reject_topic(div){
             if (data.result == "fail"){
                 $("#topic_error").html("Failed to reject topic, try again later.");
             }
+        });
+}
+
+function refresh_topics(){
+    $("#topic_error").html('')
+    
+    $.getJSON("/refresh_topics",{},
+        function(data){
+            suggested_topics = data;
+            show_topics()
         });
 }
 

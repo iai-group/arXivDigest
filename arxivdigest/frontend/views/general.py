@@ -274,12 +274,19 @@ def download_personal_data():
 @mod.route('/update_topic/<topic_id>/<state>', methods=['GET'])
 @requiresLogin
 def update_topic(topic_id, state):
-    try:
-        db.update_user_topic(topic_id, g.user, state)
-    except Exception as e:
-        print(e)
+    """Updates the state of the topics to system approved or rejected."""
+    if not db.update_user_topic(topic_id, g.user, state):
         return jsonify(result='fail')
     return jsonify(result='success')
+
+@mod.route('/refresh_topics', methods=['GET'])
+@requiresLogin
+def refresh_topics():
+    """Refreshe the list of topics on the index page and returns list
+    of new topics."""
+    db.clear_suggested_user_topics(g.user,'REFRESHED')
+    return jsonify(result = db.get_user_topics(g.user))
+    
 
 @mod.route('/confirm_email', methods=['GET'])
 def confirm_email_page():
