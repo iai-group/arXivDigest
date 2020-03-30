@@ -55,7 +55,8 @@ def get_user_suggested_topics(user_id):
                 topic_recommendations inner join topics on 
                 topics.topic_id = topic_recommendations.topic_id 
                 left join user_topics on user_topics.topic_id =
-                topic_recommendations.topic_id where 
+                topic_recommendations.topic_id and user_topics.user_id = 
+                topic_recommendations.user_id where 
                 user_topics.state is NULL and topic_recommendations.user_id
                 = %s and topic_recommendations.interleaving_batch is NULL 
                 order by topic_recommendations.system_score DESC'''
