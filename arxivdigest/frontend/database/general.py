@@ -371,19 +371,20 @@ def get_user_topics(user_id):
     these topics as seen."""
     conn = getDb()
     with closing(conn.cursor(dictionary=True)) as cur:
-        sql = '''select topic_recommendations.topic_id, 
-            topics.topic from 
-            topic_recommendations inner join topics on 
-            topics.topic_id = topic_recommendations.topic_id 
-            left join user_topics on user_topics.topic_id =
-            topic_recommendations.topic_id where 
-            topic_recommendations.user_id = %s and 
-            user_topics.state is NULL and
-            topic_recommendations.interleaving_batch = 
-            (select max(interleaving_batch) from topic_recommendations
-            where user_id = %s and interleaving_batch > 
-            DATE_SUB(%s, INTERVAL 24 HOUR)) order by
-            topic_recommendations.interleaving_order DESC'''
+        sql = '''SELECT tr.topic_id, t.topic
+                 FROM  topic_recommendations tr INNER JOIN topics t
+                 ON t.topic_id = tr.topic_id 
+                 LEFT JOIN user_topics ut 
+                 ON ut.topic_id = tr.topic_id AND tr.user_id = ut.user_id
+                 WHERE tr.user_id = %s 
+                 AND ut.state IS NULL 
+                 AND tr.interleaving_batch = (
+                        SELECT max(interleaving_batch) 
+                        FROM topic_recommendations
+                        WHERE user_id = %s 
+                        AND interleaving_batch > 
+                        DATE_SUB(%s, INTERVAL 24 HOUR))
+                ORDER BY tr.interleaving_order DESC'''
         cur.execute(sql, (user_id, user_id, datetime.utcnow()))
         topics = cur.fetchall()
 
@@ -411,12 +412,13 @@ def clear_suggested_user_topics(user_id, state):
     to the supplied state(REFRESHED/EXPIRED) for that user"""
     conn = getDb()
     with closing(conn.cursor()) as cur:
-        select_topics_sql = '''select topic_recommendations.topic_id from 
-                            topic_recommendations left join 
-                            user_topics on user_topics.topic_id = 
-                            topic_recommendations.topic_id where user_topics.state is null
-                            and topic_recommendations.interleaving_batch is not null and 
-                            topic_recommendations.user_id = %s'''
+        select_topics_sql = '''SELECT tr.topic_id 
+                               FROM topic_recommendations tr LEFT JOIN 
+                               user_topics ut ON ut.topic_id = tr.topic_id 
+                               AND ut.user_id = tr.user_id
+                               WHERE ut.state IS NULL
+                               AND tr.interleaving_batch IS NOT NULL
+                               AND tr.user_id = %s'''
         cur.execute(select_topics_sql, (user_id, ))
         topics = cur.fetchall()
 

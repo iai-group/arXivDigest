@@ -7,8 +7,11 @@ $(document).ready(function () {
 function show_topics(){
     var topic_list = $("#index_topic_list");
     topic_list.empty();
-    var title = $("<li class='list-group-item'><h4 style='text-align: center;'>Suggested Topics:</h4></li>");
+    var title = $("<li class='list-group-item'><h4 style='text-align: center;'>Suggested Topics: <div class='glyphicon glyphicon-refresh alignright topic-refresh' title='Refresh list of topics' onclick='refresh_topics()'></div></h4></li>");
+    //var refresh = $("<div class='glyphicon glyphicon-refresh alignright topic-symbol' onclick='refresh_topics()'></div>");
+    //title.append(refresh)
     topic_list.append(title);
+
     if (suggested_topics.length == 0){
         var end = $("<li class='list-group-item topic-end'><h5>-No more suggested topics at the moment-</h5></li>");
         topic_list.append(end);
@@ -26,8 +29,6 @@ function show_topics(){
         new_topic_element.append(topic_text);
         topic_list.append(new_topic_element);            
     }
-    var refresh = $("<li class='list-group-item'><input class='btn btn-primary' type='submit' value='Refresh suggestions' onclick='refresh_topics()'></input></li>");
-    topic_list.append(refresh);
 }
 
 function add_topic(div){

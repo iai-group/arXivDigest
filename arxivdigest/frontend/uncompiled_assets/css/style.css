@@ -657,6 +657,16 @@ code {
     margin-top: 3px;
 }
 
+.topic-refresh{
+    cursor: pointer;
+    font-size: 21px;
+    color: gray;
+}
+
+.topic-refresh:hover, .topic-symbol:hover{
+    filter: brightness(75%);
+}
+
 .topic-end{
     color: #949494;
     text-align: center;
