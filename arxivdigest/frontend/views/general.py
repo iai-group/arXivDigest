@@ -302,7 +302,7 @@ def update_topic(topic_id, state):
         return jsonify(result='fail')
     return jsonify(result='success')
 
-@mod.route('/refresh_topics', methods=['GET'])
+@mod.route('/refresh_topics', methods=['PUT'])
 @requiresLogin
 def refresh_topics():
     """Refreshe the list of topics on the index page and returns list

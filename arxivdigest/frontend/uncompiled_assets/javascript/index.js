@@ -69,12 +69,15 @@ function reject_topic(div){
 
 function refresh_topics(){
     $("#topic_error").html('')
-    
-    $.getJSON("/refresh_topics",{},
-        function(data){
+
+    $.ajax({
+        url: "/refresh_topics",
+        type: 'PUT',
+        success: function (data) {
             suggested_topics = data.result;
             show_topics();
-        });
+        }
+    });
 }
 
 function remove_topic(topic_id){
