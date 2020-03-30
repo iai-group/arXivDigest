@@ -7,18 +7,18 @@ __copyright__ = 'Copyright 2020, The arXivDigest project'
 
 from arxivdigest.core import database
 from arxivdigest.core.config import CONSTANTS
-from arxivdigest.core.scraper.categories import subCategoryNames
-from arxivdigest.core.scraper.scrape_metadata import getCategories
+from arxivdigest.core.scraper.categories import sub_category_names
+from arxivdigest.core.scraper.scrape_metadata import get_categories
 
 
-def insertIntoDB(metaData):
+def insert_into_db(metaData):
     """Inserts the supplied articles into the database.
     Duplicate articles are ignored."""
     print('Trying to insert %d elements into the database.' % len(metaData))
     conn = database.get_connection()
     cur = conn.cursor()
     try:
-        insertCategories(metaData, cur)
+        insert_categories(metaData, cur)
         article_category_sql = 'insert into article_categories values(%s,%s)'
 
         for i, (article_id, article) in enumerate(metaData.items()):
@@ -83,10 +83,10 @@ def insert_affiliations(cur, author_id, affiliations):
     cur.executemany(sql, data)
 
 
-def insertCategories(metaData, cursor):
+def insert_categories(metaData, cursor):
     """Inserts all categories from the metaData into the database"""
     categories = set()
-    categoryNames = getCategories()
+    categoryNames = get_categories()
     for value in metaData.values():
         for category in value['categories']:
             c = category.split('.')
@@ -99,7 +99,7 @@ def insertCategories(metaData, cursor):
                     'Update category name manually: could not find name for %s' % c[0])
             # generate natural name for category
             try:
-                subcategoryName = subCategoryNames[category]
+                subcategoryName = sub_category_names[category]
             except KeyError:
                 subcategoryName = category
                 print('Could not find name for category: %s.' % category)

@@ -39,4 +39,4 @@ def get_categories(url):
     return categories
 
 
-subCategoryNames = get_categories(ARXIV_CATEGORY_TAXONOMY_URL)
+sub_category_names = get_categories(ARXIV_CATEGORY_TAXONOMY_URL)

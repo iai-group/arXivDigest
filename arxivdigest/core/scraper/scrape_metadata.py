@@ -3,7 +3,7 @@
 To only scrape the metadata from the articles in the rss-stream use the
 harvestMetaDataRss method.
 It's also possible to scrape articles from any date until today,
-to accomplish this use the getRecordsFromLastnDays method."""
+to accomplish this use the get_records_from_last_n_days method."""
 
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
@@ -20,7 +20,7 @@ OAI = '{http://www.openarchives.org/OAI/2.0/}'
 ARXIV = '{http://arxiv.org/OAI/arXiv/}'
 
 
-def prepareRecord(record):
+def prepare_record(record):
     """Formats the data to a dictionary structure that is easy to work with."""
     info = record.find(OAI + 'metadata').find(ARXIV + 'arXiv')
     result = {'title': info.find(ARXIV + 'title').text.replace('\n', ' '),
@@ -56,7 +56,7 @@ def prepareRecord(record):
     return result
 
 
-def getRecordsFromLastnDays(n):
+def get_records_from_last_n_days(n):
     """Scrapes the OAI-api for articles submitted from the n previous days."""
     result = {}
     baseUrl = 'http://export.arxiv.org/oai2?verb=ListRecords&'
@@ -79,7 +79,7 @@ def getRecordsFromLastnDays(n):
         root = ET.fromstring(response.read())
         # parse the response and add it to result
         for record in root.find(OAI + 'ListRecords').findall(OAI + 'record'):
-            element = prepareRecord(record)
+            element = prepare_record(record)
             result[element['id']] = element
         # If the xmlfile contains more than 1000 articles arXiv will add a
         # resumptiontoken to the response, if we already have all the articles
@@ -92,17 +92,17 @@ def getRecordsFromLastnDays(n):
     return result
 
 
-def getRecord(id):
+def get_record(id):
     """Gets metadata for a single record."""
     url = 'http://export.arxiv.org/oai2?verb=GetRecord&identifier=oai:arXiv.org:%s&metadataPrefix=arXiv' % id
     print('Fetching', url)
     response = urlopen(url)
     root = ET.fromstring(response.read())
     record = root.find(OAI + 'GetRecord').find(OAI + 'record')
-    return prepareRecord(record)
+    return prepare_record(record)
 
 
-def getCategories():
+def get_categories():
     """Returns a dict of all the main categories available with info."""
     url = 'http://export.arxiv.org/oai2?verb=ListSets'
     print('fetching', url)
@@ -134,12 +134,12 @@ def getCategories():
     return result
 
 
-def getIDsFromRss():
+def get_id_from_rss():
     """Returns a set of all the article-ids found in the rss stream, which will
     be approximately the same as the articles uploaded the previous day."""
     rssUrl = 'http://export.arxiv.org/rss/'
     result = set()
-    for category in getCategories():
+    for category in get_categories():
         print('Fetching IDs from the %s rss-feed' % category)
         feed = feedparser.parse(rssUrl + category)
         for entry in feed['entries']:
@@ -148,15 +148,15 @@ def getIDsFromRss():
     return result
 
 
-def harvestMetadataRss():
+def harvest_metadata_rss():
     """This function will return the metadata from all the articles present
     in any of the arXiv rss-streams."""
-    rssIDs = getIDsFromRss()
-    articles = getRecordsFromLastnDays(1)
+    rssIDs = get_id_from_rss()
+    articles = get_records_from_last_n_days(1)
     result = {}
     for item in rssIDs:
         if item not in articles:  # download missing articles, if any
-            element = getRecord(item)
+            element = get_record(item)
             result[element['id']] = element
         else:
             result[item] = articles[item]

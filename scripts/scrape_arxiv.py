@@ -2,8 +2,8 @@
 import logging
 import sys
 
-from arxivdigest.core.scraper.scrape_metadata import harvestMetadataRss
-from arxivdigest.core.scraper.store_metadata import insertIntoDB
+from arxivdigest.core.scraper.scrape_metadata import harvest_metadata_rss
+from arxivdigest.core.scraper.store_metadata import insert_into_db
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -13,4 +13,4 @@ if __name__ == '__main__':
             logging.StreamHandler(sys.stdout)
         ]
     )
-    insertIntoDB(harvestMetadataRss())
+    insert_into_db(harvest_metadata_rss())
