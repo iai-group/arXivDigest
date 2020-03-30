@@ -59,7 +59,7 @@ Currently, there are two main types of content that can be recommended: articles
 At each given (week)day, the interleaving process considers, from each system, the highest scoring articles from the past 7 days that were submitted for a given user.  That is, systems can think of the article recommendation process as pushing items to a priority queue, where items older than 7 days are removed from the queue.
 The top recommendations from the various systems are interleaved for users daily.
 
-Digest emails are sent out daily or weekly (depending on users' preference).
+Digest emails are sent out daily or weekly (depending on users' preference).  The weekly digest email if essentially a concatenation of the content of the daily emails, i.e., it contains the respective interleaved lists for each day.
 
 User may leave feedback on specific recommendations, which is made available to systems.
 
