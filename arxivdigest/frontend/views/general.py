@@ -294,6 +294,23 @@ def download_personal_data():
     user_data = json.dumps(user_data, sort_keys=True).encode('utf-8')
     return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')
 
+@mod.route('/update_topic/<topic_id>/<state>', methods=['PUT'])
+@requiresLogin
+def update_topic(topic_id, state):
+    """Updates the state of the topics to system approved or rejected."""
+    if not db.update_user_topic(topic_id, g.user, state):
+        return jsonify(result='fail')
+    return jsonify(result='success')
+
+@mod.route('/refresh_topics', methods=['PUT'])
+@requiresLogin
+def refresh_topics():
+    """Refreshe the list of topics on the index page and returns list
+    of new topics."""
+    db.clear_suggested_user_topics(g.user,'REFRESHED')
+    return jsonify(result = db.get_user_topics(g.user))
+    
+
 @mod.route('/confirm_email', methods=['GET'])
 def confirm_email_page():
     """Returns page for users that have not confirmed their 
