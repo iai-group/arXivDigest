@@ -3,6 +3,7 @@
 To be scheduled to run regularly on weekdays:
 
   * `interleave_articles.py`: Interleaves article recommendations.
+  * `scrape_arxiv.py`: Downloads new articles from arXiv.
   * `send_digest_mail.py`: Sends out digest email.
 
 To be used for benchmarking:

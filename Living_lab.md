@@ -18,14 +18,12 @@ The evaluation framework consists of the following components:
 
   * [arXivDigest API](/arxivdigest/api/)
     - A RESTful service for experimental recommender systems to access article and user data and to upload personalized recommendations.
-  * [Scraper](scraper/)
-    - It continuously monitors the arXiv RSS feed and downloads new articles.
-  * [Interleaving](scripts/interleave_articles.py)
-    - It includes the interleaving mechanism for combining the article recommendations of multiple experimental recommender systems.
-  * [Digest email](scripts/send_digest_mail.py)
-    - It sends the personalized recommendations to users in the form of daily/weekly digest emails.
+  * Batch processes scheduled to run daily:
+    - [Scraper](scripts/scrape_arxiv.py): Checks the arXiv RSS feed and downloads new articles.
+    - [Interleaving](scripts/interleave_articles.py): combines article recommendations of multiple experimental recommender systems by interleaving them into a single list.
+    - [Digest email](scripts/send_digest_mail.py): Sends personalized article recommendations to users in the form of daily/weekly digest emails.
   * Evaluation
-    - Compares how users interacted with different systems over a period of time and prints the results
+    - Compares how users interacted with different systems over a period of time and generates statistics.
 
 If you want to (i) operate a service yourself or (ii) set up a local copy for development purposes,
 check the [Setup guide](/Setup.md) for information on how to run the system.
