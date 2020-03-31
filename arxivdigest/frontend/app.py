@@ -108,6 +108,10 @@ def teardownDb(exception):
         db.close()
 
 
+if app.debug:  # If started by a debugger
+    assets.auto_build = True
+    app.config['ASSETS_DEBUG'] = True
+
 if __name__ == '__main__':
     assets.auto_build = True
     app.config['ASSETS_DEBUG'] = True
