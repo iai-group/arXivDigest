@@ -158,6 +158,11 @@ def modify():
     db.update_user(g.user, user)
     return redirect(url_for('general.profile'))
 
+@mod.route('/topics/search/<search_string>', methods=['GET'])
+def topic_search(search_string):
+    """Returns a json containing topics starting with ´search_string´."""
+    return jsonify(db.search_topics(search_string))
+
 
 @mod.route('/modify', methods=['GET'])
 @requiresLogin
@@ -278,12 +283,6 @@ def privacy_policy():
     return render_template('privacy_policy.html')
 
 
-@mod.route('/topics/search/<search_string>', methods=['GET'])
-def topic_search(search_string):
-    """Returns a json containing topics starting with ´search_string´."""
-    return jsonify(db.search_topics(search_string))
-
-
 @mod.route('/personal_data/', methods=['GET'])
 @requiresLogin
 def download_personal_data():
@@ -292,24 +291,7 @@ def download_personal_data():
     """
     user_data = db.get_all_userdata(g.user)
     user_data = json.dumps(user_data, sort_keys=True).encode('utf-8')
-    return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')
-
-@mod.route('/update_topic/<topic_id>/<state>', methods=['PUT'])
-@requiresLogin
-def update_topic(topic_id, state):
-    """Updates the state of the topics to system approved or rejected."""
-    if not db.update_user_topic(topic_id, g.user, state):
-        return jsonify(result='fail')
-    return jsonify(result='success')
-
-@mod.route('/refresh_topics', methods=['PUT'])
-@requiresLogin
-def refresh_topics():
-    """Refreshe the list of topics on the index page and returns list
-    of new topics."""
-    db.clear_suggested_user_topics(g.user,'REFRESHED')
-    return jsonify(result = db.get_user_topics(g.user))
-    
+    return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')    
 
 @mod.route('/confirm_email', methods=['GET'])
 def confirm_email_page():
