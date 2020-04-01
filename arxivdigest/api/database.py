@@ -257,18 +257,18 @@ def get_user_topics(ids):
     the topic_recommendations table as a dictionary 
     with userid: [topics]."""
     with closing(getDb().cursor(dictionary=True)) as cur:
-        user_id_string = ','.join(['%s' % (id) for id in ids])
+        placeholders = ','.join(['%s'] * len(ids))
         sql = '''SELECT temp.user_id, t.topic FROM                
             (SELECT tr.user_id, tr.topic_id FROM  topic_recommendations tr
             LEFT JOIN user_topics ut ON ut.topic_id = tr.topic_id and 
-            tr.user_id = ut.user_id WHERE tr.user_id in 
-            ('''+user_id_string+''') UNION
+            tr.user_id = ut.user_id WHERE tr.user_id in (%s)
+            UNION
             SELECT ut.user_id, ut.topic_id FROM  topic_recommendations tr
             RIGHT JOIN user_topics ut ON ut.topic_id = tr.topic_id and 
-            tr.user_id = ut.user_id WHERE tr.user_id in 
-            ('''+user_id_string+''')) temp
-            LEFT JOIN topics t on t.topic_id=temp.topic_id'''
-        cur.execute(sql)
+            tr.user_id = ut.user_id WHERE tr.user_id in (%s)) temp
+            LEFT JOIN topics t 
+            on t.topic_id=temp.topic_id''' % (placeholders, placeholders)
+        cur.execute(sql, (*ids, *ids))
         users = defaultdict(list)
         for u in cur.fetchall():
             users[u.pop('user_id')].append(u)
