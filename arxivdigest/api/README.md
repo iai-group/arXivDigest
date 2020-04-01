@@ -487,7 +487,7 @@ Example:
 
 `POST /recommendations/topics`
 
-Insert recommendations for topics to users, with a score describing how well it matches the users interests. Sending the same recommendation multiple times will update the score to the last received value. This allows reordering of already submitted recommendations, but assumes comparable scores across submissions. See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+Insert recommendations for topics to users, with a score describing how well it matches the users interests. Will only accept topics that have not been recommended at an earlier stat or is added manually by a user. See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
 The maximal number of users that can be given recommendations in a single request and the maximal number of recommendations per user can be [configured](#configurations).
 
