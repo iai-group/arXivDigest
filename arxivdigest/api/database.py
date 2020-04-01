@@ -252,6 +252,29 @@ def get_topic_recommendations(ids):
 
         return users
 
+def get_user_topics(ids):
+    """Returns all topics a user has from the user_topics table and
+    the topic_recommendations table as a dictionary 
+    with userid: [topics]."""
+    with closing(getDb().cursor(dictionary=True)) as cur:
+        user_id_string = ','.join(['%s' % (id) for id in ids])
+        sql = '''SELECT temp.user_id, t.topic FROM                
+            (SELECT tr.user_id, tr.topic_id FROM  topic_recommendations tr
+            LEFT JOIN user_topics ut ON ut.topic_id = tr.topic_id and 
+            tr.user_id = ut.user_id WHERE tr.user_id in 
+            ('''+user_id_string+''') UNION
+            SELECT ut.user_id, ut.topic_id FROM  topic_recommendations tr
+            RIGHT JOIN user_topics ut ON ut.topic_id = tr.topic_id and 
+            tr.user_id = ut.user_id WHERE tr.user_id in 
+            ('''+user_id_string+''')) temp
+            LEFT JOIN topics t on t.topic_id=temp.topic_id'''
+        cur.execute(sql)
+        users = defaultdict(list)
+        for u in cur.fetchall():
+            users[u.pop('user_id')].append(u)
+        
+        return users
+
 
 def get_user_feedback_articles(ids):
     """Returns article feedback data for the requested userIDs in this format:
@@ -300,17 +323,23 @@ def get_user_feedback_topics(ids):
             {topic: {
                 'seen': date or None,
                 'clicked': date or None,
+                'state': varchar or None,
                 }, ...
             }, ...
         ], ...
     }
     """
     with closing(getDb().cursor(dictionary=True)) as cur:
-        sql = """SELECT user_id, topic, DATE(datestamp) as date, seen, clicked
-                 FROM topic_recommendations tr NATURAL JOIN topics t
-                 WHERE user_id IN ({}) AND interleaving_order IS NOT 
-                 null ORDER BY  interleaving_order 
-                 DESC""".format(','.join(['%s'] * len(ids)))
+        sql = '''SELECT tr.user_id, t.topic, DATE(tr.datestamp) as date, 
+                 tr.seen, tr.clicked, ut.state
+                 FROM  topic_recommendations tr INNER JOIN topics t
+                 ON t.topic_id = tr.topic_id 
+                 LEFT JOIN user_topics ut 
+                 ON ut.topic_id = tr.topic_id AND tr.user_id = ut.user_id
+                 WHERE tr.user_id in ({})
+                 AND interleaving_order IS NOT null
+                 ORDER BY tr.interleaving_order 
+                 DESC'''.format(','.join(['%s'] * len(ids)))
 
         cur.execute(sql, ids)
         feedback = {int(u_id): defaultdict(list) for u_id in ids}

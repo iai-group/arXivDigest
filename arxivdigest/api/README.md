@@ -244,6 +244,15 @@ Fields returned for each user:
   - `feedback`: is the feedback stored in a dictionary of {feedback_type: datetime}
     -  "seen":   datetime of when article was seen or null if not seen
     -  "clicked":     datetime of when topic was clicked or null if not clicked
+    -  "state": USER_ADDED, USER_REJECTED, EXPIRED, REFRESHED, SYSTEM_RECOMMENDED_ACCEPTED, SYSTEM_RECOMMENDED_REJECTED
+
+Explanations of different states:
+  - USER_ADDED: The user added the topic themselves by writing it.
+  - USER_REJECTED: The user removed a topic from their profile that was previously USER_ADDED.
+  - EXPIRED: The topic was recommended, but the user did not interact with it within 24 hours.
+  - REFRESHED: The topic was recommended, but the user refreshed the topic suggestion list without interacting with it.
+  - SYSTEM_RECOMMENDED_ACCEPTED: The topic was recommended and the user accepted it from the list or manually added it after rejecting it.
+  - SYSTEM_RECOMMENDED_REJECTED: The topic was recommended an the user rejected it from the list or manually removed it after first accepting it.
 
 Other fields:
   - `error`: if something went wrong
@@ -263,14 +272,16 @@ Example request:
           "2020-03-17": [
             {
               "higher education and career education": {
-                "clicked": null,
-                "seen": "2020-03-17 17:13:53"
+                "clicked": 2020-03-17 18:12:45,
+                "seen": "2020-03-17 17:13:53",
+                "state": "SYSTEM_RECOMMENDED_ACCEPTED"
               }
             },
             {
               "transportation planning": {
                 "clicked": null,
                 "seen": "2020-03-17 17:13:53"
+                "state": "REFRESHED"
               }
             }
           ]
@@ -281,6 +292,7 @@ Example request:
               "transportation planning": {
                 "clicked": null,
                 "seen": "2020-03-17 17:13:53"
+                "state": "EXPIRED"
               }
             }
           ]
