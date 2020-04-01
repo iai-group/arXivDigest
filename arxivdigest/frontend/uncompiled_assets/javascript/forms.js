@@ -247,7 +247,7 @@ $(document).ready(function () {
 function create_removable_list_element(text, data_value, input, hidden_input) {
     let li = $("<li class=\"list-group-item\"></li>");
     li.data("val", data_value);
-    let remove_button = $("<span class='glyphicon glyphicon-remove'></span>");
+    let remove_button = $("<span class='glyphicon glyphicon-remove removable_list_element'></span>");
     remove_button.click(function () {
         input.submitted.forEach(function (element, i) {
             if (element === li.data("val")) {

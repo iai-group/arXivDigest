@@ -16,9 +16,11 @@ from flask import url_for
 from arxivdigest.frontend.database import articles as db
 from arxivdigest.frontend.utils import pageinate
 from arxivdigest.frontend.utils import requiresLogin
+from arxivdigest.frontend.database.general import get_user_topics
 
 mod = Blueprint('articles', __name__)
 
+topic_flag = False
 
 def genArticleList(getArticles):
     '''Returns dictionary with: current interval selection, number of articles per page(5), current page, 
@@ -65,7 +67,11 @@ def genArticleList(getArticles):
 @requiresLogin
 def index():
     '''Returns index page with list of articles'''
-    return render_template('index.html', endpoint='articles.index', ** genArticleList(db.getUserRecommendations))
+    if topic_flag:
+        return render_template('index.html', endpoint='articles.index', ** genArticleList(db.getUserRecommendations),
+                                suggested_topics = get_user_topics(g.user), topic_flag = topic_flag)
+    return render_template('index.html', endpoint='articles.index', ** genArticleList(db.getUserRecommendations),
+                                topic_flag = topic_flag)
 
 
 @mod.route('/savedArticles', methods=['GET'])

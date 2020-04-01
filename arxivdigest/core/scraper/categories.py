@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-'''This is a dictionary of all the categories and their names, this list was generated from: https://arxiv.org/help/api/user-manual#subject_classifications
-It will need to be updated if there are added more subcategories to Arxiv'''
+"""This script gathers category names from 'https://arxiv.org/category_taxonomy'
+If problems occur gathering names one may
+also consider 'https://arxiv.org/help/api/user-manual#subject_classifications'
+"""
 
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
@@ -37,4 +39,4 @@ def get_categories(url):
     return categories
 
 
-subCategoryNames = get_categories(ARXIV_CATEGORY_TAXONOMY_URL)
+sub_category_names = get_categories(ARXIV_CATEGORY_TAXONOMY_URL)

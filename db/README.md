@@ -15,5 +15,5 @@
 | systems | system_id, api_key, system_name, active, admin_user_id |
 | article_feedback | user_id, article_id, system_id, score, recommendation_date, seen_email, seen_web, clicked_email, clicked_web, saved, trace_save_email, trace_click_email, explanation |
 | feedback | feedback_id, user_id, article_id, type, feedback_text |
-| topic_recommendations | recommendation_id, user_id, topic_id, system_id, datestamp, system_score, interleaving_order, seen, clicked |
+| topic_recommendations | recommendation_id, user_id, topic_id, system_id, datestamp, system_score, interleaving_order, seen, clicked , interleaving_batch |
 | database_version | current_version |
