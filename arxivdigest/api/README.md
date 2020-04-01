@@ -1,21 +1,11 @@
-# ArXivDigest API
+# arXivDigest API
 
 The arXivDigest API provides a set of endpoints for experimental recommender systems to get access to articles and user profiles, and to upload personalized recommendations for online evaluation.
 
 Systems must have an active API key to access these endpoints.
 
-## Configurations
-These are the values that can be configured in the API-section of config.json.
-- `dev_port`: Port the server while be launched on while running in development mode.
-- `max_content_length`: Maximum request size.
-- `max_userinfo_request`: The maximal amount of users that info can be retrieved for in one request. More info on [endpoint](#user-information).
-- `max_userid_request`: The maximal amount of userIds that can be retrieved in one request. More info on [endpoint](#list-of-users).
-- `max_articledata_request`: The maximal amount of articles that info can be retrieved for in one request. More info on [endpoint](#article-data).
-- `max_users_per_recommendation`:The maximal amount of users that recommendations can be submitted for in each request. More info on [endpoint](#insert-recommendations).
-- `max_recommendations_per_user`: The maximal amount of articles that info can be recommended to each user in one request. More info on [endpoint](#insert-recommendations).
-- `max_explanation_len`: The maximal length of an explanation for a recommendation. More info on [endpoint](#insert-recommendations).
-
 ## Endpoints
+
 * [User data](#user-data)
   + [List of users](#list-of-users)
   + [User information](#user-information)
@@ -26,7 +16,7 @@ These are the values that can be configured in the API-section of config.json.
   + [Article data](#article-data-1)
 * [Recommendations](#recommendations)
   + [Insert article recommendations](#insert-article-recommendations)
-  + [Article recommendation data](#article-recommendation-data) 
+  + [Article recommendation data](#article-recommendation-data)
   + [Insert topic recommendations](#insert-topic-recommendations)
   + [Topic recommendation data](#topic-recommendation-data)
 
@@ -116,7 +106,7 @@ Example:
           "topics": [ "information retrieval",
                       "retrieval models",...
                     ]
-             
+
             },...
           ]     
         }
@@ -187,7 +177,7 @@ Example request:
       "user_feedback": {
         "1": {
           "2020-03-17": [
-          {"article-123": 
+          {"article-123":
             {
               "seen_email": null,
               "seen_web": '2020-03-17 17:13:53',
@@ -584,3 +574,16 @@ Example:
       }
     }
     ```
+
+## Configurations
+
+These are the values that can be configured in the APIsection of config.json.
+
+- `dev_port`: Port the server while be launched on while running in development mode.
+- `max_content_length`: Maximum request size.
+- `max_userinfo_request`: The maximal amount of users that info can be retrieved for in one request. More info on [endpoint](#user-information).
+- `max_userid_request`: The maximal amount of userIds that can be retrieved in one request. More info on [endpoint](#list-of-users).
+- `max_articledata_request`: The maximal amount of articles that info can be retrieved for in one request. More info on [endpoint](#article-data).
+- `max_users_per_recommendation`:The maximal amount of users that recommendations can be submitted for in each request. More info on [endpoint](#insert-recommendations).
+- `max_recommendations_per_user`: The maximal amount of articles that info can be recommended to each user in one request. More info on [endpoint](#insert-recommendations).
+- `max_explanation_len`: The maximal length of an explanation for a recommendation. More info on [endpoint](#insert-recommendations).

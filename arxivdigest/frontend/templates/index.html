@@ -1,17 +1,28 @@
 {% extends "base.html" %} {% block content %}
-<script>
-    suggested_topics = {{ suggested_topics | tojson }};
-</script>
+{% if topic_flag %}
+    <script>
+        suggested_topics = {{ suggested_topics | tojson }};
+    </script>
+{% endif %}
 
 <div class="container" id="indexDiv">
-    <div class="col-lg-8 col-lg-offset-1">
+
+    {% if topic_flag %}
+        <div class="col-lg-8 col-lg-offset-1">
+    {% else %}
+        <div class="col-lg-8 col-lg-offset-2">
+    {% endif %}
+
         <h3 id="indexTitle">Your personal article recommendations</h3>
         {% include 'articlelist.html' %}
     </div>
 
-    <div class="col-md-3">
-        <ul class="list-group rightmenu" id="index_topic_list"></ul>
-        <p class="red topic-error" id="topic_error"></p>
-    </div>
+    {% if topic_flag %}
+        <div class="col-md-3">
+            <ul class="list-group rightmenu" id="index_topic_list"></ul>
+            <p class="red topic-error" id="topic_error"></p>
+        </div>
+    {% endif %}
+    
 </div>
 {% endblock %}
