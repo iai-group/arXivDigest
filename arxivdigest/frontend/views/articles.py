@@ -20,6 +20,7 @@ from arxivdigest.frontend.database.general import get_user_topics
 
 mod = Blueprint('articles', __name__)
 
+topic_flag = False
 
 def genArticleList(getArticles):
     '''Returns dictionary with: current interval selection, number of articles per page(5), current page, 
@@ -66,8 +67,11 @@ def genArticleList(getArticles):
 @requiresLogin
 def index():
     '''Returns index page with list of articles'''
+    if topic_flag:
+        return render_template('index.html', endpoint='articles.index', ** genArticleList(db.getUserRecommendations),
+                                suggested_topics = get_user_topics(g.user), topic_flag = topic_flag)
     return render_template('index.html', endpoint='articles.index', ** genArticleList(db.getUserRecommendations),
-                           suggested_topics = get_user_topics(g.user))
+                                topic_flag = topic_flag)
 
 
 @mod.route('/savedArticles', methods=['GET'])

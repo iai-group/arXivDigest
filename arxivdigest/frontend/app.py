@@ -21,6 +21,8 @@ from arxivdigest.core.config import secret_key
 from arxivdigest.frontend.views import admin
 from arxivdigest.frontend.views import articles
 from arxivdigest.frontend.views import general
+from arxivdigest.frontend.views import topics
+from arxivdigest.frontend.views.articles import topic_flag
 
 app = Flask(__name__)
 app.secret_key = secret_key
@@ -28,6 +30,9 @@ app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
 app.config['max_content_length'] = config_frontend.get('max_content_length')
+
+if topic_flag:
+    app.register_blueprint(topics.mod)
 
 csrf = CSRFProtect(app)
 assets = Environment(app)
@@ -54,7 +59,15 @@ js_bundle = Bundle('javascript/autocomplete.js',
                    'javascript/forms.js',
                    'javascript/articlelist.js',
                    'javascript/admin.js',
-                   'javascript/index.js',
+                   filters='jsmin',
+                   output='generated/js/base.%(version)s.js')
+
+if topic_flag:
+    js_bundle = Bundle('javascript/autocomplete.js',
+                   'javascript/forms.js',
+                   'javascript/articlelist.js',
+                   'javascript/admin.js',
+                   'javascript/topics.js',
                    filters='jsmin',
                    output='generated/js/base.%(version)s.js')
 
