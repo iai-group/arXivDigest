@@ -90,8 +90,7 @@ def insertUser(user):
 
         user_id = cur.lastrowid
 
-        set_user_categories(user_id, user)
-        set_user_topics(user_id, user)
+        set_user_categories_and_topics(user_id, user)
 
     conn.commit()
     return user_id
