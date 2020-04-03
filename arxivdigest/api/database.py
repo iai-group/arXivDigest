@@ -296,10 +296,11 @@ def get_user_feedback_topics(ids):
     """Returns topic feedback data for the requested userIDs in this format:
     {userid: {
         topic: {
-            'seen': date or None,
-            'clicked': date or None,
-            'state': varchar or None,
-            'date': date or None,
+            'seen': date, None or not existing,
+            'clicked': date, None or not existing,
+            'state': varchar, None or not existing,
+            'recommendation_date': date, None or not existing,
+            'interaction_date': date, None or not existing
             }, ...
         }, ...
     }

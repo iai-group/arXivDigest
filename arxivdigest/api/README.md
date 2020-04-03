@@ -219,22 +219,21 @@ Fields are returned in a JSON in the format, the topics are sorted descending by
     {
       "user_feedback": {
         user_id: {
-           date: [
-            {topic: feedback},
-            {topic: feedback},
-           ]
+          {topic: feedback},
+          {topic: feedback},
         }
       }
     }
 ```
 Fields returned for each user:
   - `user_id`: ID of the user
-  - `date`: Date the recommendation was originally given to the user
   - `topic`: topic that was recommended
-  - `feedback`: is the feedback stored in a dictionary of {feedback_type: datetime}
     -  "seen":   datetime of when article was seen or null if not seen
     -  "clicked":     datetime of when topic was clicked or null if not clicked
     -  "state": USER_ADDED, USER_REJECTED, EXPIRED, REFRESHED, SYSTEM_RECOMMENDED_ACCEPTED, SYSTEM_RECOMMENDED_REJECTED
+    -  "recommendation_date": datetime of when the topic was recommended
+    -  "interaction_date": datetime of when the user last ineracted with the topic
+These are the possible fields that can be returned for each topic, but depending on the state of each topic, the field might not exist. For example a topic that the user adds manually does not have a recommendation_date field. Look to the example request further down.
 
 Explanations of different states:
   - USER_ADDED: The user added the topic themselves by writing it.
@@ -259,33 +258,31 @@ Example request:
     {
       "user_feedback": {
         "1": {
-          "2020-03-17": [
-            {
-              "higher education and career education": {
-                "clicked": 2020-03-17 18:12:45,
-                "seen": "2020-03-17 17:13:53",
-                "state": "SYSTEM_RECOMMENDED_ACCEPTED"
-              }
-            },
-            {
-              "transportation planning": {
-                "clicked": null,
-                "seen": "2020-03-17 17:13:53"
-                "state": "REFRESHED"
-              }
+          {
+            "higher education and career education": {
+              "clicked": "2020-03-17 18:12:45",
+              "seen": "2020-03-17 17:13:53",
+              "state": "SYSTEM_RECOMMENDED_ACCEPTED",
+              "ineraction_time": "2020-03-17 18:12:45",
+              "recommendation_time": "2020-03-15 11:16:53"
             }
-          ]
+          },
+          {
+            "transportation planning": {
+              "clicked": null,
+              "seen": "2020-03-17 17:13:53",
+              "state": "REFRESHED",
+              "recommendation_time": "2020-03-15 11:16:53"
+            }
+          }
         },
         "2": {
-          "2020-03-17": [
-            {
-              "transportation planning": {
-                "clicked": null,
-                "seen": "2020-03-17 17:13:53"
-                "state": "EXPIRED"
-              }
+          {
+            "transportation planning": {
+              "interaction_date": "2020-03-23 22:27:43",
+              "state": "USER_ADDED"
             }
-          ]
+          }
         },
         "3": {}
       }
