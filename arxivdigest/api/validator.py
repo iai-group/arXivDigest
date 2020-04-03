@@ -96,13 +96,15 @@ def duplicate_topic_suggestion(json):
     for that user. Returns error message if there are topics 
     that have been suggested previously and status code."""
     user_ids = [user_id for user_id in json]
-    prev_topics = db.get_user_topics(user_ids)
+    prev_topics = db.get_user_feedback_topics(user_ids)
     error_msg = ('Some of the recommended topics have '
                 'already been recommended for users:')
     error = False
     for user_id in user_ids:
         new_topics = set([topic['topic'] for topic in json[user_id]])
-        old_topics = set([topic['topic'] for topic in prev_topics[int(user_id)]])
+        print(new_topics, '\n')
+        old_topics = set(prev_topics['user_feedback'][int(user_id)].keys())
+        print(old_topics)
         intersecting_topics = new_topics & old_topics
         if (intersecting_topics):
             error = True

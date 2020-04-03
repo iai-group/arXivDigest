@@ -239,9 +239,9 @@ Fields returned for each user:
 Explanations of different states:
   - USER_ADDED: The user added the topic themselves by writing it.
   - USER_REJECTED: The user removed a topic from their profile that was previously USER_ADDED.
-  - EXPIRED: The topic was recommended, but the user did not interact with it within 24 hours.
+  - EXPIRED: The topic was recommended, but the user did not interact with it within 24 hours of seeing this recommendation.
   - REFRESHED: The topic was recommended, but the user refreshed the topic suggestion list without interacting with it.
-  - SYSTEM_RECOMMENDED_ACCEPTED: The topic was recommended and the user accepted it from the list or manually added it after rejecting it.
+  - SYSTEM_RECOMMENDED_ACCEPTED: The topic was recommended and the user accepted it from the list.
   - SYSTEM_RECOMMENDED_REJECTED: The topic was recommended an the user rejected it from the list or manually removed it after first accepting it.
 
 Other fields:
@@ -487,7 +487,7 @@ Example:
 
 `POST /recommendations/topics`
 
-Insert recommendations for topics to users, with a score describing how well it matches the users interests. Will only accept topics that have not been recommended at an earlier stat or is added manually by a user. See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+Insert recommendations for topics to users, with a score describing how well it matches the users interests. Will only accept topics that have not been recommended before or is added manually by a user. See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
 The maximal number of users that can be given recommendations in a single request and the maximal number of recommendations per user can be [configured](#configurations).
 
