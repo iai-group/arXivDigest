@@ -308,7 +308,7 @@ def get_user_feedback_topics(ids):
     with closing(getDb().cursor(dictionary=True)) as cur:
         tr_sql = '''SELECT tr.user_id, t.topic, tr.datestamp 
                  as recommendation_date, 
-                 tr.seen, tr.clicked
+                 tr.seen, tr.clicked, tr.interleaving_order
                  FROM  topic_recommendations tr INNER JOIN topics t
                  ON t.topic_id = tr.topic_id
                  WHERE tr.user_id in ({})

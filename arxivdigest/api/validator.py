@@ -102,9 +102,7 @@ def duplicate_topic_suggestion(json):
     error = False
     for user_id in user_ids:
         new_topics = set([topic['topic'] for topic in json[user_id]])
-        print(new_topics, '\n')
         old_topics = set(prev_topics['user_feedback'][int(user_id)].keys())
-        print(old_topics)
         intersecting_topics = new_topics & old_topics
         if (intersecting_topics):
             error = True

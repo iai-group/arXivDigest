@@ -219,8 +219,8 @@ Fields are returned in a JSON in the format, the topics are sorted descending by
     {
       "user_feedback": {
         user_id: {
-          {topic: feedback},
-          {topic: feedback},
+          topic: feedback_dictionary,
+          topic: feedback_dictionary,
         }
       }
     }
@@ -233,6 +233,7 @@ Fields returned for each user:
     -  "state": USER_ADDED, USER_REJECTED, EXPIRED, REFRESHED, SYSTEM_RECOMMENDED_ACCEPTED, SYSTEM_RECOMMENDED_REJECTED
     -  "recommendation_date": datetime of when the topic was recommended
     -  "interaction_date": datetime of when the user last ineracted with the topic
+    -  "interleaving_order": the score that recommendation got compared to recommendations from other systems in that recommendation batch. Values depend on batch size, default is from 1 to 10
 These are the possible fields that can be returned for each topic, but depending on the state of each topic, the field might not exist. For example a topic that the user adds manually does not have a recommendation_date field. Look to the example request further down.
 
 Explanations of different states:
@@ -265,6 +266,7 @@ Example request:
               "state": "SYSTEM_RECOMMENDED_ACCEPTED",
               "ineraction_time": "2020-03-17 18:12:45",
               "recommendation_time": "2020-03-15 11:16:53"
+              "interleaving_order": 8
             }
           },
           {
@@ -273,6 +275,7 @@ Example request:
               "seen": "2020-03-17 17:13:53",
               "state": "REFRESHED",
               "recommendation_time": "2020-03-15 11:16:53"
+              "interleavnig_order": 4
             }
           }
         },
@@ -484,7 +487,7 @@ Example:
 
 `POST /recommendations/topics`
 
-Insert recommendations for topics to users, with a score describing how well it matches the users interests. Will only accept topics that have not been recommended before or is added manually by a user. See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+Insert recommendations for topics to users, with a score describing how well it matches the users interests. Will only accept topics that have not been interleaved and shown to the user before or is added manually by the user. Sending the same recommendation multiple times will update the score to the last received value if the recommendation has not been shown to the user. This allows reordering of already submitted recommendations, but assumes comparable scores across submissions. See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
 The maximal number of users that can be given recommendations in a single request and the maximal number of recommendations per user can be [configured](#configurations).
 
