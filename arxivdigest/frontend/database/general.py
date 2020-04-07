@@ -177,7 +177,7 @@ def set_user_topics(user_id, user):
                            not in ({})'''.format(placeholders)
         cur.execute(topic_update_sql, [current_time, user_id, *topic_ids])
 
-        topic_update_sql = '''update user_topics set state = 'SYSTEM_RECOMMENDED_ACCEPTED', 
+        topic_update_sql = '''update user_topics set state = 'USER_ADDED', 
                            interaction_time = %s where
                            user_id = %s and state in ('SYSTEM_RECOMMENDED_REJECTED', 'EXPIRED', 
                            'REFRESHED') and topic_id in ({})'''.format(placeholders)

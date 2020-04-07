@@ -219,21 +219,30 @@ Fields are returned in a JSON in the format, the topics are sorted descending by
     {
       "user_feedback": {
         user_id: {
-           date: [
-            {topic: feedback},
-            {topic: feedback},
-           ]
+          topic: feedback_dictionary,
+          topic: feedback_dictionary,
         }
       }
     }
 ```
 Fields returned for each user:
   - `user_id`: ID of the user
-  - `date`: Date the recommendation was originally given to the user
   - `topic`: topic that was recommended
-  - `feedback`: is the feedback stored in a dictionary of {feedback_type: datetime}
     -  "seen":   datetime of when article was seen or null if not seen
     -  "clicked":     datetime of when topic was clicked or null if not clicked
+    -  "state": USER_ADDED, USER_REJECTED, EXPIRED, REFRESHED, SYSTEM_RECOMMENDED_ACCEPTED, SYSTEM_RECOMMENDED_REJECTED
+    -  "recommendation_date": datetime of when the topic was recommended
+    -  "interaction_date": datetime of when the user last ineracted with the topic
+    -  "interleaving_order": the score that recommendation got compared to recommendations from other systems in that recommendation batch. Values depend on batch size, default is from 1 to 10
+These are the possible fields that can be returned for each topic, but depending on the state of each topic, the field might not exist. For example a topic that the user adds manually does not have a recommendation_date field. Look to the example request further down.
+
+Explanations of different states:
+  - USER_ADDED: The user added the topic themselves by writing it.
+  - USER_REJECTED: The user removed a topic from their profile that was previously USER_ADDED.
+  - EXPIRED: The topic was recommended, but the user did not interact with it within 24 hours of seeing this recommendation.
+  - REFRESHED: The topic was recommended, but the user refreshed the topic suggestion list without interacting with it.
+  - SYSTEM_RECOMMENDED_ACCEPTED: The topic was recommended and the user accepted it from the list.
+  - SYSTEM_RECOMMENDED_REJECTED: The topic was recommended an the user rejected it from the list or manually removed it after first accepting it.
 
 Other fields:
   - `error`: if something went wrong
@@ -250,30 +259,33 @@ Example request:
     {
       "user_feedback": {
         "1": {
-          "2020-03-17": [
-            {
-              "higher education and career education": {
-                "clicked": null,
-                "seen": "2020-03-17 17:13:53"
-              }
-            },
-            {
-              "transportation planning": {
-                "clicked": null,
-                "seen": "2020-03-17 17:13:53"
-              }
+          {
+            "higher education and career education": {
+              "clicked": "2020-03-17 18:12:45",
+              "seen": "2020-03-17 17:13:53",
+              "state": "SYSTEM_RECOMMENDED_ACCEPTED",
+              "ineraction_time": "2020-03-17 18:12:45",
+              "recommendation_time": "2020-03-15 11:16:53"
+              "interleaving_order": 8
             }
-          ]
+          },
+          {
+            "transportation planning": {
+              "clicked": null,
+              "seen": "2020-03-17 17:13:53",
+              "state": "REFRESHED",
+              "recommendation_time": "2020-03-15 11:16:53"
+              "interleaving_order": 4
+            }
+          }
         },
         "2": {
-          "2020-03-17": [
-            {
-              "transportation planning": {
-                "clicked": null,
-                "seen": "2020-03-17 17:13:53"
-              }
+          {
+            "transportation planning": {
+              "interaction_date": "2020-03-23 22:27:43",
+              "state": "USER_ADDED"
             }
-          ]
+          }
         },
         "3": {}
       }
@@ -475,7 +487,7 @@ Example:
 
 `POST /recommendations/topics`
 
-Insert recommendations for topics to users, with a score describing how well it matches the users interests. Sending the same recommendation multiple times will update the score to the last received value. This allows reordering of already submitted recommendations, but assumes comparable scores across submissions. See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
+Insert recommendations for topics to users, with a score describing how well it matches the users interests. Will only accept topics that have not been interleaved and shown to the user before or is added manually by the user. Sending the same recommendation multiple times will update the score to the last received value if the recommendation has not been shown to the user. This allows reordering of already submitted recommendations, but assumes comparable scores across submissions. See the [recommendation submission guide](/../../#howto-for-experimental-recommender-systems) for more information on how to submit recommendations.   
 
 The maximal number of users that can be given recommendations in a single request and the maximal number of recommendations per user can be [configured](#configurations).
 

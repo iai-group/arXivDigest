@@ -82,6 +82,7 @@ def topic_recommendation(json):
                    too_many_recommendations,
                    contains_ineligible_topics,
                    score_is_not_float,
+                   duplicate_topic_suggestion,
                    }
 
     for check_func in check_funcs:
@@ -89,6 +90,28 @@ def topic_recommendation(json):
         if err:
             return err
     return None
+
+def duplicate_topic_suggestion(json):
+    """Returns false if all topics are original suggestions
+    for that user. Returns error message if there are topics 
+    that have been suggested previously and status code."""
+    user_ids = [user_id for user_id in json]
+    prev_topics = db.get_user_feedback_topics(user_ids)
+    error_msg = ('Some of the recommended topics have '
+                'already been recommended for users:')
+    error = False
+    for user_id in user_ids:
+        new_topics = set([topic['topic'] for topic in json[user_id]])
+        old_topics = set(prev_topics['user_feedback'][int(user_id)].keys())
+        intersecting_topics = new_topics & old_topics
+        if (intersecting_topics):
+            error = True
+            error_msg += ' user_id: '+user_id+', topics: %s.' % (', '
+                         '').join(intersecting_topics)    
+    if error:
+        return error_msg, 400
+    return False
+        
 
 
 def nonexistent_users(json):

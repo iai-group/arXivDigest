@@ -252,7 +252,6 @@ def get_topic_recommendations(ids):
 
         return users
 
-
 def get_user_feedback_articles(ids):
     """Returns article feedback data for the requested userIDs in this format:
     {userid:
@@ -295,27 +294,42 @@ def get_user_feedback_articles(ids):
 
 def get_user_feedback_topics(ids):
     """Returns topic feedback data for the requested userIDs in this format:
-    {userid:
-        date: [
-            {topic: {
-                'seen': date or None,
-                'clicked': date or None,
-                }, ...
+    {userid: {
+        topic: {
+            'seen': date, None or not existing,
+            'clicked': date, None or not existing,
+            'state': varchar, None or not existing,
+            'recommendation_date': date, None or not existing,
+            'interaction_date': date, None or not existing
             }, ...
-        ], ...
+        }, ...
     }
     """
     with closing(getDb().cursor(dictionary=True)) as cur:
-        sql = """SELECT user_id, topic, DATE(datestamp) as date, seen, clicked
-                 FROM topic_recommendations tr NATURAL JOIN topics t
-                 WHERE user_id IN ({}) AND interleaving_order IS NOT 
-                 null ORDER BY  interleaving_order 
-                 DESC""".format(','.join(['%s'] * len(ids)))
+        tr_sql = '''SELECT tr.user_id, t.topic, tr.datestamp 
+                 as recommendation_date, 
+                 tr.seen, tr.clicked, tr.interleaving_order
+                 FROM  topic_recommendations tr INNER JOIN topics t
+                 ON t.topic_id = tr.topic_id
+                 WHERE tr.user_id in ({})
+                 AND interleaving_order IS NOT null
+                 ORDER BY tr.interleaving_order 
+                 DESC'''.format(','.join(['%s'] * len(ids)))
 
-        cur.execute(sql, ids)
-        feedback = {int(u_id): defaultdict(list) for u_id in ids}
+        cur.execute(tr_sql, ids)
+        feedback = {int(u_id): defaultdict(dict) for u_id in ids}
         for u in cur.fetchall():
-            date = u.pop('date').strftime('%Y-%m-%d')
-            feedback[u.pop('user_id')][date].append({u.pop('topic'): u})
+            feedback[u.pop('user_id')][u.pop('topic')].update(u)
+
+        ut_sql = '''select ut.user_id, t.topic, ut.interaction_time 
+                 as interaction_date, ut.state from user_topics ut 
+                 inner join topics t on 
+                 t.topic_id = ut.topic_id where ut.user_id in ({})
+                 order by ut.interaction_time 
+                 desc'''.format(','.join(['%s'] * len(ids)))
+
+        cur.execute(ut_sql, ids)
+        for u in cur.fetchall():
+            feedback[u.pop('user_id')][u.pop('topic')].update(u)
 
         return {'user_feedback': feedback}
