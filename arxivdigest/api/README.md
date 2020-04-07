@@ -275,7 +275,7 @@ Example request:
               "seen": "2020-03-17 17:13:53",
               "state": "REFRESHED",
               "recommendation_time": "2020-03-15 11:16:53"
-              "interleavnig_order": 4
+              "interleaving_order": 4
             }
           }
         },
