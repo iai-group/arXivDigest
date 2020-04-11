@@ -6,6 +6,8 @@ Systems must have an active API key to access these endpoints.
 
 ## Endpoints
 
+* [General](#general)
+  + [Index](#index)
 * [User data](#user-data)
   + [List of users](#list-of-users)
   + [User information](#user-information)
@@ -20,6 +22,43 @@ Systems must have an active API key to access these endpoints.
   + [Insert topic recommendations](#insert-topic-recommendations)
   + [Topic recommendation data](#topic-recommendation-data)
 
+## General
+
+### Index
+
+`GET /`
+
+Endpoint that returns a welcome message and settings that should be used when interacting with the API.
+
+Fields returned:
+  - `info`: Welcome message.
+  - `settings`: Settings that should be used when interacting with the API.
+      - `user_ids_per_request`: How many users ids that are sent each request.
+      - `max_userinfo_request`: How many users one can request info for at once.
+      - `max_articledata_request`: How many articles one can request data for at once.
+      - `max_users_per_recommendation`: How many users one can send recommendations for at once.
+      - `max_recommendations_per_user`: How many recommendations that can be submitted per user at once.
+      - `max_explanation_len`: The maximum length of explanations.
+
+Example:
+
+  - Request: `GET /`
+
+  - Response:
+    ```
+    {
+    "info": "This is the arXivDigest API"
+    "settings": {
+        "user_ids_per_request": 1000,
+        "max_userinfo_request": 100,
+        "max_articledata_request": 100,
+        "max_users_per_recommendation": 100,
+        "max_recommendations_per_user": 10,
+        "max_explanation_len": 400
+        }
+    }
+    ```
+ 
 ## User data
 
 ### List of users

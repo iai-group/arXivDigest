@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-import logging
 
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
 import json
+import logging
 import os
 import sys
-import urllib
 from collections import defaultdict
-from urllib import request
 
 from elasticsearch import Elasticsearch
 
+from arxivdigest.connector import ArxivdigestConnector
 from index import run_indexing
 from init_index import init_index
 
@@ -44,26 +43,6 @@ ELASTICSEARCH_HOST = config_file.get('elasticsearch_host',
                                      {'host': '127.0.0.1', 'port': 9200})
 
 
-def get_user_ids(start, api_key, api_url):
-    """Queries the arXivDigest API for user ids starting from 'start'. """
-    req = request.Request('%susers?from=%d' % (api_url, start),
-                          headers={"api-key": api_key})
-    resp = request.urlopen(req)
-    return json.loads(resp.read())
-
-
-def get_user_info(user_ids, api_key, api_url, batch_size=100):
-    """Queries the arXivDigest API for userdata for the given 'user_ids'."""
-    user_info = {}
-    for i in range(0, len(user_ids), batch_size):
-        user_id_string = ','.join([str(u) for u in user_ids[i:i + batch_size]])
-        url = '%suser_info?user_id=%s' % (api_url, user_id_string)
-        req = request.Request(url, headers={"api-key": api_key})
-        resp = request.urlopen(req)
-        user_info.update(json.loads(resp.read())['user_info'])
-    return user_info
-
-
 def get_articles_by_topic(es, topic, index, window_size=7, size=10000):
     """Retrieves articles from the Elasticsearch index mentioning 'topic',
     the 'window_size' is the number of days back in time articles will
@@ -90,22 +69,6 @@ def get_articles_by_topic(es, topic, index, window_size=7, size=10000):
     }
     res = es.search(index=index, body=query, params={"size": size})
     return res
-
-
-def send_recommendations(recommendations, api_key, api_url, batch_size=100):
-    """Sends the recommendations to the arXivDigest API.
-    Recommendations should be a dict of user_id, recommendation pairs."""
-    recommendations = list(recommendations.items())
-    for i in range(0, len(recommendations), batch_size):
-        data = json.dumps({'recommendations': dict(
-            recommendations[i:i + batch_size])}).encode('utf8')
-        req = request.Request(api_url + "/recommendations/articles", data=data,
-                              headers={'Content-Type': 'application/json',
-                                       "api-key": api_key})
-        try:
-            request.urlopen(req)
-        except urllib.error.HTTPError as e:
-            logger.error('Response:', e.read().decode())
 
 
 def make_user_recommendation(es, topics, index, n_topics_explanation=3):
@@ -155,20 +118,20 @@ def make_recommendations(es, user_info, index, n_articles=10):
     return recommendations
 
 
-def recommend(es, api_key, api_url, index):
+def recommend(es, arxivdigest_connector, index):
     """Makes and sends recommendations to all users."""
-    total_users = get_user_ids(0, api_key, api_url)['users']['num']
+    total_users = arxivdigest_connector.get_number_of_users()
     logger.info(
         'Starting recommending articles for {} users'.format(total_users))
     recommendation_count = 0
     while recommendation_count < total_users:
-        user_ids = get_user_ids(0, api_key, api_url)['users']['user_ids']
-        user_info = get_user_info(user_ids, api_key, api_url)
+        user_ids = arxivdigest_connector.get_user_ids(recommendation_count)
+        user_info = arxivdigest_connector.get_user_info(user_ids)
 
         recommendations = make_recommendations(es, user_info, index)
 
         if recommendations:
-            send_recommendations(recommendations, api_key, api_url)
+            arxivdigest_connector.send_article_recommendations(recommendations)
         recommendation_count += len(user_ids)
         logger.info('Processed {} users'.format(recommendation_count))
 
@@ -180,12 +143,13 @@ def run(api_key, api_url, index):
         - Creates and sends recommendations for each user
         """
     es = Elasticsearch(hosts=[ELASTICSEARCH_HOST])
+    arxivdigest_connector = ArxivdigestConnector(api_key, api_url)
     if not es.indices.exists(index=index):
         logger.info('Creating index')
         init_index(es, index)
     logger.info('Indexing articles from arXivDigest API.')
-    run_indexing(es, index, api_key, api_url)
-    recommend(es, api_key, api_url, index)
+    run_indexing(es, index, arxivdigest_connector)
+    recommend(es, arxivdigest_connector, index)
     logger.info('\nFinished recommending articles.')
 
 

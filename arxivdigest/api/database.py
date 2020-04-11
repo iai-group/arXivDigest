@@ -72,7 +72,8 @@ def getUsers(ids):
             category['category_id'])
 
     sql = '''SELECT ut.user_id, t.topic 
-             FROM user_topics ut NATURAL JOIN topics t WHERE user_id IN (%s) 
+             FROM user_topics ut NATURAL JOIN topics t WHERE user_id IN (%s)
+             AND ut.state IN ('USER_ADDED', 'SYSTEM_RECOMMENDED_ACCEPTED') 
              AND NOT t.filtered''' % format_strings
 
     cur.execute(sql, ids)
