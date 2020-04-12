@@ -29,6 +29,7 @@ class ArxivdigestConnector:
         self.users_per_recommendation = settings['max_users_per_recommendation']
         self.recommendations_per_user = settings['max_recommendations_per_user']
         self.max_explanation_len = settings['max_explanation_len']
+        self.max_topic_len = settings['max_topic_len']
 
         self.validate_api_key()
 
