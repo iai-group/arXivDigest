@@ -450,7 +450,7 @@ def is_activated(user_id):
     cur.execute('SELECT inactive FROM users where user_id=%s', (user_id,))
     inactive = cur.fetchone()[0]
     cur.close()
-    return True if inactive is 1 else False
+    return False if inactive is 1 else True
 
 def add_activate_trace(trace, email):
     """Connects the trace from the activation email to the user."""

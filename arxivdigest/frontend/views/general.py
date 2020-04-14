@@ -16,6 +16,7 @@ from flask import url_for
 
 from arxivdigest.core.config import CONSTANTS
 from arxivdigest.frontend.database import general as db
+from arxivdigest.frontend.database import general as general_db
 from arxivdigest.frontend.database.articles import article_is_recommended_for_user
 from arxivdigest.frontend.database.articles import get_article_feedback
 from arxivdigest.frontend.forms.feedback_form import ArticleFeedbackForm
@@ -57,8 +58,11 @@ def login():
 @mod.route('/login', methods=['GET'])
 def loginPage():
     """Returns login page or index page if already logged in"""
-    if g.loggedIn and not g.inactive:
-        return redirect(url_for('articles.index'))
+    if g.loggedIn:
+        if g.inactive:
+            return redirect(url_for('general.confirm_email_page'))
+        else:
+            return redirect(url_for('articles.index'))
     next = request.args.get('next')
     if next:
         err = 'You must be logged in to access this endpoint'
@@ -157,6 +161,7 @@ def modify():
 
     db.update_user(g.user, user)
     return redirect(url_for('general.profile'))
+
 
 @mod.route('/topics/search/<search_string>', methods=['GET'])
 def topic_search(search_string):
@@ -291,7 +296,8 @@ def download_personal_data():
     """
     user_data = db.get_all_userdata(g.user)
     user_data = json.dumps(user_data, sort_keys=True).encode('utf-8')
-    return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')    
+    return create_gzip_response(user_data, 'arXivDigest_Userdata.json.gz')
+
 
 @mod.route('/confirm_email', methods=['GET'])
 def confirm_email_page():
@@ -299,14 +305,20 @@ def confirm_email_page():
     email address"""
     if not g.loggedIn:
         return redirect(url_for('general.loginPage'))
-    if not g.inactive:
-        return redirect(url_for('articles.index'))
+
     next = request.args.get('next')
+    if general_db.is_activated(g.user):
+        if next is not '':
+            return make_auth_token_response(g.user, g.email, next)
+        return make_auth_token_response(g.user, g.email,
+                                        url_for('articles.index'))
+
     if next:
         err = 'You must confirm your email to access this endpoint'
         flash(err, 'danger')
         return render_template('confirm_email.html', next=next, email=g.email)
     return render_template('confirm_email.html', email=g.email)
+
 
 @mod.route('/send_email', methods=['POST'])
 def send_email():
@@ -337,12 +349,14 @@ def activate_user(trace):
     else:
         return redirect(url_for('general.loginPage'))
 
+
 @mod.route('/mail/unsubscribe/<uuid:trace>', methods=['GET'])
 def unsubscribe(trace):
     if not db.digest_unsubscribe(str(trace)):
         flash('Invalid unsubscribe link.', 'danger')
         return redirect(url_for('articles.index'))
     return render_template('unsubscribed.html')
+
 
 def make_auth_token_response(user_id, email, next_page):
     """Creates a Response object that redirects to 'next_page' with
