@@ -23,8 +23,11 @@ class MailServer:
     def __init__(self, from_address, password, host, port):
         """Starts and logs into mail server"""
         self.from_address = from_address
-        self.server = smtplib.SMTP(host, port)
-        self.server.starttls()
+        if port == 465:
+            self.server = smtplib.SMTP_SSL(host, port, timeout=5)
+        else:
+            self.server = smtplib.SMTP(host, port, timeout=5)
+            self.server.starttls()
         self.server.login(self.from_address, password)
         self.env = Environment(loader=PackageLoader(__name__, 'templates'))
 
