@@ -16,10 +16,10 @@ from flask import url_for
 
 import arxivdigest.frontend.database.admin as admin
 import arxivdigest.frontend.database.general as general
-from arxivdigest.core.config import jwtKey
 from arxivdigest.core.config import config_email
-from arxivdigest.core.mail.mail_server import MailServer
 from arxivdigest.core.config import config_web_address
+from arxivdigest.core.config import jwtKey
+from arxivdigest.core.mail.mail_server import MailServer
 
 
 def requiresLogin(f):
@@ -45,7 +45,7 @@ def encode_auth_token(id, email):
         'sub': id,
         'admin': admin.isAdmin(id),
         'email': email,
-        'inactive': general.is_activated(id)
+        'inactive': not general.is_activated(id)
     }
     return jwt.encode(payload, jwtKey, algorithm='HS256').decode()
 

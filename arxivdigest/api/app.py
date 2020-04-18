@@ -18,6 +18,8 @@ from arxivdigest.api.utils import getUserlist
 from arxivdigest.api.utils import validateApiKey
 from arxivdigest.core.config import config_api
 
+from arxivdigest.core.config import CONSTANTS
+
 app = Flask(__name__)
 
 app.config.update(**config_api)
@@ -159,7 +161,20 @@ def get_topic_recommendations(users):
 @app.route('/', methods=['GET'])
 def info():
     """Info response."""
-    return make_response(jsonify({'info': "This is the arXivDigest API"}), 200)
+    settings = {
+        'user_ids_per_request': config_api['max_userid_request'],
+        'max_userinfo_request': config_api['max_userinfo_request'],
+        'max_articledata_request': config_api['max_articledata_request'],
+        'max_users_per_recommendation': config_api[
+            'max_users_per_recommendation'],
+        'max_recommendations_per_user': config_api[
+            'max_recommendations_per_user'],
+        'max_explanation_len': config_api['max_explanation_len'],
+        'max_topic_len': CONSTANTS.max_topic_length
+    }
+
+    return make_response(jsonify({'info': 'This is the arXivDigest API',
+                                  'settings': settings}), 200)
 
 
 @app.teardown_appcontext
