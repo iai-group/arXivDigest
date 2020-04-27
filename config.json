@@ -40,5 +40,10 @@
         "saved_weight": 5,
         "clicked_web_weight": 3,
         "clicked_email_weight": 3
+    },
+    "arxiv_scraper_config": {
+        "last_n_days": 1,
+        "start_date": null,
+        "end_date": null
     }
 }
