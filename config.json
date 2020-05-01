@@ -27,7 +27,7 @@
         "recommendations_per_user": 30,
         "users_per_batch": 100,
         "articles_per_date_in_email": 3,
-        "topics_multileaved_per_batch": 10
+        "topics_multileaved_per_batch": 20
     },
     "frontend_config": {
         "data_path": "",

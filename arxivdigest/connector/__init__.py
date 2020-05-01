@@ -88,6 +88,14 @@ class ArxivdigestConnector:
                          headers={'api-key': self.api_key})
         return r.json()['users']['user_ids']
 
+    def get_topics(self):
+        """Queries the arXivDigest API for a full list of topics
+        currently stored on the platform. Returns a list with all
+        topics as strings."""
+        r = requests.get(self.api_url + 'topics',
+                         headers={'api-key': self.api_key})
+        return r.json()['topics']
+
     def get_user_info(self, user_ids):
         """Queries the arXivDigest API for userdata for the given 'user_ids'.
         :param user_ids: List of user ids to retrieve info for.

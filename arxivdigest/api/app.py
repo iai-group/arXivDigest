@@ -102,6 +102,13 @@ def article_data():
     articles = db.get_article_data(ids)
     return make_response(jsonify({'articles': articles}), 200)
 
+@app.route('/topics', methods=['GET'])
+@validateApiKey
+def topics():
+    """API-endpoint for requesting a list of all topics currently
+    stored in arXivDigest."""
+    topics = db.get_topics()
+    return make_response(jsonify({'topics': topics}), 200)
 
 @app.route('/recommendations/articles', methods=['POST'])
 @validateApiKey
