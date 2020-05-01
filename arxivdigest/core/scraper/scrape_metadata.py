@@ -2,13 +2,15 @@
 """This module contains the the methods related to scraping articles from arXiv.
 To only scrape the metadata from the articles in the rss-stream use the
 harvestMetaDataRss method.
-It's also possible to scrape articles from any date until today,
-to accomplish this use the get_records_from_last_n_days method."""
+It's also possible to scrape articles between any two dates,
+to accomplish this use the get_records_by_date method."""
+import datetime
+
+import requests
 
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
-import datetime
 import urllib
 import xml.etree.ElementTree as ET
 from time import sleep
@@ -22,6 +24,8 @@ ARXIV = '{http://arxiv.org/OAI/arXiv/}'
 
 def prepare_record(record):
     """Formats the data to a dictionary structure that is easy to work with."""
+    if record.find(OAI + 'header').get('status', None) == 'deleted':
+        return {}
     info = record.find(OAI + 'metadata').find(ARXIV + 'arXiv')
     result = {'title': info.find(ARXIV + 'title').text.replace('\n', ' '),
               'description': info.find(ARXIV + 'abstract').text.replace('\n', ' '),
@@ -43,7 +47,7 @@ def prepare_record(record):
     for author in info.find(ARXIV + 'authors'):
         a = {}
         firstname = author.find(ARXIV + 'forenames')
-        a['firstname'] = ''if firstname is None else firstname.text
+        a['firstname'] = '' if firstname is None else firstname.text
         a['lastname'] = author.find(ARXIV + 'keyname').text
         a['affiliations'] = []
         for affiliation in author.findall(ARXIV + 'affiliation'):
@@ -56,31 +60,33 @@ def prepare_record(record):
     return result
 
 
-def get_records_from_last_n_days(n):
+def get_records_by_date(start_date, end_date=None):
     """Scrapes the OAI-api for articles submitted from the n previous days."""
+    base_url = 'http://export.arxiv.org/oai2'
+    params = {'verb': 'ListRecords',
+              'metadataPrefix': 'arXiv',
+              'from': start_date}
+    if end_date:
+        params['until'] = end_date
+
     result = {}
-    baseUrl = 'http://export.arxiv.org/oai2?verb=ListRecords&'
-    url = '%sfrom=%s&metadataPrefix=arXiv' % (
-        baseUrl, datetime.date.today() - datetime.timedelta(n))
     while True:
-        print('Fetching', url)
-        try:
-            response = urlopen(url)
-        except urllib.error.HTTPError as e:
-            if e.code == 503:
-                timeOut = int(e.headers.get('retry-after', 30))
-                print(
-                    '503: Have to wait before further requests. Retrying in %d seconds.' % timeOut)
-                sleep(timeOut)
-                continue
-            else:
-                raise
+        r = requests.get(base_url, params=params)
+        print('Fetching', r.url)
+        if r.status_code == 503:
+            time_out = int(r.headers.get('retry-after', 5))
+            msg = '503: Have to wait before further requests. Retrying in {} seconds.'
+            print(msg.format(time_out))
+            sleep(time_out)
+            continue
+
         # generate elementtree from responsedata
-        root = ET.fromstring(response.read())
+        root = ET.fromstring(r.text)
         # parse the response and add it to result
         for record in root.find(OAI + 'ListRecords').findall(OAI + 'record'):
             element = prepare_record(record)
-            result[element['id']] = element
+            if element:
+                result[element['id']] = element
         # If the xmlfile contains more than 1000 articles arXiv will add a
         # resumptiontoken to the response, if we already have all the articles
         # there will be no resumptiontoken and we can safely break
@@ -88,7 +94,7 @@ def get_records_from_last_n_days(n):
         if token is None or token.text is None:
             break
         # update url to use resumptiontoken in the next request
-        url = baseUrl + 'resumptionToken=%s' % (token.text)
+        params = {'verb': 'ListRecords', 'resumptionToken': token.text}
     return result
 
 
@@ -151,10 +157,11 @@ def get_id_from_rss():
 def harvest_metadata_rss():
     """This function will return the metadata from all the articles present
     in any of the arXiv rss-streams."""
-    rssIDs = get_id_from_rss()
-    articles = get_records_from_last_n_days(1)
+    rss_ids = get_id_from_rss()
+    yesterday = datetime.datetime.utcnow().date() - datetime.timedelta(days=1)
+    articles = get_records_by_date(yesterday)
     result = {}
-    for item in rssIDs:
+    for item in rss_ids:
         if item not in articles:  # download missing articles, if any
             element = get_record(item)
             result[element['id']] = element
