@@ -19,10 +19,8 @@ function show_topics(){
     }
     for (var i = 0; i < suggested_topics.length; i++){
         var new_topic_element = $("<li class='list-group-item'></li>");
-        var ok_button = $(`<div class='glyphicon glyphicon-ok alignright topic-symbol' title='Add this topic to your profile'
-                          data-value=`+ suggested_topics[i]['topic_id']+` onclick='add_topic(this)' style='color:rgb(103, 134, 103);'></div>`);
-        var remove_button = $(`<div class='glyphicon glyphicon-remove alignright topic-symbol' title='Remove this topic suggestion'
-                          data-value=`+ suggested_topics[i]['topic_id']+` onclick='reject_topic(this)' style='color:rgb(177, 119, 119);'></div>`);
+        var ok_button = $("<div class='glyphicon glyphicon-ok alignright topic-symbol' title='Add this topic to your profile' data-value='"+ suggested_topics[i]['topic_id']+"' onclick='add_topic(this)' style='color:rgb(103, 134, 103);'></div>");
+        var remove_button = $("<div class='glyphicon glyphicon-remove alignright topic-symbol' title='Remove this topic suggestion' data-value='"+ suggested_topics[i]['topic_id']+"' onclick='reject_topic(this)' style='color:rgb(177, 119, 119);'></div>");
         var topic_text = $("<p>"+suggested_topics[i]['topic']+"</p>");
         new_topic_element.append(remove_button);
         new_topic_element.append(ok_button);
