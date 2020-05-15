@@ -20,7 +20,7 @@ from arxivdigest.frontend.database.general import get_user_topics
 
 mod = Blueprint('articles', __name__)
 
-topic_flag = False
+topic_flag = True
 
 def genArticleList(getArticles):
     '''Returns dictionary with: current interval selection, number of articles per page(5), current page, 

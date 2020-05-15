@@ -44,6 +44,7 @@ config_api = config.get('api_config')
 config_interleave = config.get('interleave_config')
 config_frontend = config.get('frontend_config')
 config_evaluation = config.get('evaluation_config')
+config_arxiv_scraper = config.get('arxiv_scraper_config')
 
 jwtKey = config_frontend.get('jwt_key')
 secret_key = config_frontend.get('secret_key')

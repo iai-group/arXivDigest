@@ -172,6 +172,12 @@ def get_article_data(ids):
     cur.close()
     return articles
 
+def get_topics():
+    cur = getDb().cursor()
+    sql = "SELECT topic FROM topics"
+    cur.execute(sql)
+    topics = [topic[0] for topic in cur.fetchall()]
+    return topics
 
 def insert_article_recommendations(recommendations):
     """Takes in a list of tuples containg (userID,articleID,systemID,score,timestamp),

@@ -88,6 +88,14 @@ class ArxivdigestConnector:
                          headers={'api-key': self.api_key})
         return r.json()['users']['user_ids']
 
+    def get_topics(self):
+        """Queries the arXivDigest API for a full list of topics
+        currently stored on the platform. Returns a list with all
+        topics as strings."""
+        r = requests.get(self.api_url + 'topics',
+                         headers={'api-key': self.api_key})
+        return r.json()['topics']
+
     def get_user_info(self, user_ids):
         """Queries the arXivDigest API for userdata for the given 'user_ids'.
         :param user_ids: List of user ids to retrieve info for.
@@ -141,6 +149,20 @@ class ArxivdigestConnector:
                              headers={'api-key': self.api_key})
             article_feedback.update(r.json()['user_feedback'])
         return article_feedback
+
+    def get_interleaved_articles(self, user_ids):
+        """Queries the arXivDigest API for interleaved articles for the given
+        'user_ids'.
+        :param user_ids: List of user ids to retrieve data for.
+        :return: List of interleaved article ids for each user id."""
+        article_feedback = self.get_article_feedback(user_ids)
+        interleaved_articles = {str(user_id): [] for user_id in user_ids}
+        for user_id, date_batch in article_feedback.items():
+            for date, article_list in date_batch.items():
+                for article in article_list:
+                    article_id, _ = article.popitem()
+                    interleaved_articles[user_id].append(article_id)
+        return interleaved_articles
 
     def send_article_recommendations(self, recommendations):
         """Sends the recommendations to the arXivDigest API.

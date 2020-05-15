@@ -97,7 +97,8 @@ def make_user_recommendation(es, topics, index, n_topics_explanation=3):
     return result
 
 
-def make_recommendations(es, user_info, index, n_articles=10):
+def make_recommendations(es, user_info, interleaved_articles, index,
+                         n_articles=10):
     """Makes recommendations for all the users in user_info based on the
     topics in user_info. Searches the elasticsearch index for candidates
     and uses the Elasticsearch score as score.
@@ -109,6 +110,8 @@ def make_recommendations(es, user_info, index, n_articles=10):
             continue
         logger.debug('User %s topics: %s.', user, ', '.join(info['topics']))
         articles = make_user_recommendation(es, info['topics'], index)
+        articles = [article for article in articles if article['article_id']
+                    not in interleaved_articles[user]]
         articles = sorted(articles, key=lambda k: k['score'], reverse=True)
 
         recommendations[user] = articles[0:n_articles]
@@ -127,8 +130,10 @@ def recommend(es, arxivdigest_connector, index):
     while recommendation_count < total_users:
         user_ids = arxivdigest_connector.get_user_ids(recommendation_count)
         user_info = arxivdigest_connector.get_user_info(user_ids)
+        interleaved = arxivdigest_connector.get_interleaved_articles(user_ids)
 
-        recommendations = make_recommendations(es, user_info, index)
+        recommendations = make_recommendations(es, user_info, interleaved,
+                                               index)
 
         if recommendations:
             arxivdigest_connector.send_article_recommendations(recommendations)
@@ -172,4 +177,5 @@ if __name__ == '__main__':
     )
     log_level = config_file.get('log_level', 'INFO').upper()
     logger.setLevel(log_levels.get(log_level, 20))
+
     run(API_KEY, API_URL, INDEX)

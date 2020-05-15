@@ -11,6 +11,7 @@ setup(
     packages=find_packages(),
     package_data={'arxivdigest.core.mail': ['templates/*.tmpl'],
                   'arxivdigest.frontend': ['templates/*.html',
+                                           'templates/macros/*',
                                            'uncompiled_assets/css/*',
                                            'uncompiled_assets/javascript/*',
                                            'static/*',
