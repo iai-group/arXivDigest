@@ -88,7 +88,7 @@ form td {
 }
 
 table input,
-select,
+table select,
 table textarea {
     width: 100%;
     margin: 0.3em 0;
@@ -635,8 +635,6 @@ code {
     width: 600px;
     margin: 0 auto;
     margin-top: 10px;
-    border: 3px solid rgb(199, 199, 199);
-    border-radius: 10px;
 }
 
 #statistics {
@@ -645,9 +643,32 @@ code {
     text-align: center;
     font-size: 1.3em;
     width: 600px;
-    border: 3px solid rgb(199, 199, 199);
-    border-radius: 10px;
     padding: 3px;
+}
+
+.tab-pane {
+    padding: 1.5em;
+}
+
+.evaluation .list-group {
+    overflow: auto;
+    height: auto;
+    max-height: 85vh;
+    padding: 0;
+}
+
+.evaluation .list-group li {
+    overflow: hidden;
+}
+
+
+.evaluation .form-inline .form-group label,
+.evaluation .form-inline .form-group + label {
+    padding-right: 1em;
+}
+
+#evaluation div.form-inline {
+    padding-left: 3em;
 }
 
 .topic-symbol{

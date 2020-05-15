@@ -20,6 +20,7 @@ from arxivdigest.core.config import config_email
 from arxivdigest.core.config import config_web_address
 from arxivdigest.core.config import jwtKey
 from arxivdigest.core.mail.mail_server import MailServer
+from arxivdigest.frontend import database
 
 
 def requiresLogin(f):
@@ -103,3 +104,30 @@ def send_confirmation_email(email):
     general.add_activate_trace(trace, email)
     server.send_mail(**mail_content)
     server.close()
+
+
+def date_range(start_date, end_date, step=1, date_format=None):
+    """Creates a range from dates.
+
+    :param start_date: Start of range.
+    :param end_date: End of range.
+    :param step: Days to between dates in range.
+    :param date_format: If set, dates will be stings with this format,
+    else they will be date objects.
+    :return: Range of dates.
+    """
+    dates = [start_date + datetime.timedelta(days=days) for days in
+             range(0, (end_date - start_date).days + 1, step)]
+
+    if not date_format:
+        return dates
+    else:
+        return [date.strftime(date_format) for date in dates]
+
+
+def is_owner(user_id, system_id):
+    """Checks whether the user is the owner of the system."""
+    for system in database.general.get_systems(user_id):
+        if system['system_id'] == system_id:
+            return True
+    return False

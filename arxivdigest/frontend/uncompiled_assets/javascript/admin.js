@@ -61,7 +61,7 @@ $(document).ready(function () {
                             datasets: [{
                                 label: 'User registration over time',
                                 data: data.users.users,
-                                backgroundColor: 'rgba(100, 159, 64, 0.2)'
+                               backgroundColor: 'rgba(100, 159, 64, 0.3)'
                             }]
                         },
                     });
@@ -76,16 +76,21 @@ $(document).ready(function () {
                             datasets: [{
                                 label: 'Articles scraped over time',
                                 data: data.articles.articles,
-                                backgroundColor: 'rgba(100, 159, 64, 0.2)'
+                                backgroundColor: 'rgba(100, 159, 64, 0.3)'
                             }]
                         },
                     });
-
                     $("#statistics").html("Total users: <strong>" + data.users.total + "\n</strong> Total articles:<strong>" + data.articles.total + "</strong>")
                 }
             });
     });
 
+    $("ul.nav a[href ='#evaluation']").bind("show.bs.tab", function () {
+        let evaluation_area = $("#evaluation");
+        evaluation_area.empty();
+        let system_list = create_system_list(evaluation_area, "/admin/systems/get");
+        evaluation_area.append(system_list);
+    });
 
     $(".nav-tabs a").click(function () {
         $(this).tab("show");
