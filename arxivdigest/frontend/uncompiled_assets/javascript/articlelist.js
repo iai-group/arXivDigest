@@ -30,8 +30,10 @@ $(document).ready(function () {
                         button.toggleClass("Saved", !isSaved);
                         if (isSaved) {
                             button.attr("title", "Save this article");
+                            button.attr("src","../static/icons/icon_save.png")
                         } else {
-                            button.attr("title", "Remove this article");
+                            button.html("title", "Remove this article from saved articles");
+                            button.attr("src","../static/icons/icon_remove.png")
                         }
                     }
                 }
