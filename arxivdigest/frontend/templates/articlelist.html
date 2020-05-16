@@ -56,26 +56,20 @@
             <p class="articleDescription tex2jax_process">{{ article.abstract }}</p>
             <span>
                 <span style="max-width: 75%;"><p class='explanation'>{{ article.explanation | md_bold }}</p></span>
-                <span class='feedback'>
-                    <a href="{{ url_for('general.article_feedback',article_id=article.article_id) }}"
-                       style="color: rgb(90, 90, 90);">
-                        Feedback
-                    </a>
-                </span>
             </span>
             <br>
         </div>
         <div class="articleIcons">
             {% if article.saved %}
-                <img src="../static/icons/icon_remove.png" data-value="{{ article.article_id }}" class="saveButton Saved" title="Remove this article from saved articles">
+                <img src="../static/icons/icon_remove.png" data-value="{{ article.article_id }}" class="saveButton Saved" title="Remove this article from library">
             {% else %}
-                <img src="../static/icons/icon_save.png" data-value="{{ article.article_id }}" class="saveButton" title="Save this article">
+                <img src="../static/icons/icon_save.png" data-value="{{ article.article_id }}" class="saveButton" title="Add this article to library">
             {% endif %}
             <a href="{{ url_for('articles.click', articleId=article.article_id,pdf=True) }}" target="_blank">
-                <img src="../static/icons/icon_pdf.png" class="linkButton" title="Read whole article pdf">
+                <img src="../static/icons/icon_pdf.png" class="linkButton" title="Article PDF">
             </a>
             <a href="{{ url_for('general.article_feedback',article_id=article.article_id) }}">
-                <img src="../static/icons/icon_feedback.png" class="feedbackButton" title="Give fedback on this recommendation">
+                <img src="../static/icons/icon_feedback.png" class="feedbackButton" title="Give feedback on this recommendation">
             </a>
         </div>
     </div>
