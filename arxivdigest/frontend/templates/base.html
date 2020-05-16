@@ -11,22 +11,9 @@
     {% assets "css_base" %}
         <link rel="stylesheet" href="{{ ASSET_URL }}">
     {% endassets %}
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        tex2jax: {
-            inlineMath: [['$','$'], ['\\(','\\)']]
-        }
-    });
-
-    </script>
-    <script type="text/javascript" async
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML"
-            async>
-    </script>
-
 </head>
 
-<body>
+<body class="tex2jax_ignore">
 <header class="navbar navbar-default navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
@@ -104,10 +91,34 @@
         </div>
     </div>
 </footer>
+<script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        svg: {
+            fontCache: 'global'
+        },
+        options: {
+            skipHtmlTags: [//  HTML tags that won't be searched for math
+                'script', 'noscript', 'style', 'textarea', 'pre',
+                'code', 'annotation', 'annotation-xml'
+            ],
+            includeHtmlTags: {//  HTML tags that can appear within math
+                br: '\n', wbr: '', '#comment': ''
+            },
+            ignoreHtmlClass: 'tex2jax_ignore',    //  class that marks tags not to search
+            processHtmlClass: 'tex2jax_process',  //  class that marks tags that should be searched
+        }
+
+    };
+</script>
+<script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>
 <!-- Libraries - Placed at the end of the page so it loads faster-->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js "></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js "></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js'></script>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -126,6 +137,7 @@
         }
     });
 </script>
+
 </body>
 
 </html>

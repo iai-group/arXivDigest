@@ -5,6 +5,7 @@ __copyright__ = 'Copyright 2020, The arXivDigest project'
 
 import os
 import pathlib
+import re
 import shutil
 
 import jwt
@@ -14,6 +15,8 @@ from flask import request
 from flask_assets import Bundle
 from flask_assets import Environment
 from flask_wtf import CSRFProtect
+from jinja2 import escape
+from markupsafe import Markup
 
 from arxivdigest.core.config import config_frontend
 from arxivdigest.core.config import jwtKey
@@ -85,6 +88,14 @@ assets.register('js_base', js_bundle)
 assets.register('css_base', css_bundle)
 js_bundle.build()
 css_bundle.build()
+
+
+@app.template_filter('md_bold')
+def md_bold(text):
+    """Replaces **text** with bold tags."""
+    text = str(escape(text))
+    text = re.sub('\*\*(.*?)\*\*', r'<b>\1</b>', text)
+    return Markup(text)
 
 
 @app.before_request
