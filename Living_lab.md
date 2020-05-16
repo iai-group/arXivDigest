@@ -37,7 +37,7 @@ Experimental recommender systems need to follow the following steps for submitti
   1. Call [`GET /user_info?ids`](/arxivdigest/api#user-information) with user IDs as a parameter to get information about the users.
   1. Call [`GET /articles`](/arxivdigest/api#list-of-articles) to get the list of article IDs that are may be returned as recommendation.
   1. Call [`GET /article_data`](/arxivdigest/api#article-data) with article IDs as a parameter to get information about the articles.
-  1. Use the gathered information to generate personalized recommendations for users.
+  1. Use the gathered information to generate personalized recommendations and explanations for users. Important parts of the explanations may be boldfaced by surrounding it by asterisks like: \*\*text\*\*.
   1. Submit the generated recommendations to [`POST /recommendations/articles`](/arxivdigest/api#insert-article-recommendations) in batches of maximum 100 users and 10 recommendations per user. Recommendations sent outside of the [recommendation period](#daily-submission-periods) will not be considered by the daily interleaving process.
 
 

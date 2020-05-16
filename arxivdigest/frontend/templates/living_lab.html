@@ -1,50 +1,63 @@
 {% extends "base.html" %} {% block content %}
 
-<div class="container">
-    <div class="row">
-        <div style="width:80%; margin-left:10%;">
-            
-            <div>
-                <h2>Living Lab</h2>
-                <p>ArXivDigest operates as a living lab.</p>
+    <div class="container">
+        <div class="row">
+            <div style="width:80%; margin-left:10%;">
+                <ul class="nav nav-tabs">
+                    <li>
+                        <a href="#living_lab">Living Lab</a>
+                    </li>
+                    <li>
+                        <a href="#evaluate_systems">Evaluation</a>
+                    </li>
+                </ul>
+                <div class="tab-content row">
+                    <div id="living_lab" class="tab-pane">
+                        <div>
+                            <h2>Living Lab</h2>
+                            <p>ArXivDigest operates as a living lab.</p>
+                        </div>
+                        <br>
+                        <h2 style="text-align: center;">Your systems:</h2>
+                        <p style="text-align: center; color:rgb(104, 104, 104);">Contact
+                            name: {{ user.firstname }} {{ user.lastname }}. |
+                            Organization: {{ user.organization }}. | Email: {{ user.email }}</p>
+                        <div id="user_system_list">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>API-key</th>
+                                    <th>Activated</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for system in systems %}
+                                    <tr>
+                                        <td>{{ system.system_id }}</td>
+                                        <td>{{ system.system_name }}</td>
+                                        <td>{{ system.api_key }}</td>
+                                        {% if system.active == 1 %}
+                                            <td>Yes</td>
+                                        {% else %}
+                                            <td>No</td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <br>
+                        <a href="{{ url_for('general.registerSystemPage') }}">
+                            <div class="btn btn-primary">Add a new system</div>
+                        </a>
+                    </div>
+                    <div id="evaluate_systems" class="tab-pane evaluation">
+                    </div>
+                </div>
             </div>
-            <br>
-            <h2 style="text-align: center;">Your systems:</h2>
-            <p style="text-align: center; color:rgb(104, 104, 104);">Contact
-                name: {{ user.firstname }} {{ user.lastname }}. |
-                Organization: {{ user.organization }}. | Email: {{ user.email }}</p>
-            <div id="user_system_list">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>API-key</th>
-                            <th>Activated</th>
-                        </tr>
-                    </thead>
-                    <tbody> 
-                        {%for system in systems%}
-                        <tr>
-                            <td>{{system.system_id}}</td>
-                            <td>{{system.system_name}}</td>
-                            <td>{{system.api_key}}</td>
-                            {%if system.active == 1%}
-                            <td>Yes</td>
-                            {%else%}
-                            <td>No</td>
-                            {%endif%}
-                        </tr>
-                        {%endfor%}
-                    </tbody>
-                </table>
-            </div>
-            <br>
-            <a href="{{ url_for('general.registerSystemPage') }}">
-                <div class="btn btn-primary">Add a new system</div>
-            </a>
         </div>
     </div>
-</div>
 
-{%endblock%}
+{% endblock %}

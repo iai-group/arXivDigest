@@ -88,13 +88,23 @@ def make_user_recommendation(es, topics, index, n_topics_explanation=3):
     result = []
     for article_id, score_topic_list in articles.items():
         sorted_topics = [topic for _, topic in sorted(score_topic_list)]
-        expl_str = ', '.join(sorted_topics[:n_topics_explanation])
-        explanation = 'This article matches the topics: {}'.format(expl_str)
+
+        explanation = create_explanation(sorted_topics[:n_topics_explanation])
         result.append({'article_id': article_id,
                        'score': sum([score for score, _ in score_topic_list]),
                        'explanation': explanation
                        })
     return result
+
+
+def create_explanation(topics):
+    """"Creates explanation from topics."""
+    topics = ['**{}**'.format(topic) for topic in topics]
+    last = topics.pop()
+    topic_str = ', '.join(topics)
+    topic_str += ' and ' + last if topic_str else last
+    explanation = 'This article seems to be about {}.'.format(topic_str)
+    return explanation
 
 
 def make_recommendations(es, user_info, interleaved_articles, index,

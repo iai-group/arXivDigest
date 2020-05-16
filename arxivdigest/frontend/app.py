@@ -5,6 +5,7 @@ __copyright__ = 'Copyright 2020, The arXivDigest project'
 
 import os
 import pathlib
+import re
 import shutil
 
 import jwt
@@ -14,12 +15,15 @@ from flask import request
 from flask_assets import Bundle
 from flask_assets import Environment
 from flask_wtf import CSRFProtect
+from jinja2 import escape
+from markupsafe import Markup
 
 from arxivdigest.core.config import config_frontend
 from arxivdigest.core.config import jwtKey
 from arxivdigest.core.config import secret_key
 from arxivdigest.frontend.views import admin
 from arxivdigest.frontend.views import articles
+from arxivdigest.frontend.views import evaluation
 from arxivdigest.frontend.views import general
 from arxivdigest.frontend.views import topics
 from arxivdigest.frontend.views.articles import topic_flag
@@ -28,6 +32,7 @@ app = Flask(__name__)
 app.secret_key = secret_key
 app.register_blueprint(general.mod)
 app.register_blueprint(articles.mod)
+app.register_blueprint(evaluation.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
 app.config['max_content_length'] = config_frontend.get('max_content_length')
 
@@ -56,6 +61,8 @@ assets.auto_build = False
 assets.append_path(os.path.join(app.root_path, 'uncompiled_assets'))
 
 js_bundle = Bundle('javascript/autocomplete.js',
+                   'javascript/evaluation.js',
+                   'javascript/utils.js',
                    'javascript/forms.js',
                    'javascript/articlelist.js',
                    'javascript/admin.js',
@@ -64,12 +71,14 @@ js_bundle = Bundle('javascript/autocomplete.js',
 
 if topic_flag:
     js_bundle = Bundle('javascript/autocomplete.js',
-                   'javascript/forms.js',
-                   'javascript/articlelist.js',
-                   'javascript/admin.js',
-                   'javascript/topics.js',
-                   filters='jsmin',
-                   output='generated/js/base.%(version)s.js')
+                       'javascript/evaluation.js',
+                       'javascript/utils.js',
+                       'javascript/forms.js',
+                       'javascript/articlelist.js',
+                       'javascript/admin.js',
+                       'javascript/topics.js',
+                       filters='jsmin',
+                       output='generated/js/base.%(version)s.js')
 
 css_bundle = Bundle('css/style.css',
                     filters='cssmin',
@@ -79,6 +88,14 @@ assets.register('js_base', js_bundle)
 assets.register('css_base', css_bundle)
 js_bundle.build()
 css_bundle.build()
+
+
+@app.template_filter('md_bold')
+def md_bold(text):
+    """Replaces **text** with bold tags."""
+    text = str(escape(text))
+    text = re.sub('\*\*(.*?)\*\*', r'<b>\1</b>', text)
+    return Markup(text)
 
 
 @app.before_request

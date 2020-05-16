@@ -145,7 +145,15 @@ Read the [Setup guide](../../Setup.md).
 
 ## Dependencies
 
+### Python
 - [Mysql connector for python](https://dev.mysql.com/doc/connector-python/en/)
 - [Json Web Tokens](https://github.com/jpadilla/pyjwt) 
 - [Flask](http://flask.pocoo.org/)
 - [Passlib](https://passlib.readthedocs.io/en/stable/index.html)
+
+### Javascript
+- [Bootstrap 3](https://getbootstrap.com/docs/3.3/)
+- [Chart.js](https://www.chartjs.org/)
+- [jQuery](https://jquery.com/)
+- [jQuery UI](https://jqueryui.com/)
+- [MathJax](https://github.com/mathjax/MathJax)
