@@ -39,7 +39,15 @@
     "evaluation_config": {
         "saved_weight": 5,
         "clicked_web_weight": 3,
-        "clicked_email_weight": 3
+        "clicked_email_weight": 3,
+        "state_weights": {
+            "USER_ADDED": 0,
+            "SYSTEM_RECOMMENDED_ACCEPTED": 1,
+            "SYSTEM_RECOMMENDED_REJECTED": 0,
+            "REFRESHED": 0,
+            "EXPIRED": 0,
+            "USER_REJECTED": 0
+        }
     },
     "arxiv_scraper_config": {
         "last_n_days": 1,

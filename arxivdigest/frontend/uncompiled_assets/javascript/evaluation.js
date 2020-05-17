@@ -161,11 +161,43 @@ function create_system_stats_plots(plot_area) {
     });
 }
 
+function create_mode_controller(plot_area) {
+    setQueryStringParameter("mode", getQueryStringParameter("mode", "article"));
+    let mode_selector = $("<div class='btn-group btn-group-justified' role='group' ></div><br>");
+    let article_choice = $("<a data-mode='article' class='btn btn-default'>Articles</a>");
+    let topic_choice = $("<a data-mode='topic' class='btn btn-default'>Topics</a>");
+    mode_selector.append(article_choice);
+    mode_selector.append(topic_choice);
+    let active = mode_selector.find("[data-mode=" + getQueryStringParameter("mode") + "]");
+    active.addClass('active no_hover');
+    active.siblings().on("click", change_mode);
+
+    return mode_selector;
+
+    function change_mode() {
+        let other_button = mode_selector.find(".active");
+        setQueryStringParameter("mode", $(this).data('mode'));
+        $(this).off("click");
+        $(this).addClass("active no_hover");
+        other_button.on("click", change_mode);
+        other_button.removeClass("active no_hover");
+        create_system_stats_plots(plot_area)
+    }
+
+}
+
 function create_system_list(evaluation_area, url) {
-    let system_list = $("<div class='list-group col-md-3'></div>");
     let plot_area = $("<div class='col-md-9'></div>");
-    evaluation_area.append(system_list);
     evaluation_area.append(plot_area);
+
+    let system_list_container = $("<div class='col-md-3'></div>");
+    evaluation_area.append(system_list_container);
+
+    system_list_container.append(create_mode_controller(plot_area));
+
+    let system_list = $("<div class='list-group'></div>");
+    system_list_container.append(system_list);
+
     system_list.on("click", ".list-group-item", function () {
         $(this).siblings().removeClass("active");
         $(this).addClass('active');

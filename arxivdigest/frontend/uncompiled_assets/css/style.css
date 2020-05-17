@@ -671,6 +671,10 @@ code {
     padding-left: 3em;
 }
 
+.no_hover {
+    pointer-events: none;
+}
+
 .topic-symbol{
     cursor: pointer;
     font-size: 21px;

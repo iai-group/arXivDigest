@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
+import datetime
 from collections import defaultdict
 
 from arxivdigest.core.config import config_evaluation
 from arxivdigest.frontend.database import articles as article_db
+from arxivdigest.frontend.database import general as general_db
 from arxivdigest.frontend.utils import date_range
 
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
 
-def get_interleaving_scores(start_date, end_date):
+def get_article_interleaving_scores(start_date, end_date):
     """Gets score for each system in each interleaving."""
 
     score_list = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
@@ -30,7 +32,23 @@ def get_interleaving_scores(start_date, end_date):
     return score_list
 
 
-def get_interleaving_results(start_date, end_date, system):
+def get_topic_interleaving_scores(start_date, end_date):
+    """Gets score for each system in each interleaving."""
+    score_list = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    for item in general_db.get_topic_feedback_by_date(start_date, end_date):
+        state = item.get('state', '')
+        score = config_evaluation['state_weights'].get(state, 0)
+
+        date = item['interleaving_batch']
+        user = item['user_id']
+        system = item['system_id']
+
+        score_list[date][user][system] += score
+    return score_list
+
+
+def get_interleaving_results(scores, start_date, end_date, system,
+                             fill_gaps=True):
     """Returns a dictionary containing the number of impressions, wins,
     ties and losses for the given system for the supplied period. """
     impressions = {}  # Number of unique interleavings system has been part of.
@@ -38,13 +56,17 @@ def get_interleaving_results(start_date, end_date, system):
     ties = {}
     losses = {}
 
-    scores = get_interleaving_scores(start_date, end_date)
-    for date in date_range(start_date, end_date):
+    if fill_gaps:
+        is_datetime = isinstance(list(scores.keys())[0], datetime.datetime)
+        for date in date_range(start_date, end_date, date_time=is_datetime):
+            scores.setdefault(date, {})
+
+    for date, interleavings in scores.items():
         impressions.setdefault(date, 0)
         wins.setdefault(date, 0)
         ties.setdefault(date, 0)
         losses.setdefault(date, 0)
-        for user, systems in scores[date].items():
+        for user, systems in interleavings.items():
             # If only one system have the highest score it gets a win.
             # If only one system has the lowest score it gets a loss.
             # Everything else results in a tie.

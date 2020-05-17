@@ -36,9 +36,19 @@ def system_statistics(system_id):
     start_date = request.args.get('start_date', start_date, to_date)
     end_date = request.args.get('end_date', date.today(), to_date)
     aggregation = request.args.get('aggregation', 'day')
+    mode = request.args.get('mode', 'article')
 
-    res = evaluation_service.get_interleaving_results(start_date, end_date,
-                                                      system_id)
+    if mode == 'article':
+        scores = evaluation_service.get_article_interleaving_scores(start_date,
+                                                                    end_date)
+    elif mode == 'topic':
+        scores = evaluation_service.get_topic_interleaving_scores(start_date,
+                                                                  end_date)
+    else:
+        return make_response(jsonify({'error': 'Unknown mode.'}), 400)
+
+    res = evaluation_service.get_interleaving_results(scores, start_date,
+                                                      end_date, system_id)
 
     impressions, labels = evaluation_service.aggregate_data(res['impressions'],
                                                             aggregation)
