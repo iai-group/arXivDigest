@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+from collections import Counter
 from collections import defaultdict
 
 from arxivdigest.core.config import config_evaluation
@@ -92,6 +93,49 @@ def get_interleaving_results(scores, start_date, end_date, system,
 
     return {'impressions': impressions, 'wins': wins,
             'ties': ties, 'losses': losses}
+
+
+def get_topic_feedback_amount(start_date, end_date, system_id, fill_gaps=True):
+    """Gets the amount of feedback given on topics each day."""
+    topic_feedback = general_db.get_topic_feedback_by_date(start_date,
+                                                           end_date, system_id)
+    feedback = defaultdict(Counter)
+    for item in topic_feedback:
+        feedback[item['state']][item['interleaving_batch']] += 1
+
+    if fill_gaps:
+        for state, counts in feedback.items():
+            is_datetime = isinstance(list(counts.keys())[0], datetime.datetime)
+            for date in date_range(start_date, end_date, date_time=is_datetime):
+                feedback[state].setdefault(date, 0)
+    return feedback
+
+
+def get_article_feedback_amount(start_date, end_date, system_id,
+                                fill_gaps=True):
+    """Gets the amount of feedback given on articles each day."""
+    topic_feedback = article_db.get_article_feedback_by_date(start_date,
+                                                             end_date,
+                                                             system_id)
+    feedback = defaultdict(Counter)
+    for item in topic_feedback:
+        if item['saved']:
+            feedback['saved'][item['saved']] += 1
+        if item['seen_web']:
+            feedback['seen_web'][item['seen_web']] += 1
+        if item['clicked_web']:
+            feedback['clicked_web'][item['clicked_web']] += 1
+        if item['seen_email']:
+            feedback['seen_email'][item['seen_email']] += 1
+        if item['clicked_email']:
+            feedback['clicked_email'][item['clicked_email']] += 1
+
+    if fill_gaps:
+        for state, counts in feedback.items():
+            is_datetime = isinstance(list(counts.keys())[0], datetime.datetime)
+            for date in date_range(start_date, end_date, date_time=is_datetime):
+                feedback[state].setdefault(date, 0)
+    return feedback
 
 
 def calculate_outcome(wins, losses):

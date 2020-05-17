@@ -88,7 +88,14 @@ $(document).ready(function () {
     $("ul.nav a[href ='#evaluation']").bind("show.bs.tab", function () {
         let evaluation_area = $("#evaluation");
         evaluation_area.empty();
-        let system_list = create_system_list(evaluation_area, "/admin/systems/get");
+        let system_list = create_system_list(evaluation_area, "/admin/systems/get", create_system_stats_plots, true);
+        evaluation_area.append(system_list);
+    });
+
+    $("ul.nav a[href ='#feedback']").bind("show.bs.tab", function () {
+        let evaluation_area = $("#feedback");
+        evaluation_area.empty();
+        let system_list = create_system_list(evaluation_area, "/admin/systems/get", create_system_feedback_plots, false, true);
         evaluation_area.append(system_list);
     });
 

@@ -141,12 +141,16 @@ def get_article_feedback(article_id):
         return cur.fetchone()
 
 
-def get_article_feedback_by_date(start_date, end_date):
+def get_article_feedback_by_date(start_date, end_date, system=None):
     """Gets all article feedback between start and end date."""
     cur = getDb().cursor(dictionary=True)
     sql = '''SELECT user_id, system_id, DATE(recommendation_date) as date,
-             clicked_email, clicked_web, saved
+             clicked_email, clicked_web, saved, seen_web, seen_email
              FROM article_feedback WHERE  DATE(recommendation_date) >= %s AND
              DATE(recommendation_date) <= %s'''
-    cur.execute(sql, (start_date, end_date))
+    if system:
+        sql += 'AND system_id = %s'
+        cur.execute(sql, (start_date, end_date, system))
+    else:
+        cur.execute(sql, (start_date, end_date))
     return cur.fetchall()

@@ -667,7 +667,8 @@ code {
     padding-right: 1em;
 }
 
-#evaluation div.form-inline {
+#evaluation div.form-inline,
+#feedback div.form-inline {
     padding-left: 3em;
 }
 
