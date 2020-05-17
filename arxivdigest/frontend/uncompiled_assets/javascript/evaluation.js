@@ -187,11 +187,11 @@ function create_mode_controller(plot_area) {
 }
 
 function create_system_list(evaluation_area, url) {
-    let plot_area = $("<div class='col-md-9'></div>");
-    evaluation_area.append(plot_area);
-
     let system_list_container = $("<div class='col-md-3'></div>");
     evaluation_area.append(system_list_container);
+
+    let plot_area = $("<div class='col-md-9'></div>");
+    evaluation_area.append(plot_area);
 
     system_list_container.append(create_mode_controller(plot_area));
 
