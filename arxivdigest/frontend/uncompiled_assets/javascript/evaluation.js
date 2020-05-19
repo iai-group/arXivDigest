@@ -36,7 +36,7 @@ function create_impression_outcome_plot(container, impressions, outcome, labels)
 
                     ticks: {
                         beginAtZero: true,
-                        stepSize: 1
+                        precision: 0
                     }
                 }, {
                     id: 'right-y-axis',
@@ -48,7 +48,6 @@ function create_impression_outcome_plot(container, impressions, outcome, labels)
                     },
                     ticks: {
                         max: 1,
-                        beginAtZero: true,
                     }
                 }]
             },
@@ -84,7 +83,7 @@ function create_win_loss_plot(container, wins, ties, losses, labels) {
                     type: 'linear',
                     ticks: {
                         beginAtZero: true,
-                        stepSize: 1
+                        precision: 0
                     }
                 }]
             },
@@ -129,7 +128,7 @@ function create_topic_feedback_plot(container, labels, system_recommended_accept
                     type: 'linear',
                     ticks: {
                         beginAtZero: true,
-                        stepSize: 1
+                        precision: 0
                     }
                 }]
             },
@@ -178,7 +177,7 @@ function create_article_feedback_plot(container, labels, saved, seen_web, clicke
                     type: 'linear',
                     ticks: {
                         beginAtZero: true,
-                        stepSize: 1
+                        precision: 0
                     }
                 }]
             },
