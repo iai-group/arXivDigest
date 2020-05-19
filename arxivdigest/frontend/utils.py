@@ -58,7 +58,7 @@ def pageinate(page, maxPage, n):
     min = page-1
     max = page+1
     while len(pages) < n:
-        if (2*page-min <= max or max >= maxPage)and min > 0:
+        if (2 * page - min <= max or max > maxPage) and min > 0:
             pages.append(min)
             min -= 1
         elif max <= maxPage:
