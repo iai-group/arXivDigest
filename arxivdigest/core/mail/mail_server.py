@@ -8,6 +8,8 @@ from email.mime.text import MIMEText
 from jinja2 import Environment
 from jinja2 import PackageLoader
 
+import arxivdigest
+
 
 def assemble_mail(message, to_address, from_address, subject):
     """Adds to and from address and subject to mail"""
@@ -30,6 +32,7 @@ class MailServer:
             self.server.starttls()
         self.server.login(self.from_address, password)
         self.env = Environment(loader=PackageLoader(__name__, 'templates'))
+        self.env.filters['md_bold'] = arxivdigest.core.md_bold
 
     def close(self):
         self.server.quit()

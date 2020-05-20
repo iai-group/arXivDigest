@@ -17,7 +17,7 @@
     <span class="authors">{{ article.authors }}</span>
 
     <br>
-    <span class="small_grey">{{ article.explanation }}</span>
+    <span class="small_grey">{{ article.explanation | md_bold }}</span>
 
     <a href={{article.save_link}}>
         <p>Save</p>
