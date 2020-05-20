@@ -1,8 +1,7 @@
 {% extends "email_base.tmpl" %} {% block content %}
 
 <div class="text">
-    <h2>Hi {{name}}</h2>
-    <p>Here are personalized suggestions for articles to read based on your arXivDigest profile:</p>
+    <p>{{name}}, here are personalized suggestions for articles to read based on your arXivDigest profile:</p>
 </div>
 <hr>
 <div class="content text">
@@ -17,11 +16,14 @@
     <span class="authors">{{ article.authors }}</span>
 
     <br>
+
+
     <span class="small_grey">{{ article.explanation | md_bold }}</span>
 
-    <a href={{article.save_link}}>
-        <p>Save</p>
-    </a>
+
+    <br>
+
+    <span><a href={{article.save_link}}>Add to library</a></span>
     <br> {%endfor%} {% endfor %}
 
 </div>

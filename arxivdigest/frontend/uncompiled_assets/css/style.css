@@ -400,12 +400,12 @@ code {
     background-color: #a7a6a6;
 }
 
-.articleDiv:hover {
-    border-color: coral;
+.articleDiv h4:hover {
+    color: #951a1d;
 }
 
-.articleDiv h4:hover {
-    color: coral;
+.articleDiv h4{
+    max-width: 700px;
 }
 
 .leftText {
@@ -439,7 +439,6 @@ code {
 }
 
 .articleDiv {
-    border-top: 1px solid #b7b7b7;
     border-bottom: 1px solid #b7b7b7;
     margin-top: 5px;
     margin-bottom: 5px;
@@ -449,6 +448,11 @@ code {
     margin: 0 auto;
     clear: both;
     position: relative;
+}
+
+.article_title{
+    max-width: 500;
+    width: 500;
 }
 
 .articleInfo {
@@ -462,10 +466,6 @@ code {
     position: absolute;
     top: 0;
     right: 0;
-    display: inline-block;
-    width: 35px;
-    padding: 0px;
-    margin: 5px 5px 0px 0px;
 }
 
 #indexDiv, #savedDiv {
@@ -500,7 +500,6 @@ code {
 
 .explanation {
     position: absolute;
-    left: 120px;
     bottom: 5px;
     margin: 0px;
     color: rgb(151, 151, 151);
@@ -538,82 +537,44 @@ code {
 
 
 .showMore {
-    position: absolute;
-    left: 10px;
-    bottom: 5px;
-    margin: 0px;
+    margin-left: 40px;
     width: 80px;
     border: none;
     border-radius: 5px;
     text-align: center;
     cursor: pointer;
+    font-weight: bolder;
+    font-size: 0.85em;
     background-color: #c7c7c7;
     color: rgb(90, 90, 90);
 }
 
-.showMore:hover, .feedback:hover {
+.showMore:hover {
     background-color: #949494;
     color: rgb(59, 59, 59);
 }
 
-.feedback {
-    position: absolute;
-    right: 10px;
-    bottom: 5px;
-    margin: 0px;
-    width: 80px;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    text-align: center;
-    cursor: pointer;
-    background-color: #c7c7c7;
+.feedbackButton {
+    height: 40px;
+    width: 40px;
 }
 
 .articleAuthors {
-    margin-left: 20px;
     color: rgb(185, 185, 185);
     font-size: 0.9em;
 }
 
-.saveButton {
-    color: white;
-    background-color: #b7b7b7;
-    border: none;
-    border-radius: 10px;
-    height: 35px;
-    width: 35px;
-    font-size: 1.5em;
-    padding: 6px;
-    padding-top: 8px;
-    margin-top: 10px;
+.saveButton{
+    height: 40px;
+    width: 40px;
     cursor: pointer;
+    padding: 0;
+    margin: 0; 
 }
 
-#linkButton {
-    height: 35px;
-    width: 35px;
-    margin-top: 10px;
-}
-
-.articleIcons .Saved {
-    background-color: coral;
-}
-
-.saveButton:hover {
-    background-color: coral;
-}
-
-.saveButton:active {
-    background-color: rgb(228, 100, 54);
-}
-
-.saveButtonSaved:hover {
-    background-color: #b7b7b7;
-}
-
-.saveButtonSaved:active {
-    background-color: #979797;
+.linkButton{
+    height: 40px;
+    width: 40px;
 }
 
 #indexDiv a, #savedDiv a {

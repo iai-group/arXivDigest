@@ -3,10 +3,6 @@
 
 <head>
     <style>
-        html {
-            font-family: 'Trebuchet MS'
-        }
-
         .centerDiv {
             margin: 0 auto;
             width: 800px;
@@ -17,12 +13,18 @@
         }
 
         .text {
-            text-align: center;
+            margin-left:20px;
+            font-family: 'Open Sans', sans-serif;
             color: rgb(59, 59, 59);
         }
 
+        #title_text{
+            color: black;
+            font-family: 'Montserrat', sans-serif;
+        }
+
         .authors {
-            color: rgb(185, 185, 185);
+            color: black;
             font-size: 0.9em;
         }
 
@@ -50,24 +52,17 @@
 <body style="background-color:#dddddd">
     <div class="centerDiv">
 
-        <h1 class="text">ar<span class="red">X</span>ivDigest</h1>
+        <h1 id="title_text">ar<span class="red">X</span>ivDigest</h1>
         <hr>
 
         {% block content %} {% endblock %}
 
         <hr>
         <div class="text">
-            <p>You are receiving this email because you have registered with arXivDigest</p>
-            <p>Go to our webpage for more info:</p>
-            <a href="{{link}}">
-                <p>arXivDigest</p>
-            </a>
+            <p>You are receiving this email because you have registered with <a href="{{link}}">arXivDigest</a></p>
 
             {%if articles%}
-                <p class="small_grey">Click here if you want to unsubscribe from these emails<p>
-                <a href="{{unsubscribe_link}}" class="small_grey">
-                    <p>Unsubscibe<p>
-                </a>
+                <p class="small_grey"><a href="{{unsubscribe_link}}">Unsubscribe</a> from digest emails (you'll still be able to see recommendations on the website)<p>
             {%endif%}
         </div>
     </div>
