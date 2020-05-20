@@ -488,3 +488,19 @@ def digest_unsubscribe(trace):
         cur.execute(sql, (str(uuid4()) , trace))
         conn.commit()
         return cur.rowcount == 1
+
+
+def get_topic_feedback_by_date(start_date, end_date, system=None):
+    """Gets all topic feedback between start and end date."""
+    cur = getDb().cursor(dictionary=True)
+    sql = '''SELECT tr.user_id, tr.system_id, tr.interleaving_batch, ut.state 
+             FROM topic_recommendations tr  JOIN user_topics ut 
+             ON tr.user_id = ut.user_id AND tr.topic_id = ut.topic_id
+             WHERE tr.interleaving_order IS NOT NULL AND 
+             tr.interleaving_batch >= %s AND tr.interleaving_batch <= %s'''
+    if system:
+        sql += 'AND tr.system_id = %s'
+        cur.execute(sql, (start_date, end_date, system))
+    else:
+        cur.execute(sql, (start_date, end_date))
+    return cur.fetchall()

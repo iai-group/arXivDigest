@@ -106,7 +106,7 @@ def send_confirmation_email(email):
     server.close()
 
 
-def date_range(start_date, end_date, step=1, date_format=None):
+def date_range(start_date, end_date, step=1, date_format=None, date_time=False):
     """Creates a range from dates.
 
     :param start_date: Start of range.
@@ -114,15 +114,19 @@ def date_range(start_date, end_date, step=1, date_format=None):
     :param step: Days to between dates in range.
     :param date_format: If set, dates will be stings with this format,
     else they will be date objects.
+    :param date_time: Whether the data should be date or datetime, only if
+    format is not specified.
     :return: Range of dates.
     """
     dates = [start_date + datetime.timedelta(days=days) for days in
              range(0, (end_date - start_date).days + 1, step)]
 
-    if not date_format:
-        return dates
-    else:
+    if date_format:
         return [date.strftime(date_format) for date in dates]
+    elif date_time:
+        return [datetime.datetime(d.year, d.month, d.day) for d in dates]
+    else:
+        return dates
 
 
 def is_owner(user_id, system_id):

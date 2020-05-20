@@ -12,6 +12,7 @@ from flask import jsonify
 from flask import make_response
 from flask import request
 
+from arxivdigest.core.config import config_evaluation
 from arxivdigest.frontend.database import general as general_db
 from arxivdigest.frontend.services import evaluation_service
 from arxivdigest.frontend.utils import is_owner
@@ -36,9 +37,19 @@ def system_statistics(system_id):
     start_date = request.args.get('start_date', start_date, to_date)
     end_date = request.args.get('end_date', date.today(), to_date)
     aggregation = request.args.get('aggregation', 'day')
+    mode = request.args.get('mode', 'article')
 
-    res = evaluation_service.get_interleaving_results(start_date, end_date,
-                                                      system_id)
+    if mode == 'article':
+        scores = evaluation_service.get_article_interleaving_scores(start_date,
+                                                                    end_date)
+    elif mode == 'topic':
+        scores = evaluation_service.get_topic_interleaving_scores(start_date,
+                                                                  end_date)
+    else:
+        return make_response(jsonify({'error': 'Unknown mode.'}), 400)
+
+    res = evaluation_service.get_interleaving_results(scores, start_date,
+                                                      end_date, system_id)
 
     impressions, labels = evaluation_service.aggregate_data(res['impressions'],
                                                             aggregation)
@@ -55,6 +66,43 @@ def system_statistics(system_id):
                     'impressions': impressions,
                     'labels': labels,
                     })
+
+
+@mod.route('/evaluation/system_feedback', methods=['GET'])
+@mod.route('/evaluation/system_feedback/<int:system_id>', methods=['GET'])
+@requiresLogin
+def system_feedback(system_id=None):
+    """This endpoint returns system feedback."""
+
+    def to_date(date):
+        return datetime.datetime.strptime(date, '%Y-%m-%d').date()
+
+    if not (g.admin or is_owner(g.user, system_id)):
+        return make_response(jsonify({'error': 'Not authorized for system.'}),
+                             401)
+
+    start_date = date.today() - datetime.timedelta(days=30)
+    start_date = request.args.get('start_date', start_date, to_date)
+    end_date = request.args.get('end_date', date.today(), to_date)
+    aggregation = request.args.get('aggregation', 'day')
+
+    feedback = evaluation_service.get_topic_feedback_amount(start_date,
+                                                            end_date,
+                                                            system_id)
+
+    feedback.update(evaluation_service.get_article_feedback_amount(start_date,
+                                                                   end_date,
+                                                                   system_id))
+    json = {}
+    for state, data in feedback.items():
+        data, label = evaluation_service.aggregate_data(data, aggregation)
+        json['labels'] = label
+        json[state] = data
+    for state in config_evaluation['state_weights'].keys():
+        json.setdefault(state, [0] * len(json.get('labels', [])))
+    json.pop('USER_ADDED')
+    json.pop('USER_REJECTED')
+    return jsonify(json)
 
 
 @mod.route('/evaluation/systems/', methods=['GET'])
