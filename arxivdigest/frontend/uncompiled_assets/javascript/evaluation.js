@@ -55,7 +55,7 @@ function create_impression_outcome_plot(container, impressions, outcome, labels)
     });
 }
 
-function create_win_loss_plot(container, wins, ties, losses, labels) {
+function create_normalized_rewards_plot(container, rewards, labels) {
     let canvas = $("<canvas></canvas>");
     container.append(canvas);
     let ctx = canvas[0].getContext('2d');
@@ -64,18 +64,10 @@ function create_win_loss_plot(container, wins, ties, losses, labels) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Wins',
-                data: wins,
+                label: 'Normalized rewards',
+                data: rewards,
                 backgroundColor: 'rgba(100, 150, 50, 0.4)'
-            }, {
-                label: 'Ties',
-                data: ties,
-                backgroundColor: 'rgba(255, 255, 50, 0.4)',
-            }, {
-                label: 'Losses',
-                data: losses,
-                backgroundColor: 'rgba(255, 100, 50, 0.4)',
-            },]
+            }]
         },
         options: {
             scales: {
@@ -249,7 +241,7 @@ function create_system_stats_plots(plot_area) {
             plot_area.empty();
             create_date_controls(plot_area, create_system_stats_plots);
             create_impression_outcome_plot(plot_area, data.impressions, data.outcome, data.labels);
-            create_win_loss_plot(plot_area, data.wins, data.ties, data.losses, data.labels);
+            create_normalized_rewards_plot(plot_area, data.normalized_reward, data.labels);
         }
     });
 }

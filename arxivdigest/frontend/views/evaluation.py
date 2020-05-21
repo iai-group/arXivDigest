@@ -40,29 +40,36 @@ def system_statistics(system_id):
     mode = request.args.get('mode', 'article')
 
     if mode == 'article':
-        scores = evaluation_service.get_article_interleaving_scores(start_date,
-                                                                    end_date)
+        rewards = evaluation_service.get_article_interleaving_reward(start_date,
+                                                                     end_date)
     elif mode == 'topic':
-        scores = evaluation_service.get_topic_interleaving_scores(start_date,
-                                                                  end_date)
+        rewards = evaluation_service.get_topic_interleaving_reward(start_date,
+                                                                   end_date)
     else:
         return make_response(jsonify({'error': 'Unknown mode.'}), 400)
 
-    res = evaluation_service.get_interleaving_results(scores, start_date,
-                                                      end_date, system_id)
+    impress, norm_rewards = evaluation_service.get_normalized_rewards(rewards,
+                                                                      start_date,
+                                                                      end_date,
+                                                                      system_id)
 
-    impressions, labels = evaluation_service.aggregate_data(res['impressions'],
+    impressions, labels = evaluation_service.aggregate_data(impress,
                                                             aggregation)
-    wins, labels = evaluation_service.aggregate_data(res['wins'], aggregation)
-    ties, labels = evaluation_service.aggregate_data(res['ties'], aggregation)
-    losses, labels = evaluation_service.aggregate_data(res['losses'],
-                                                       aggregation)
-    outcome = evaluation_service.calculate_outcome(wins, losses)
+
+    norm_rewards, labels = evaluation_service.aggregate_data(norm_rewards,
+                                                             aggregation,
+                                                             sum_result=False)
+    flat_norm_rewards = []
+    # Flatten sublists.
+    for i, period in enumerate(norm_rewards):
+        flat_norm_rewards.append([])
+        for interleavings in period:
+            flat_norm_rewards[i].extend(interleavings)
+
     return jsonify({'success': True,
-                    'wins': wins,
-                    'ties': ties,
-                    'losses': losses,
-                    'outcome': outcome,
+                    'normalized_reward': [sum(x) for x in flat_norm_rewards],
+                    'outcome': [sum(x) / len(x) if len(x) else 0 for x in
+                                flat_norm_rewards],
                     'impressions': impressions,
                     'labels': labels,
                     })

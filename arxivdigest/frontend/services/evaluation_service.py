@@ -12,8 +12,8 @@ __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'
 
 
-def get_article_interleaving_scores(start_date, end_date):
-    """Gets score for each system in each interleaving."""
+def get_article_interleaving_reward(start_date, end_date):
+    """Gets rewards for each system in each interleaving."""
 
     score_list = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for item in article_db.get_article_feedback_by_date(start_date, end_date):
@@ -33,8 +33,8 @@ def get_article_interleaving_scores(start_date, end_date):
     return score_list
 
 
-def get_topic_interleaving_scores(start_date, end_date):
-    """Gets score for each system in each interleaving."""
+def get_topic_interleaving_reward(start_date, end_date):
+    """Gets rewards for each system in each interleaving."""
     score_list = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     for item in general_db.get_topic_feedback_by_date(start_date, end_date):
         state = item.get('state', '')
@@ -48,51 +48,32 @@ def get_topic_interleaving_scores(start_date, end_date):
     return score_list
 
 
-def get_interleaving_results(scores, start_date, end_date, system,
-                             fill_gaps=True):
+def get_normalized_rewards(rewards, start_date, end_date, system,
+                           fill_gaps=True):
     """Returns a dictionary containing the number of impressions, wins,
     ties and losses for the given system for the supplied period. """
     impressions = {}  # Number of unique interleavings system has been part of.
-    wins = {}
-    ties = {}
-    losses = {}
+    normalized_rewards = {}
 
     if fill_gaps:
-        is_datetime = isinstance(list(scores.keys())[0], datetime.datetime)
+        is_datetime = isinstance(list(rewards.keys())[0], datetime.datetime)
         for date in date_range(start_date, end_date, date_time=is_datetime):
-            scores.setdefault(date, {})
+            rewards.setdefault(date, {})
 
-    for date, interleavings in scores.items():
+    for date, interleavings in rewards.items():
         impressions.setdefault(date, 0)
-        wins.setdefault(date, 0)
-        ties.setdefault(date, 0)
-        losses.setdefault(date, 0)
+        normalized_rewards.setdefault(date, [])
         for user, systems in interleavings.items():
-            # If only one system have the highest score it gets a win.
-            # If only one system has the lowest score it gets a loss.
-            # Everything else results in a tie.
             if system not in systems:
                 continue
             impressions[date] += 1
+            if sum(systems.values()):
+                normalized_rewards[date].append(systems[system] / sum(
+                    systems.values()))
+            else:
+                normalized_rewards[date].append(1 / len(systems.values()))
 
-            min_sys = min(systems, key=systems.get)
-            max_sys = max(systems, key=systems.get)
-
-            # Check if system is only winner.
-            if len([v for v in systems.values() if v == systems[max_sys]]) == 1:
-                if max_sys == system:
-                    wins[date] += 1
-                    continue
-            # Check if system is only loser.
-            if len([v for v in systems.values() if v == systems[min_sys]]) == 1:
-                if min_sys == system:
-                    losses[date] += 1
-                    continue
-
-            ties[date] += 1
-
-    return {'impressions': impressions, 'wins': wins,
-            'ties': ties, 'losses': losses}
+    return impressions, normalized_rewards
 
 
 def get_topic_feedback_amount(start_date, end_date, system_id, fill_gaps=True):
@@ -138,20 +119,10 @@ def get_article_feedback_amount(start_date, end_date, system_id,
     return feedback
 
 
-def calculate_outcome(wins, losses):
-    """Calculate outcome (wins/(wins+losses) for each date.)"""
-    outcomes = []
-    for win, loss in zip(wins, losses):
-        outcome = 0
-        if (win + loss) > 0:
-            outcome = win / (win + loss)
-        outcomes.append(outcome)
-    return outcomes
-
-
-def aggregate_data(data, mode='day', date_format='%Y-%m-%d'):
+def aggregate_data(data, mode='day', date_format='%Y-%m-%d', sum_result=True):
     """Aggregates the data by time periods.
 
+    :param sum_result: Whether to return the aggregated result as a sum or a list.
     :param data: Dictionary of dates to numbers.
     :param mode: Whether to aggregate data for 'day', 'week' or 'month'.
     :param date_format: Format to convert dates to.
@@ -161,7 +132,7 @@ def aggregate_data(data, mode='day', date_format='%Y-%m-%d'):
     labels = []
     label = None
     old_label = None
-    result = 0
+    result = 0 if sum_result else []
     for date, value in sorted(data.items()):
         if mode == 'month':
             label = date.strftime("%B %Y")
@@ -176,9 +147,12 @@ def aggregate_data(data, mode='day', date_format='%Y-%m-%d'):
         if label != old_label:
             labels.append(old_label)
             results.append(result)
-            result = 0
+            result = 0 if sum_result else []
             old_label = label
-        result += value
+        if sum_result:
+            result += value
+        else:
+            result.append(value)
 
     labels.append(label)
     results.append(result)
