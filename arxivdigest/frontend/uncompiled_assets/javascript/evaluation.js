@@ -48,6 +48,7 @@ function create_impression_outcome_plot(container, impressions, outcome, labels)
                     },
                     ticks: {
                         max: 1,
+                        beginAtZero: true,
                     }
                 }]
             },
