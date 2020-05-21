@@ -66,10 +66,11 @@ def system_statistics(system_id):
         for interleavings in period:
             flat_norm_rewards[i].extend(interleavings)
 
+    mean_norm_reward = [sum(norm_rewards) / impressions[i] if impressions[i]
+                        else 0
+                        for i, norm_rewards in enumerate(flat_norm_rewards)]
     return jsonify({'success': True,
-                    'normalized_reward': [sum(x) for x in flat_norm_rewards],
-                    'outcome': [sum(x) / len(x) if len(x) else 0 for x in
-                                flat_norm_rewards],
+                    'mean_normalized_reward': mean_norm_reward,
                     'impressions': impressions,
                     'labels': labels,
                     })

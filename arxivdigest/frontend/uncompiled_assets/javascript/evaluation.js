@@ -1,4 +1,4 @@
-function create_impression_outcome_plot(container, impressions, outcome, labels) {
+function create_impression_outcome_plot(container, impressions, mean_normalized_reward, labels) {
     let canvas = $("<canvas></canvas>");
     container.append(canvas);
     let ctx = canvas[0].getContext('2d');
@@ -7,8 +7,8 @@ function create_impression_outcome_plot(container, impressions, outcome, labels)
         data: {
             labels: labels,
             datasets: [{
-                label: 'Outcome',
-                data: outcome,
+                label: 'Mean normalized reward',
+                data: mean_normalized_reward,
                 backgroundColor: 'rgba(0, 0, 0, 0)',
                 pointBorderColor: 'rgba(50, 50, 200, 0.5)',
                 pointBackgroundColor: 'rgba(50, 50, 200, 0.5)',
@@ -44,7 +44,7 @@ function create_impression_outcome_plot(container, impressions, outcome, labels)
                     position: 'right',
                     scaleLabel: {
                         display: true,
-                        labelString: 'Outcome'
+                        labelString: 'Mean normalized reward '
                     },
                     ticks: {
                         max: 1,
@@ -56,33 +56,6 @@ function create_impression_outcome_plot(container, impressions, outcome, labels)
     });
 }
 
-function create_normalized_rewards_plot(container, rewards, labels) {
-    let canvas = $("<canvas></canvas>");
-    container.append(canvas);
-    let ctx = canvas[0].getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Normalized rewards',
-                data: rewards,
-                backgroundColor: 'rgba(100, 150, 50, 0.4)'
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    type: 'linear',
-                    ticks: {
-                        beginAtZero: true,
-                        precision: 0
-                    }
-                }]
-            },
-        }
-    });
-}
 
 function create_topic_feedback_plot(container, labels, system_recommended_accepted, system_recommended_rejected, refreshed, expired) {
     let canvas = $("<canvas></canvas>");
@@ -241,8 +214,7 @@ function create_system_stats_plots(plot_area) {
         success: function (data) {
             plot_area.empty();
             create_date_controls(plot_area, create_system_stats_plots);
-            create_impression_outcome_plot(plot_area, data.impressions, data.outcome, data.labels);
-            create_normalized_rewards_plot(plot_area, data.normalized_reward, data.labels);
+            create_impression_outcome_plot(plot_area, data.impressions, data.mean_normalized_reward, data.labels);
         }
     });
 }
