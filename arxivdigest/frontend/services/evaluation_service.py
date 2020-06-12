@@ -71,7 +71,7 @@ def get_normalized_rewards(rewards, start_date, end_date, system,
                 normalized_rewards[date].append(systems[system] / sum(
                     systems.values()))
             else:
-                normalized_rewards[date].append(1 / len(systems.values()))
+                normalized_rewards[date].append(0)
 
     return impressions, normalized_rewards
 
