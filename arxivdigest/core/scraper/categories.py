@@ -35,10 +35,10 @@ def get_categories(url):
 
     categories = {}
     for category in category_elements:
-        match = re.search(r'([,\w\- ]+) \((.+)\)',
+        match = re.search(r'([,\w\- ]+\.[,\w\- ]+) \((.+)\)',
                           category.text)
         if match:
-            categories[match[2]] = match[1].strip()
+            categories[match[1]] = match[2].strip()
     if not categories:
         print('No categories found, this could be caused by arxiv.com',
               'changing their category website.')
@@ -47,3 +47,4 @@ def get_categories(url):
 
 
 sub_category_names = get_categories(ARXIV_CATEGORY_TAXONOMY_URL)
+
