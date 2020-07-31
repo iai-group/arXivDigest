@@ -79,7 +79,8 @@ def insert_affiliations(cur, author_id, affiliations):
     for affiliation in affiliations:
         affiliation = truncate_value(affiliation,
                                      CONSTANTS.max_affiliation_length)
-        data.append((author_id, affiliation))
+        if affiliation:
+            data.append((author_id, affiliation))
     cur.executemany(sql, data)
 
 
@@ -97,17 +98,17 @@ def insert_categories(metaData, cursor):
                 categoryName = c[0]
                 print(
                     'Update category name manually: could not find name for %s' % c[0])
-            # generate natural name for category
-            try:
-                subcategoryName = sub_category_names[category]
-            except KeyError:
-                subcategoryName = category
-                print('Could not find name for category: %s.' % category)
             name = categoryName
-            name += '.' + subcategoryName if len(c) > 1 else ''
+            if len(c) > 1:
+                try:
+                    subcategoryName = sub_category_names[category]
+                    name += '.' + subcategoryName
+                except KeyError:
+                    print('Could not find name for category: %s.' % category)
             # add both main category and sub category to database
-            categories.add((category, c[0], (c[1:] + [None])[0], name))
             categories.add((c[0], c[0], None, categoryName))
+            if len(c) > 1:
+                categories.add((category, c[0], (c[1:] + [None])[0], name))
 
     sql = 'replace into categories values(%s,%s,%s,%s)'
     cursor.executemany(sql, list(categories))
