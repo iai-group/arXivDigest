@@ -64,6 +64,7 @@ js_bundle = Bundle('javascript/autocomplete.js',
                    'javascript/forms.js',
                    'javascript/articlelist.js',
                    'javascript/admin.js',
+                   'javascript/isThisYou.js',
                    filters='jsmin',
                    output='generated/js/base.%(version)s.js')
 
@@ -75,6 +76,7 @@ if topic_flag:
                        'javascript/articlelist.js',
                        'javascript/admin.js',
                        'javascript/topics.js',
+                       'javascript/isThisYou.js',
                        filters='jsmin',
                        output='generated/js/base.%(version)s.js')
 

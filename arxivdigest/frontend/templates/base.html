@@ -71,6 +71,50 @@
         </div>
     {% endfor %} {% endif %} {% endwith %}
 
+{% if g.loggedIn and user and user.semantic_scholar_profile == '' and user.s2_suggestions|length > 0 %}
+    <div class="modal fade" id="is-this-you" tabindex="-1" role="dialog" aria-labelledby="is-this-you-title">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="is-this-you-title">
+                        Semantic Scholar profile
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        The information available through your Semantic Scholar profile could help to improve the quality of your
+                        arXivDigest recommendations. Your profile currently does not contain a link to a Semantic Scholar profile &mdash;
+                        would you like to add one now?
+                    </p>
+                    <p>
+                        We have found a few potential candidates for you to choose from:
+                    </p>
+                    <form id="update-s2-form" action="{{ url_for('general.update_semantic_scholar') }}" method="POST" enctype=multipart/form-data>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        {% for suggestion in user.s2_suggestions %}
+                            <div class="checkbox">
+                                <label>
+                                    <input type="radio" name="s2Id" value="{{ suggestion['s2_id'] }}">
+                                    <a href="https://semanticscholar.org/author/{{ suggestion['s2_id'] }}" target="_blank">
+                                        {{ suggestion['name'] }}
+                                    </a>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <label class="checkbox-inline pull-left">
+                        <input type="checkbox" id="doNotAskAgainCheckbox"> Do not ask me again
+                    </label>
+                    <button class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input class="btn btn-primary" form="update-s2-form" type="submit" value="Save">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
 {% block content %} {% endblock %}
 
 <footer>

@@ -28,6 +28,7 @@ class User():
         self.topics = user.get('topics')
         self.categories = user.get('categories')
         self.notification_interval = user.get('notification_interval')
+        self.s2_suggestions = user.get('s2_suggestions')
 
     @property
     def email(self):

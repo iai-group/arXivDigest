@@ -47,6 +47,13 @@ def get_user(user_id):
              and ut.state in ('USER_ADDED','SYSTEM_RECOMMENDED_ACCEPTED')'''
     cur.execute(sql, (user_id,))
     user['topics'] = sorted(cur.fetchall(), key=lambda x: x['topic'])
+
+    # Add S2 profile suggestions to user
+    sql = '''SELECT s2_id, name, score
+             FROM s2_suggestions
+             WHERE user_id = %s'''
+    cur.execute(sql, (user_id,))
+    user['s2_suggestions'] = sorted(cur.fetchall(), key=lambda x: x['score'], reverse=True)
     cur.close()
     return user
 
@@ -476,6 +483,14 @@ def update_email(email, user_id):
     with closing(conn.cursor()) as cur:
         sql = '''update users set email = %s where user_id = %s'''
         cur.execute(sql, (email, user_id))
+        conn.commit()
+
+def update_semantic_scholar(link, user_id):
+    """Updates the Semantic Scholar link for a user."""
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
+        sql = 'update users set semantic_scholar_profile = %s where user_id = %s'
+        cur.execute(sql, (link, user_id))
         conn.commit()
 
 def digest_unsubscribe(trace):
