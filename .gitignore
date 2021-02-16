@@ -3,6 +3,7 @@
 _server/
 /arxivdigest/frontend/static/generated/
 /arxivdigest/frontend/static/webassets-external/
+scripts/data/open_research_corpus
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

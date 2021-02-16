@@ -30,6 +30,24 @@ def get_users(limit, offset):
                  LIMIT %s OFFSET %s'''
         cur.execute(sql, (limit, offset))
         return {u.pop('user_id'): u for u in cur.fetchall()}
+    
+    
+def get_users_without_semantic_scholar(limit, offset):
+    """Fetch users that have not provided Semantic Scholar profile links in batches.
+
+    :param limit: Number of users to retrieve.
+    :param offset: An offset to the first user returned.
+    :return: A dictionary {user_id: {firstname, lastname}}.
+    """
+    with closing(database.get_connection().cursor(dictionary=True)) as cur:
+        sql = '''SELECT user_id, firstname, lastname
+                 FROM users 
+                 WHERE semantic_scholar_profile = ""
+                 ORDER BY user_id
+                 LIMIT %s OFFSET %s'''
+        cur.execute(sql, (limit, offset))
+        return {u.pop('user_id'): u for u in cur.fetchall()}
+
 
 def assign_unsubscribe_trace(user_id):
     """Gives a user an unsubscribe trace if they dont have one."""
