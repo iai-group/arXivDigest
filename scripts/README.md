@@ -1,20 +1,29 @@
 # Scripts
 
-To be scheduled to run regularly on weekdays:
+This directory contains three types of scripts:
+* one-time setup scripts;
+* regular scripts meant to be run on weekdays; and
+* manual scripts.
 
-  * `interleave_articles.py`: Interleaves article recommendations.
-  * `scrape_arxiv.py`: Downloads new articles from arXiv.
-  * `send_digest_mail.py`: Sends out digest email.
 
-To be used for benchmarking:
+## One-time setup scripts
 
-  * `evaluation.py`: Generates evaluation measures.
+* `init_topic_list.py`: Populates the database with an initial list of topics.
 
-To be used once during setup:
+## Regular scripts
 
-  * `init_topic_list.py`: Populates the database with an initial list of topics.
+* `interleave_articles.py`: Interleaves article recommendations.
+* `scrape_arxiv.py`: Downloads new articles from arXiv.
+* `send_digest_mail.py`: Sends out digest email.
 
-## Semantic Scholar profile suggestions
+## Manual scripts
+
+* `evaluation.py`: Generates evaluation measures.
+* `gen_semantic_scholar_suggestions.py`: Generates Semantic Scholar profile suggestions.
+* `index_open_research_corpus.py`: Indexes the Semantic Scholar Open Research Corpus in Elasticsearch.
+* `download_open_research_corpus.sh`: Downloads the Semantic Scholar Open Research Corpus.
+
+### Semantic Scholar profile suggestions
 
 `gen_semantic_scholar_suggestions.py` can be used to generate Semantic Scholar profile suggestions for the users who
 currently do not provide a link to their Semantic Scholar profiles:
@@ -34,9 +43,9 @@ The generated suggestions will be shown to the users in a modal upon login.
 
 `gen_semantic_scholar_suggestions.py` relies on Elasticsearch and the 
 [Semantic Scholar Open Research Corpus](http://s2-public-api-prod.us-west-2.elasticbeanstalk.com/corpus/). The next
-section will provide instructions on how to index this dataset in Elasticsearch.
+section provides instructions on how to index this dataset in Elasticsearch.
 
-### Indexing the Semantic Scholar Open Research Corpus in Elasticsearch
+#### Indexing the Semantic Scholar Open Research Corpus in Elasticsearch
 
 Before starting, make sure that the dataset (or parts of it) is downloaded and available in 
 `data/open_research_corpus/`. For this, you can either execute  `download_open_research_corpus.sh` or follow the download
