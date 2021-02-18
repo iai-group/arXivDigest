@@ -71,12 +71,12 @@
         </div>
     {% endfor %} {% endif %} {% endwith %}
 
-{% if g.loggedIn and user and user.semantic_scholar_profile == '' and user.s2_suggestions|length > 0 %}
-    <div class="modal fade" id="is-this-you" tabindex="-1" role="dialog" aria-labelledby="is-this-you-title">
+{% if semantic_scholar_suggestions %}
+    <div class="modal fade" id="semantic-scholar-popup" tabindex="-1" role="dialog" aria-labelledby="semantic-scholar-popup-title">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="is-this-you-title">
+                    <h4 class="modal-title" id="semantic-scholar-popup-title">
                         Semantic Scholar profile
                     </h4>
                 </div>
@@ -89,26 +89,29 @@
                     <p>
                         We have found a few potential candidates for you to choose from:
                     </p>
-                    <form id="update-s2-form" action="{{ url_for('general.update_semantic_scholar') }}" method="POST" enctype=multipart/form-data>
+                    <form id="update-semantic-scholar-form" action="{{ url_for('general.update_semantic_scholar') }}" method="POST" enctype=multipart/form-data>
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        {% for suggestion in user.s2_suggestions %}
+                        {% for suggestion in semantic_scholar_suggestions %}
                             <div class="checkbox">
                                 <label>
-                                    <input type="radio" name="s2Id" value="{{ suggestion['s2_id'] }}">
-                                    <a href="https://semanticscholar.org/author/{{ suggestion['s2_id'] }}" target="_blank">
+                                    <input type="radio" name="s2Id" value="{{ suggestion['semantic_scholar_id'] }}">
+                                    <a href="https://semanticscholar.org/author/{{ suggestion['semantic_scholar_id'] }}" target="_blank">
                                         {{ suggestion['name'] }}
                                     </a>
                                 </label>
                             </div>
                         {% endfor %}
+                        <div class="checkbox">
+                            <label>
+                                <input type="radio" name="s2Id" value="none">
+                                None of the above
+                            </label>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <label class="checkbox-inline pull-left">
-                        <input type="checkbox" id="doNotAskAgainCheckbox"> Do not ask me again
-                    </label>
-                    <button class="btn btn-default" data-dismiss="modal">Close</button>
-                    <input class="btn btn-primary" form="update-s2-form" type="submit" value="Save">
+                    <button class="btn btn-default" data-dismiss="modal" id="close-semantic-scholar-popup">Close</button>
+                    <input class="btn btn-primary" form="update-semantic-scholar-form" type="submit" value="Save">
                 </div>
             </div>
         </div>

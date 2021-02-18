@@ -5,7 +5,7 @@ import argparse
 from arxivdigest.core.database import users_db, semantic_scholar_suggestions_db as s2_db
 
 
-def author_id_lookup(es: Elasticsearch, name: str, index: str, k=10):
+def author_id_lookup(es: Elasticsearch, name: str, index: str, k=50, max_results=5):
     """
     Find candidate Semantic Scholar author IDs for an author based on their name.
 
@@ -15,6 +15,7 @@ def author_id_lookup(es: Elasticsearch, name: str, index: str, k=10):
     :param name: Author name.
     :param index: Elasticsearch index.
     :param k: Number of top papers to consider when searching.
+    :param max_results: Max number of candidate IDs returned.
     :return: List of tuples (author ID, name) sorted by frequency of occurrence in the search results.
     """
     query = {
@@ -42,12 +43,12 @@ def author_id_lookup(es: Elasticsearch, name: str, index: str, k=10):
             "name": name,
             "score": id_counts[author_id]
         }
-        for author_id, name in authors[:5] if id_counts[author_id] > 1
+        for author_id, name in authors[:max_results] if id_counts[author_id] > 1
     }
 
 
 def gen_suggestions(es: Elasticsearch, index: str):
-    number_of_users = users_db.get_number_of_users()
+    number_of_users = users_db.get_number_of_users_without_semantic_scholar()
     offset = 0
     while offset < number_of_users:
         users = users_db.get_users_without_semantic_scholar(100, offset)

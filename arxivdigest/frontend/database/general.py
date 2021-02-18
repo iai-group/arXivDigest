@@ -28,7 +28,7 @@ def get_user(user_id):
     sql = '''SELECT user_id, email, firstname, lastname, organization,
              notification_interval, registered, last_email_date,
              last_recommendation_date, dblp_profile, google_scholar_profile,
-             semantic_scholar_profile, personal_website
+             semantic_scholar_profile, personal_website, show_semantic_scholar_popup
              FROM users WHERE user_id = %s'''
     cur.execute(sql, (user_id,))
     user = cur.fetchone()
@@ -48,12 +48,13 @@ def get_user(user_id):
     cur.execute(sql, (user_id,))
     user['topics'] = sorted(cur.fetchall(), key=lambda x: x['topic'])
 
-    # Add S2 profile suggestions to user
-    sql = '''SELECT s2_id, name, score
-             FROM s2_suggestions
-             WHERE user_id = %s'''
+    # Add Semantic Scholar profile suggestions to user
+    sql = '''SELECT semantic_scholar_id, name, score
+             FROM semantic_scholar_suggestions
+             WHERE user_id = %s
+             ORDER BY score'''
     cur.execute(sql, (user_id,))
-    user['s2_suggestions'] = sorted(cur.fetchall(), key=lambda x: x['score'], reverse=True)
+    user['semantic_scholar_suggestions'] = cur.fetchall()
     cur.close()
     return user
 
@@ -491,6 +492,39 @@ def update_semantic_scholar(link, user_id):
     with closing(conn.cursor()) as cur:
         sql = 'update users set semantic_scholar_profile = %s where user_id = %s'
         cur.execute(sql, (link, user_id))
+        conn.commit()
+        
+def show_semantic_scholar_popup(show_popup: bool, user_id):
+    """Sets whether the Semantic Scholar profile suggestion popup should be shown."""
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
+        sql = 'update users set show_semantic_scholar_popup = %s where user_id = %s'
+        cur.execute(sql, (show_popup, user_id))
+        conn.commit()
+
+def delete_semantic_scholar_suggestions(user_id):
+    conn = getDb()
+    with closing(conn.cursor()) as cur:
+        sql = 'delete from semantic_scholar_suggestions where user_id = %s'
+        cur.execute(sql, (user_id,))
+        conn.commit()
+
+def get_semantic_scholar_suggestions(user_id):
+    conn = getDb()
+    with closing(conn.cursor(dictionary=True)) as cur:
+        sql = '''SELECT semantic_scholar_id, name, score
+                 FROM semantic_scholar_suggestions
+                 WHERE user_id = %s
+                 ORDER BY score'''
+        cur.execute(sql, (user_id,))
+        return cur.fetchall()
+
+def log_semantic_scholar_choice(accepted_semantic_scholar_id: int, number_of_suggestions: int, user_id):
+    conn = getDb()
+    with closing(conn.cursor(dictionary=True)) as cur:
+        sql = '''REPLACE INTO semantic_scholar_suggestion_log (user_id, number_of_suggestions, accepted_semantic_scholar_id) 
+                 VALUES (%s, %s, %s)'''
+        cur.execute(sql, (user_id, number_of_suggestions, accepted_semantic_scholar_id))
         conn.commit()
 
 def digest_unsubscribe(trace):

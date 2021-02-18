@@ -28,7 +28,9 @@ class User():
         self.topics = user.get('topics')
         self.categories = user.get('categories')
         self.notification_interval = user.get('notification_interval')
-        self.s2_suggestions = user.get('s2_suggestions')
+        self.semantic_scholar_suggestions = user.get('semantic_scholar_suggestions')
+        self.show_semantic_scholar_popup = user.get('show_semantic_scholar_popup')
+
 
     @property
     def email(self):

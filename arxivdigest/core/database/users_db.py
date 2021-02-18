@@ -31,9 +31,17 @@ def get_users(limit, offset):
         cur.execute(sql, (limit, offset))
         return {u.pop('user_id'): u for u in cur.fetchall()}
     
-    
+
+def get_number_of_users_without_semantic_scholar():
+    """This method returns the number of users in the database."""
+    with closing(database.get_connection().cursor()) as cur:
+        cur.execute('SELECT count(*) FROM users WHERE semantic_scholar_profile = ""')
+        return cur.fetchone()[0]
+
+
 def get_users_without_semantic_scholar(limit, offset):
-    """Fetch users that have not provided Semantic Scholar profile links in batches.
+    """Fetch users that have not provided Semantic Scholar profile links and have not disabled the profile suggestion
+    popup. The users are fetched in batches.
 
     :param limit: Number of users to retrieve.
     :param offset: An offset to the first user returned.
