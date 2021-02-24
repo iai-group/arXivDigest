@@ -52,7 +52,7 @@ Before starting, make sure that the dataset (or parts of it) is downloaded and a
 instructions [here](http://s2-public-api-prod.us-west-2.elasticbeanstalk.com/corpus/download/). Proceed to run
 `index_open_research_corpus.py`:
 ```
-usage: index_open_research_corpus.py [-h] [--index INDEX] [--hosts HOSTS]
+usage: index_open_research_corpus.py [-h] [--index INDEX] [--hosts HOSTS] [--path PATH]
 
 Index the Semantic Scholar Open Research Corpus in Elasticsearch.
 
@@ -60,6 +60,7 @@ optional arguments:
   -h, --help     show this help message and exit
   --index INDEX  Elasticsearch index name (default: open_research)
   --hosts HOSTS  Elasticsearch hosts (default: ['http://127.0.0.1:9200'])
+  --path PATH    path to directory containing the dataset (.gz files) (default: data/open_research_corpus)
 ```
 
 `gen_semantic_scholar_suggestions.py` utilizes only the author field of the articles in the dataset to generate profile 
