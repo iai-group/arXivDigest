@@ -47,9 +47,9 @@ section provides instructions on how to index this dataset in Elasticsearch.
 
 #### Indexing the Semantic Scholar Open Research Corpus in Elasticsearch
 
-Before starting, make sure that the dataset (or parts of it) is downloaded and available in 
-`data/open_research_corpus/`. For this, you can either execute  `download_open_research_corpus.sh` or follow the download
-instructions [here](http://s2-public-api-prod.us-west-2.elasticbeanstalk.com/corpus/download/). Proceed to run
+Before starting, make sure that the dataset (or parts of it) is downloaded. For this, you can either execute 
+`download_open_research_corpus.sh` or follow the download instructions
+[here](http://s2-public-api-prod.us-west-2.elasticbeanstalk.com/corpus/download/). Proceed to run
 `index_open_research_corpus.py`:
 ```
 usage: index_open_research_corpus.py [-h] [--index INDEX] [--hosts HOSTS] [--path PATH]
@@ -62,7 +62,3 @@ optional arguments:
   --hosts HOSTS  Elasticsearch hosts (default: ['http://127.0.0.1:9200'])
   --path PATH    path to directory containing the dataset (.gz files) (default: data/open_research_corpus)
 ```
-
-`gen_semantic_scholar_suggestions.py` utilizes only the author field of the articles in the dataset to generate profile 
-suggestions. For this reason, and in order to save space, `index_open_research_corpus.py` creates an Elasticsearch index
-of the dataset that contains only the author field of the articles.

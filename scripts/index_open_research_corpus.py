@@ -15,7 +15,15 @@ def gen_corpus(index: str, path: Path):
                     "_index": index,
                     "_id": article.pop("id"),
                     "_source": {
-                        "authors": article["authors"]
+                        "title": article["title"],
+                        "authors": article["authors"],
+                        "paperAbstract": article["paperAbstract"],
+                        "year": article["year"],
+                        "fieldsOfStudy": article["fieldsOfStudy"],
+                        "venue": article["venue"],
+                        "journalName": article["journalName"],
+                        "journalVolume": article["journalVolume"],
+                        "journalPages": article["journalPages"],
                     }
                 }
 
