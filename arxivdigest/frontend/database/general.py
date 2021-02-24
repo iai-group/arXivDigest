@@ -50,8 +50,10 @@ def get_user(user_id):
 
     # Add Semantic Scholar profile suggestions to user
     sql = '''SELECT semantic_scholar_id, name, score
-             FROM semantic_scholar_suggestions
-             WHERE user_id = %s
+             FROM semantic_scholar_suggestions s
+             WHERE user_id = %s AND created = (
+                    SELECT max(created) FROM semantic_scholar_suggestions WHERE user_id = s.user_id
+                )
              ORDER BY score'''
     cur.execute(sql, (user_id,))
     user['semantic_scholar_suggestions'] = cur.fetchall()
@@ -509,22 +511,12 @@ def delete_semantic_scholar_suggestions(user_id):
         cur.execute(sql, (user_id,))
         conn.commit()
 
-def get_semantic_scholar_suggestions(user_id):
+def log_semantic_scholar_choice(accepted_semantic_scholar_id: int, user_id):
     conn = getDb()
     with closing(conn.cursor(dictionary=True)) as cur:
-        sql = '''SELECT semantic_scholar_id, name, score
-                 FROM semantic_scholar_suggestions
-                 WHERE user_id = %s
-                 ORDER BY score'''
-        cur.execute(sql, (user_id,))
-        return cur.fetchall()
-
-def log_semantic_scholar_choice(accepted_semantic_scholar_id: int, number_of_suggestions: int, user_id):
-    conn = getDb()
-    with closing(conn.cursor(dictionary=True)) as cur:
-        sql = '''REPLACE INTO semantic_scholar_suggestion_log (user_id, number_of_suggestions, accepted_semantic_scholar_id) 
-                 VALUES (%s, %s, %s)'''
-        cur.execute(sql, (user_id, number_of_suggestions, accepted_semantic_scholar_id))
+        sql = '''INSERT INTO semantic_scholar_suggestion_log (user_id, accepted_semantic_scholar_id) 
+                 VALUES (%s, %s)'''
+        cur.execute(sql, (user_id, accepted_semantic_scholar_id))
         conn.commit()
 
 def digest_unsubscribe(trace):

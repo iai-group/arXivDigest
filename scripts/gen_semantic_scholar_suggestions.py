@@ -1,5 +1,6 @@
 from elasticsearch import Elasticsearch
 from collections import Counter
+from datetime import datetime
 import argparse
 
 from arxivdigest.core.database import users_db, semantic_scholar_suggestions_db as s2_db
@@ -48,13 +49,16 @@ def author_id_lookup(es: Elasticsearch, name: str, index: str, k=50, max_results
 
 
 def gen_suggestions(es: Elasticsearch, index: str):
-    number_of_users = users_db.get_number_of_users_without_semantic_scholar()
+    timestamp = datetime.now()
+    number_of_users = users_db.get_number_of_users_for_suggestion_generation()
+    print(f"Generating suggestions for {number_of_users} user(s) (timestamp: {timestamp}).")
+
     offset = 0
     while offset < number_of_users:
-        users = users_db.get_users_without_semantic_scholar(100, offset)
+        users = users_db.get_users_for_suggestion_generation(100, offset)
         suggestions = {user_id: author_id_lookup(es, f"{user_data['firstname']} {user_data['lastname']}", index)
                        for user_id, user_data in users.items()}
-        s2_db.update_semantic_scholar_suggestions(suggestions)
+        s2_db.update_semantic_scholar_suggestions(suggestions, timestamp)
         offset += 100
 
 

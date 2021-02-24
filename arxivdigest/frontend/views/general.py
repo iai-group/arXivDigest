@@ -368,8 +368,7 @@ def update_semantic_scholar():
     if data['s2Id'] != 'none':
         accepted_id = int(data['s2Id'])
         db.update_semantic_scholar(f'https://semanticscholar.org/author/{data["s2Id"]}', g.user)
-    number_of_suggestions = len(db.get_semantic_scholar_suggestions(g.user))
-    db.log_semantic_scholar_choice(accepted_id, number_of_suggestions, g.user)
+    db.log_semantic_scholar_choice(accepted_id, g.user)
     return '', 204
 
 
