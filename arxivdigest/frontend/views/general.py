@@ -358,6 +358,20 @@ def unsubscribe(trace):
     return render_template('unsubscribed.html')
 
 
+@mod.route('/update_semantic_scholar', methods=['POST'])
+@requiresLogin
+def update_semantic_scholar():
+    """Updates a user's Semantic Scholar profile."""
+    data = request.form
+    db.show_semantic_scholar_popup(False, g.user)
+    accepted_id = -1
+    if data['s2Id'] != 'none':
+        accepted_id = int(data['s2Id'])
+        db.update_semantic_scholar(f'https://semanticscholar.org/author/{data["s2Id"]}', g.user)
+    db.log_semantic_scholar_choice(accepted_id, g.user)
+    return '', 204
+
+
 def make_auth_token_response(user_id, email, next_page):
     """Creates a Response object that redirects to 'next_page' with
     an authorization token containing the current users info.

@@ -19,6 +19,7 @@ import arxivdigest
 from arxivdigest.core.config import config_frontend
 from arxivdigest.core.config import jwtKey
 from arxivdigest.core.config import secret_key
+from arxivdigest.frontend.database import general as db
 from arxivdigest.frontend.views import admin
 from arxivdigest.frontend.views import articles
 from arxivdigest.frontend.views import evaluation
@@ -64,6 +65,7 @@ js_bundle = Bundle('javascript/autocomplete.js',
                    'javascript/forms.js',
                    'javascript/articlelist.js',
                    'javascript/admin.js',
+                   'javascript/semanticScholarPopup.js',
                    filters='jsmin',
                    output='generated/js/base.%(version)s.js')
 
@@ -75,6 +77,7 @@ if topic_flag:
                        'javascript/articlelist.js',
                        'javascript/admin.js',
                        'javascript/topics.js',
+                       'javascript/semanticScholarPopup.js',
                        filters='jsmin',
                        output='generated/js/base.%(version)s.js')
 
@@ -119,6 +122,16 @@ def teardownDb(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
+
+
+@app.context_processor
+def inject_semantic_scholar_suggestions():
+    """Inject the Semantic Scholar suggestions of the current user into the context of the current template."""
+    if g.loggedIn:
+        user = db.get_user(g.user)
+        if user['show_semantic_scholar_popup'] and len(user['semantic_scholar_suggestions']) > 0:
+            return {'semantic_scholar_suggestions': user['semantic_scholar_suggestions']}
+    return {}
 
 
 if app.debug:  # If started by a debugger

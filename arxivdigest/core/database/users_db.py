@@ -30,6 +30,36 @@ def get_users(limit, offset):
                  LIMIT %s OFFSET %s'''
         cur.execute(sql, (limit, offset))
         return {u.pop('user_id'): u for u in cur.fetchall()}
+    
+
+def get_number_of_users_for_suggestion_generation():
+    """Gets the number of users that have not provided links to their Semantic Scholar profiles and have not
+    previously accepted/declined any suggestions."""
+    with closing(database.get_connection().cursor()) as cur:
+        sql = '''SELECT count(*)
+                 FROM users u LEFT JOIN semantic_scholar_suggestion_log log ON u.user_id=log.user_id
+                 WHERE semantic_scholar_profile = "" AND log.user_id IS NULL'''
+        cur.execute(sql)
+        return cur.fetchone()[0]
+
+
+def get_users_for_suggestion_generation(limit, offset):
+    """Gets the users that have not provided Semantic Scholar profile links and have not previously accepted/declined
+    any suggestions.
+
+    :param limit: Number of users to retrieve.
+    :param offset: An offset to the first user returned.
+    :return: A dictionary {user_id: {firstname, lastname}}.
+    """
+    with closing(database.get_connection().cursor(dictionary=True)) as cur:
+        sql = '''SELECT u.user_id, u.firstname, u.lastname
+                 FROM users u LEFT JOIN semantic_scholar_suggestion_log log ON u.user_id=log.user_id
+                 WHERE semantic_scholar_profile = "" AND log.user_id IS NULL
+                 ORDER BY user_id
+                 LIMIT %s OFFSET %s'''
+        cur.execute(sql, (limit, offset))
+        return {u.pop('user_id'): u for u in cur.fetchall()}
+
 
 def assign_unsubscribe_trace(user_id):
     """Gives a user an unsubscribe trace if they dont have one."""
