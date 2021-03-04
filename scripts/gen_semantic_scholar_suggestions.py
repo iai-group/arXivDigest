@@ -29,7 +29,7 @@ def find_author_candidates_by_frequency(
     for article in results:
         for author in article["_source"]["authors"]:
             for author_id in author["ids"]:
-                authors[author_id]["name"] = author["name"]
+                authors[author_id]["name"] = " ".join(author["name"].split())
                 authors[author_id]["count"] += 1
 
     return {
@@ -79,7 +79,7 @@ def find_author_candidates_by_score(
     for article in results:
         for author in article["_source"]["authors"]:
             for author_id in author["ids"]:
-                authors[author_id]["name"] = author["name"]
+                authors[author_id]["name"] = " ".join(author["name"].split())
                 authors[author_id]["score"] += article["_score"]
 
     return {
