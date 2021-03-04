@@ -49,6 +49,8 @@ config_arxiv_scraper = config.get('arxiv_scraper_config')
 jwtKey = config_frontend.get('jwt_key')
 secret_key = config_frontend.get('secret_key')
 
+enable_semantic_scholar_suggestion_popup = config.get('enable_semantic_scholar_suggestion_popup', False)
+
 
 class Constants:
     """This class contains constants that are not configurable."""
