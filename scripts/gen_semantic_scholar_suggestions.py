@@ -7,7 +7,7 @@ from arxivdigest.core.database import users_db, semantic_scholar_suggestions_db 
 
 
 def find_author_candidates_by_frequency(
-    es: Elasticsearch, index: str, user: dict, k=50, max_results=5
+    es: Elasticsearch, index: str, user: dict, max_candidates: int, k: int
 ) -> dict:
     """
     Find candidate Semantic Scholar author IDs for a user. Candidates are found by:
@@ -17,8 +17,8 @@ def find_author_candidates_by_frequency(
     :param es: Elasticsearch instance.
     :param user: User.
     :param index: S2ORC Elasticsearch index name.
+    :param max_candidates: Max number of candidates returned.
     :param k: Number of top Elasticsearch query results to take into consideration.
-    :param max_results: Max number of candidates returned.
     :return: Dictionary {author_id: {name, score}).
     """
     query = {
@@ -36,12 +36,12 @@ def find_author_candidates_by_frequency(
         author_id: author_data
         for author_id, author_data in sorted(
             authors.items(), key=lambda a: a[1]["count"], reverse=True
-        )[:max_results]
+        )[:max_candidates]
     }
 
 
 def find_author_candidates_by_score(
-    es: Elasticsearch, index: str, user: dict, k=50, max_results=5
+    es: Elasticsearch, index: str, user: dict, max_candidates: int, k: int
 ) -> dict:
     """
     Find candidate Semantic Scholar author IDs for a user. Candidates are found by:
@@ -52,8 +52,8 @@ def find_author_candidates_by_score(
     :param es: Elasticsearch instance.
     :param user: User.
     :param index: S2ORC Elasticsearch index name.
+    :param max_candidates: Max number of candidates returned.
     :param k: Number of top Elasticsearch query results to take into consideration.
-    :param max_results: Max number of candidates returned.
     :return: Dictionary {author_id: {name, score}).
     """
     query = {
@@ -86,12 +86,17 @@ def find_author_candidates_by_score(
         author_id: author_data
         for author_id, author_data in sorted(
             authors.items(), key=lambda a: a[1]["score"], reverse=True
-        )[:max_results]
+        )[:max_candidates]
     }
 
 
 def gen_suggestions(
-    es: Elasticsearch, index: str, matching_method: str, batch_size: int
+    es: Elasticsearch,
+    index: str,
+    matching_method: str,
+    max_suggestions: int,
+    k: int,
+    batch_size: int,
 ):
     """
     Generate suggestions for users in batches.
@@ -99,6 +104,9 @@ def gen_suggestions(
     :param es: Elasticsearch instance.
     :param index: S2ORC Elasticsearch index name.
     :param matching_method: Profile matching method ("score" or "frequency").
+    :param max_suggestions: Max number of suggestions generated per user.
+    :param k: Number of top Elasticsearch query results (k-top) to take into consideration when finding profile
+    candidates for a user.
     :param batch_size: User batch size.
     """
     timestamp = datetime.now()
@@ -111,7 +119,9 @@ def gen_suggestions(
     while offset < number_of_users:
         users = users_db.get_users_for_suggestion_generation(batch_size, offset)
         suggestions = {
-            user_id: PROFILE_MATCHING_METHODS[matching_method](es, index, user_data)
+            user_id: PROFILE_MATCHING_METHODS[matching_method](
+                es, index, user_data, max_suggestions, k
+            )
             for user_id, user_data in users.items()
         }
         s2_db.update_semantic_scholar_suggestions(suggestions, timestamp)
@@ -155,7 +165,22 @@ if __name__ == "__main__":
         help="user batch size (suggestions are generated in batches of users)",
         default=500,
     )
+    parser.add_argument(
+        "--max-suggestions",
+        type=int,
+        help="max number of suggestions per user",
+        default=5,
+    )
+    parser.add_argument(
+        "-k",
+        type=int,
+        help="number of top Elasticsearch query results (k-top) to take into consideration when finding profile "
+        "candidates for a user",
+        default=50,
+    )
     args = parser.parse_args()
 
     es = Elasticsearch(hosts=args.hosts)
-    gen_suggestions(es, args.index, args.method, args.batch_size)
+    gen_suggestions(
+        es, args.index, args.method, args.max_suggestions, args.k, args.batch_size
+    )
