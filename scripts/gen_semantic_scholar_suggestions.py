@@ -105,7 +105,7 @@ def gen_suggestions(
     :param index: S2ORC Elasticsearch index name.
     :param matching_method: Profile matching method ("score" or "frequency").
     :param max_suggestions: Max number of suggestions generated per user.
-    :param k: Number of top Elasticsearch query results (k-top) to take into consideration when finding profile
+    :param k: Number of top Elasticsearch query results (top-k) to take into consideration when finding profile
     candidates for a user.
     :param batch_size: User batch size.
     """
@@ -174,7 +174,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-k",
         type=int,
-        help="number of top Elasticsearch query results (k-top) to take into consideration when finding profile "
+        help="number of top Elasticsearch query results (top-k) to take into consideration when finding profile "
         "candidates for a user",
         default=50,
     )

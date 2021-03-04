@@ -43,7 +43,7 @@ optional arguments:
                         user batch size (suggestions are generated in batches of users) (default: 500)
   --max-suggestions MAX_SUGGESTIONS
                         max number of suggestions per user (default: 5)
-  -k K                  number of top Elasticsearch query results (k-top) to take into consideration when finding profile candidates for a user (default: 50)
+  -k K                  number of top Elasticsearch query results (top-k) to take into consideration when finding profile candidates for a user (default: 50)
 ```
 
 The generated suggestions will be shown to the users in a modal upon login.
