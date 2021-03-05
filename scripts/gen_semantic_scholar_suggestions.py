@@ -148,10 +148,10 @@ if __name__ == "__main__":
         default="open_research",
     )
     parser.add_argument(
-        "--hosts",
-        type=list,
-        help="Elasticsearch hosts",
-        default=["http://127.0.0.1:9200"],
+        "--host",
+        type=str,
+        help="Elasticsearch host",
+        default="http://127.0.0.1:9200",
     )
     parser.add_argument(
         "--method",
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    es = Elasticsearch(hosts=args.hosts)
+    es = Elasticsearch(hosts=[args.host])
     gen_suggestions(
         es, args.index, args.method, args.max_suggestions, args.k, args.batch_size
     )

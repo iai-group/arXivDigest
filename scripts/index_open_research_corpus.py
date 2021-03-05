@@ -37,10 +37,10 @@ if __name__ == "__main__":
         "--index", type=str, help="Elasticsearch index name", default="open_research"
     )
     parser.add_argument(
-        "--hosts",
-        type=list,
-        help="Elasticsearch hosts",
-        default=["http://127.0.0.1:9200"],
+        "--host",
+        type=str,
+        help="Elasticsearch host",
+        default="http://127.0.0.1:9200",
     )
     parser.add_argument(
         "--path",
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    es = Elasticsearch(hosts=args.hosts)
+    es = Elasticsearch(hosts=[args.host])
     if not es.indices.exists(args.index):
         es.indices.create(args.index)
 
