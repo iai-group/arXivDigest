@@ -19,6 +19,7 @@ import arxivdigest
 from arxivdigest.core.config import config_frontend
 from arxivdigest.core.config import jwtKey
 from arxivdigest.core.config import secret_key
+from arxivdigest.core.config import enable_semantic_scholar_suggestion_popup
 from arxivdigest.frontend.database import general as db
 from arxivdigest.frontend.views import admin
 from arxivdigest.frontend.views import articles
@@ -127,7 +128,7 @@ def teardownDb(exception):
 @app.context_processor
 def inject_semantic_scholar_suggestions():
     """Inject the Semantic Scholar suggestions of the current user into the context of the current template."""
-    if g.loggedIn:
+    if g.loggedIn and enable_semantic_scholar_suggestion_popup:
         user = db.get_user(g.user)
         if user['show_semantic_scholar_popup'] and len(user['semantic_scholar_suggestions']) > 0:
             return {'semantic_scholar_suggestions': user['semantic_scholar_suggestions']}

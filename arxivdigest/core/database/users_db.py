@@ -58,7 +58,14 @@ def get_users_for_suggestion_generation(limit, offset):
                  ORDER BY user_id
                  LIMIT %s OFFSET %s'''
         cur.execute(sql, (limit, offset))
-        return {u.pop('user_id'): u for u in cur.fetchall()}
+        users = {u.pop('user_id'): u for u in cur.fetchall()}
+        for user_id, user_data in users.items():
+            sql = '''SELECT t.topic FROM user_topics ut 
+                     NATURAL JOIN topics t WHERE user_id = %s AND NOT t.filtered
+                     and ut.state in ('USER_ADDED','SYSTEM_RECOMMENDED_ACCEPTED')'''
+            cur.execute(sql, (user_id,))
+            user_data['topics'] = cur.fetchall()
+        return users
 
 
 def assign_unsubscribe_trace(user_id):

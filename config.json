@@ -53,5 +53,6 @@
         "last_n_days": 1,
         "start_date": null,
         "end_date": null
-    }
+    },
+    "enable_semantic_scholar_suggestion_popup": false
 }
