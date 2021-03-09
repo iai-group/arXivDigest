@@ -29,14 +29,14 @@ This directory contains three types of scripts:
 currently do not provide a link to their Semantic Scholar profiles:
 
 ```
-usage: gen_semantic_scholar_suggestions.py [-h] [--index INDEX] [--hosts HOSTS] [--method {score,frequency}] [--batch-size BATCH_SIZE] [--max-suggestions MAX_SUGGESTIONS] [-k K]
+usage: gen_semantic_scholar_suggestions.py [-h] [--index INDEX] [--host HOST] [--method {score,frequency}] [--batch-size BATCH_SIZE] [--max-suggestions MAX_SUGGESTIONS] [-k K]
 
 Generate Semantic Scholar profile suggestions for all arXivDigest users whose profiles currently do not contain a link to a profile.
 
 optional arguments:
   -h, --help            show this help message and exit
   --index INDEX         Semantic Scholar Open Research Corpus Elasticsearch index name (default: open_research)
-  --hosts HOSTS         Elasticsearch hosts (default: ['http://127.0.0.1:9200'])
+  --host HOST           Elasticsearch host (default: http://127.0.0.1:9200)
   --method {score,frequency}
                         profile matching method (default: score)
   --batch-size BATCH_SIZE
@@ -59,13 +59,13 @@ Before starting, make sure that the dataset (or parts of it) is downloaded. For 
 [here](http://s2-public-api-prod.us-west-2.elasticbeanstalk.com/corpus/download/). Proceed to run
 `index_open_research_corpus.py`:
 ```
-usage: index_open_research_corpus.py [-h] [--index INDEX] [--hosts HOSTS] [--path PATH]
+usage: index_open_research_corpus.py [-h] [--index INDEX] [--host HOST] [--path PATH]
 
 Index the Semantic Scholar Open Research Corpus in Elasticsearch.
 
 optional arguments:
   -h, --help     show this help message and exit
   --index INDEX  Elasticsearch index name (default: open_research)
-  --hosts HOSTS  Elasticsearch hosts (default: ['http://127.0.0.1:9200'])
+  --host HOST    Elasticsearch host (default: http://127.0.0.1:9200)
   --path PATH    path to directory containing the dataset (.gz files) (default: data/open_research_corpus)
 ```
