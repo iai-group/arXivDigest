@@ -1,7 +1,9 @@
 from elasticsearch import Elasticsearch
 from datetime import datetime
 from collections import defaultdict
+from functools import reduce
 import argparse
+import operator
 
 from arxivdigest.core.database import users_db, semantic_scholar_suggestions_db as s2_db
 
@@ -21,21 +23,25 @@ def find_author_candidates_by_frequency(
     :param k: Number of top Elasticsearch query results to take into consideration.
     :return: Dictionary {author_id: {name, score}).
     """
+    print(
+        f"Querying for user #{user['user_id']}",
+        end="\r",
+    )
     query = {
         "query": {"match": {"authors.name": f"{user['firstname']} {user['lastname']}"}}
     }
     results = es.search(index=index, body=query, size=k)["hits"]["hits"]
-    authors = defaultdict(lambda: {"name": "", "count": 0})
+    authors = defaultdict(lambda: {"name": "", "score": 0})
     for article in results:
         for author in article["_source"]["authors"]:
             for author_id in author["ids"]:
                 authors[author_id]["name"] = " ".join(author["name"].split())
-                authors[author_id]["count"] += 1
+                authors[author_id]["score"] += 1
 
     return {
         author_id: author_data
         for author_id, author_data in sorted(
-            authors.items(), key=lambda a: a[1]["count"], reverse=True
+            authors.items(), key=lambda a: a[1]["score"], reverse=True
         )[:max_candidates]
     }
 
@@ -45,9 +51,10 @@ def find_author_candidates_by_score(
 ) -> dict:
     """
     Find candidate Semantic Scholar author IDs for a user. Candidates are found by:
-        1. Querying the S2ORC Elasticsearch index for the user's name, along with the user's topics of interest.
-        2. Ranking the authors present in the query results based on the sum of the scores of the documents they have
-        authored.
+        1. For each of the user's topics of interest, query the S2ORC Elasticsearch index for the user's name
+        together with the topic.
+        2. Aggregate the results and rank the authors that are present based on the sum of the scores of
+        the documents they have authored.
 
     :param es: Elasticsearch instance.
     :param user: User.
@@ -56,25 +63,36 @@ def find_author_candidates_by_score(
     :param k: Number of top Elasticsearch query results to take into consideration.
     :return: Dictionary {author_id: {name, score}).
     """
-    query = {
-        "query": {
-            "bool": {
-                "must": {
-                    "match": {"authors.name": f"{user['firstname']} {user['lastname']}"}
+
+    def search(topic_index: int):
+        print(
+            f"Querying for user #{user['user_id']} ({len(user['topics'])} topics)"
+            f"{'.' * (topic_index + 1)}",
+            end="\r",
+            flush=True,
+        )
+        query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "match": {
+                                "authors.name": f"{user['firstname']} {user['lastname']}"
+                            }
+                        },
+                        {
+                            "multi_match": {
+                                "query": user["topics"][topic_index]["topic"],
+                                "fields": ["title", "paperAbstract", "fieldsOfStudy"],
+                            }
+                        },
+                    ],
                 },
-                "should": [
-                    {
-                        "multi_match": {
-                            "query": topic["topic"],
-                            "fields": ["title", "paperAbstract", "fieldsOfStudy"],
-                        }
-                    }
-                    for topic in user["topics"]
-                ],
-            },
+            }
         }
-    }
-    results = es.search(index=index, body=query, size=k)["hits"]["hits"]
+        return es.search(index=index, body=query, size=k)["hits"]["hits"]
+
+    results = reduce(operator.concat, (search(i) for i in range(len(user["topics"]))))
     authors = defaultdict(lambda: {"name": "", "score": 0})
     for article in results:
         for author in article["_source"]["authors"]:
