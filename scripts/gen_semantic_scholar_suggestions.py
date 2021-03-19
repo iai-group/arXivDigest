@@ -2,14 +2,53 @@ from elasticsearch import Elasticsearch
 from datetime import datetime
 from collections import defaultdict
 from functools import reduce
+import editdistance
 import argparse
 import operator
 
 from arxivdigest.core.database import users_db, semantic_scholar_suggestions_db as s2_db
 
 
+def edit_distance(suggestion: str, user: dict) -> int:
+    """
+    Calculate the minimum edit distance between a user and a suggestion. The minimum distance between the suggestion
+    and the user's name on the following formats is returned:
+        1. Full name
+        2. First Last
+        3. F Last
+
+    :param user: User.
+    :param suggestion: Suggestion.
+    :return: Min edit distance.
+    """
+
+    # Remove punctuation and middle names from the suggestion in case the user's name does not contain middle names.
+    clean_suggestion = suggestion.replace(".", "")
+    clean_suggestion = " ".join(
+        clean_suggestion.split()[:: len(clean_suggestion.split()) - 1]
+    )
+
+    name_formats = {
+        f"{user['firstname']} {user['lastname']}",
+        f"{user['firstname'].split()[0]} {user['lastname'].split()[-1]}",
+        f"{user['firstname'][0]} {user['lastname'].split()[-1]}",
+    }
+    return min(
+        editdistance.eval(
+            clean_suggestion,
+            name_format,
+        )
+        for name_format in name_formats
+    )
+
+
 def find_author_candidates_by_frequency(
-    es: Elasticsearch, index: str, user: dict, max_candidates: int, k: int
+    es: Elasticsearch,
+    index: str,
+    user: dict,
+    max_candidates: int,
+    k: int,
+    max_edit_distance: int,
 ) -> dict:
     """
     Find candidate Semantic Scholar author IDs for a user. Candidates are found by:
@@ -21,6 +60,7 @@ def find_author_candidates_by_frequency(
     :param index: S2ORC Elasticsearch index name.
     :param max_candidates: Max number of candidates returned.
     :param k: Number of top Elasticsearch query results to take into consideration.
+    :param max_edit_distance: Max edit distance between user's name and a suggestion.
     :return: Dictionary {author_id: {name, score}).
     """
     print(
@@ -35,7 +75,10 @@ def find_author_candidates_by_frequency(
     for article in results:
         for author in article["_source"]["authors"]:
             for author_id in author["ids"]:
-                authors[author_id]["name"] = " ".join(author["name"].split())
+                author_name = " ".join(author["name"].split())
+                if edit_distance(author_name, user) > max_edit_distance:
+                    continue
+                authors[author_id]["name"] = author_name
                 authors[author_id]["score"] += 1
 
     return {
@@ -47,7 +90,12 @@ def find_author_candidates_by_frequency(
 
 
 def find_author_candidates_by_score(
-    es: Elasticsearch, index: str, user: dict, max_candidates: int, k: int
+    es: Elasticsearch,
+    index: str,
+    user: dict,
+    max_candidates: int,
+    k: int,
+    max_edit_distance: int,
 ) -> dict:
     """
     Find candidate Semantic Scholar author IDs for a user. Candidates are found by:
@@ -61,6 +109,7 @@ def find_author_candidates_by_score(
     :param index: S2ORC Elasticsearch index name.
     :param max_candidates: Max number of candidates returned.
     :param k: Number of top Elasticsearch query results to take into consideration.
+    :param max_edit_distance: Max edit distance between user's name and a suggestion.
     :return: Dictionary {author_id: {name, score}).
     """
 
@@ -97,7 +146,10 @@ def find_author_candidates_by_score(
     for article in results:
         for author in article["_source"]["authors"]:
             for author_id in author["ids"]:
-                authors[author_id]["name"] = " ".join(author["name"].split())
+                author_name = " ".join(author["name"].split())
+                if edit_distance(author_name, user) > max_edit_distance:
+                    continue
+                authors[author_id]["name"] = author_name
                 authors[author_id]["score"] += article["_score"]
 
     return {
@@ -115,6 +167,7 @@ def gen_suggestions(
     max_suggestions: int,
     k: int,
     batch_size: int,
+    max_edit_distance: int,
 ):
     """
     Generate suggestions for users in batches.
@@ -126,6 +179,7 @@ def gen_suggestions(
     :param k: Number of top Elasticsearch query results (top-k) to take into consideration when finding profile
     candidates for a user.
     :param batch_size: User batch size.
+    :param max_edit_distance: Max edit distance between user's name and a suggestion.
     """
     timestamp = datetime.now()
     number_of_users = users_db.get_number_of_users_for_suggestion_generation()
@@ -138,7 +192,7 @@ def gen_suggestions(
         users = users_db.get_users_for_suggestion_generation(batch_size, offset)
         suggestions = {
             user_id: PROFILE_MATCHING_METHODS[matching_method](
-                es, index, user_data, max_suggestions, k
+                es, index, user_data, max_suggestions, k, max_edit_distance
             )
             for user_id, user_data in users.items()
         }
@@ -196,9 +250,21 @@ if __name__ == "__main__":
         "candidates for a user",
         default=50,
     )
+    parser.add_argument(
+        "--max-edit-distance",
+        type=int,
+        help="max edit distance between a user's name and a suggestion",
+        default=1,
+    )
     args = parser.parse_args()
 
     es = Elasticsearch(hosts=[args.host])
     gen_suggestions(
-        es, args.index, args.method, args.max_suggestions, args.k, args.batch_size
+        es,
+        args.index,
+        args.method,
+        args.max_suggestions,
+        args.k,
+        args.batch_size,
+        args.max_edit_distance,
     )

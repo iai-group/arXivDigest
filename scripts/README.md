@@ -29,7 +29,7 @@ This directory contains three types of scripts:
 currently do not provide a link to their Semantic Scholar profiles:
 
 ```
-usage: gen_semantic_scholar_suggestions.py [-h] [--index INDEX] [--host HOST] [--method {score,frequency}] [--batch-size BATCH_SIZE] [--max-suggestions MAX_SUGGESTIONS] [-k K]
+usage: gen_semantic_scholar_suggestions.py [-h] [--index INDEX] [--host HOST] [--method {score,frequency}] [--batch-size BATCH_SIZE] [--max-suggestions MAX_SUGGESTIONS] [-k K] [--max-edit-distance MAX_EDIT_DISTANCE]
 
 Generate Semantic Scholar profile suggestions for all arXivDigest users whose profiles currently do not contain a link to a profile.
 
@@ -44,6 +44,8 @@ optional arguments:
   --max-suggestions MAX_SUGGESTIONS
                         max number of suggestions per user (default: 5)
   -k K                  number of top Elasticsearch query results (top-k) to take into consideration when finding profile candidates for a user (default: 50)
+  --max-edit-distance MAX_EDIT_DISTANCE
+                        max edit distance between a user's name and a suggestion (default: 1)
 ```
 
 The generated suggestions will be shown to the users in a modal upon login.
