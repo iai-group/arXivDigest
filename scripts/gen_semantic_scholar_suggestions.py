@@ -24,9 +24,14 @@ def edit_distance(suggestion: str, user: dict) -> int:
 
     # Remove punctuation and middle names from the suggestion in case the user's name does not contain middle names.
     clean_suggestion = suggestion.replace(".", "")
-    clean_suggestion = " ".join(
-        clean_suggestion.split()[:: len(clean_suggestion.split()) - 1]
-    )
+    try:
+        clean_suggestion = " ".join(
+            clean_suggestion.split()[:: len(clean_suggestion.split()) - 1]
+        )
+    except ValueError:
+        # If the suggestion contains only one name (e.g. only last name), attempting to remove middle names will fail
+        # with a ValueError as the slice step will be zero.
+        pass
 
     name_formats = {
         f"{user['firstname']} {user['lastname']}",
