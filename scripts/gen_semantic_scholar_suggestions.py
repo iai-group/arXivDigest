@@ -2,6 +2,7 @@ from elasticsearch import Elasticsearch
 from datetime import datetime
 from collections import defaultdict
 from functools import reduce
+from pathlib import Path
 import editdistance
 import argparse
 import operator
@@ -165,6 +166,31 @@ def find_author_candidates_by_score(
     }
 
 
+def write_suggestions(suggestions: dict, path: Path, matching_method: str):
+    """
+    Write suggestions to disk in a TREC suggestion format.
+
+    :param suggestions: Suggestions.
+    :param path: Output path.
+    :param matching_method: Profile matching method.
+    :return:
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w") as output_file:
+        for user_id, user_suggestions in suggestions.items():
+            for rank, (suggestion_id, suggestion) in enumerate(
+                sorted(
+                    user_suggestions.items(),
+                    key=lambda s: s[1]["score"],
+                    reverse=True,
+                ),
+                1,
+            ):
+                output_file.write(
+                    f"{user_id} Q0 {suggestion_id} {rank} {suggestion['score']} {matching_method}\n"
+                )
+
+
 def gen_suggestions(
     es: Elasticsearch,
     index: str,
@@ -173,6 +199,7 @@ def gen_suggestions(
     k: int,
     batch_size: int,
     max_edit_distance: int,
+    output: Path = None,
 ):
     """
     Generate suggestions for users in batches.
@@ -185,23 +212,34 @@ def gen_suggestions(
     candidates for a user.
     :param batch_size: User batch size.
     :param max_edit_distance: Max edit distance between user's name and a suggestion.
+    :param output: If provided, suggestions are not stored in the database, but are instead written to this path in
+    a TREC suggestion format. Suggestions are also generated for all users.
     """
     timestamp = datetime.now()
-    number_of_users = users_db.get_number_of_users_for_suggestion_generation()
+    number_of_users = (
+        users_db.get_number_of_users()
+        if output
+        else users_db.get_number_of_users_for_suggestion_generation()
+    )
     print(
         f"Generating suggestions for {number_of_users} user(s) (timestamp: {timestamp})."
     )
 
     offset = 0
     while offset < number_of_users:
-        users = users_db.get_users_for_suggestion_generation(batch_size, offset)
+        users = users_db.get_users_for_suggestion_generation(
+            batch_size, offset, output is not None
+        )
         suggestions = {
             user_id: PROFILE_MATCHING_METHODS[matching_method](
                 es, index, user_data, max_suggestions, k, max_edit_distance
             )
             for user_id, user_data in users.items()
         }
-        s2_db.update_semantic_scholar_suggestions(suggestions, timestamp)
+        if output:
+            write_suggestions(suggestions, output, matching_method)
+        else:
+            s2_db.update_semantic_scholar_suggestions(suggestions, timestamp)
         offset += batch_size
 
 
@@ -261,6 +299,13 @@ if __name__ == "__main__":
         help="max edit distance between a user's name and a suggestion",
         default=1,
     )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="if provided, suggestions are not stored in the database, but are instead written to this path in a "
+        "TREC suggestion format (suggestions are also generated for all users)",
+        default=None,
+    )
     args = parser.parse_args()
 
     es = Elasticsearch(hosts=[args.host])
@@ -272,4 +317,5 @@ if __name__ == "__main__":
         args.k,
         args.batch_size,
         args.max_edit_distance,
+        args.output,
     )
