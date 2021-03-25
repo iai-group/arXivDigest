@@ -43,21 +43,23 @@ def get_number_of_users_for_suggestion_generation():
         return cur.fetchone()[0]
 
 
-def get_users_for_suggestion_generation(limit, offset):
+def get_users_for_suggestion_generation(limit, offset, all_users=False):
     """Gets the users that have not provided Semantic Scholar profile links and have not previously accepted/declined
     any suggestions.
 
     :param limit: Number of users to retrieve.
     :param offset: An offset to the first user returned.
+    :param all_users: Return all users, regardless of whether they have provided Semantic Scholar profile links
+    and/or have previously accepted/declined any suggestions.
     :return: A dictionary {user_id: {firstname, lastname}}.
     """
     with closing(database.get_connection().cursor(dictionary=True)) as cur:
         sql = '''SELECT u.user_id, u.firstname, u.lastname
                  FROM users u LEFT JOIN semantic_scholar_suggestion_log log ON u.user_id=log.user_id
-                 WHERE semantic_scholar_profile = "" AND log.user_id IS NULL
+                 WHERE %s OR (semantic_scholar_profile = "" AND log.user_id IS NULL)
                  ORDER BY user_id
                  LIMIT %s OFFSET %s'''
-        cur.execute(sql, (limit, offset))
+        cur.execute(sql, (all_users, limit, offset))
         users = {u['user_id']: u for u in cur.fetchall()}
         for user_id, user_data in users.items():
             sql = '''SELECT t.topic FROM user_topics ut 

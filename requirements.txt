@@ -11,3 +11,4 @@ elasticsearch
 bs4
 requests
 Flask-WTF
+editdistance
