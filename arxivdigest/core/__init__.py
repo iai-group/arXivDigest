@@ -2,8 +2,7 @@
 
 import re
 
-from jinja2 import escape
-from markupsafe import Markup
+from markupsafe import Markup, escape
 
 __author__ = 'Øyvind Jekteberg and Kristian Gingstad'
 __copyright__ = 'Copyright 2020, The arXivDigest project'

@@ -9,9 +9,9 @@ import os
 import sys
 from collections import defaultdict
 
+from arxivdigest.connector import ArxivdigestConnector
 from elasticsearch import Elasticsearch
 
-from arxivdigest.connector import ArxivdigestConnector
 from index import run_indexing
 from init_index import init_index
 
@@ -40,7 +40,7 @@ API_KEY = config_file.get('api_key', '4c02e337-c94b-48b6-b30e-0c06839c81e6')
 API_URL = config_file.get('api_url', 'https://api.arxivdigest.org/')
 INDEX = config_file.get('index_name', 'main_index')
 ELASTICSEARCH_HOST = config_file.get('elasticsearch_host',
-                                     {'host': '127.0.0.1', 'port': 9200})
+                                     {'host': '127.0.0.1', 'port': 9203})
 
 
 def get_articles_by_topic(es, topic, index, window_size=7, size=10000):
