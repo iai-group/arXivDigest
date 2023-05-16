@@ -7,20 +7,13 @@ import gzip
 from functools import wraps
 from uuid import uuid4
 
-import jwt
-from flask import g
-from flask import make_response
-from flask import redirect
-from flask import request
-from flask import url_for
-
 import arxivdigest.frontend.database.admin as admin
 import arxivdigest.frontend.database.general as general
-from arxivdigest.core.config import config_email
-from arxivdigest.core.config import config_web_address
-from arxivdigest.core.config import jwtKey
+import jwt
+from arxivdigest.core.config import config_email, config_web_address, jwtKey
 from arxivdigest.core.mail.mail_server import MailServer
 from arxivdigest.frontend import database
+from flask import g, make_response, redirect, request, url_for
 
 
 def requiresLogin(f):
@@ -48,7 +41,7 @@ def encode_auth_token(id, email):
         'email': email,
         'inactive': not general.is_activated(id)
     }
-    return jwt.encode(payload, jwtKey, algorithm='HS256').decode()
+    return jwt.encode(payload, jwtKey, algorithm='HS256')
 
 
 def pageinate(page, maxPage, n):

@@ -9,9 +9,9 @@ import os
 import sys
 from collections import defaultdict
 
+from arxivdigest.connector import ArxivdigestConnector
 from elasticsearch import Elasticsearch
 
-from arxivdigest.connector import ArxivdigestConnector
 from index import run_indexing
 from init_index import init_index
 

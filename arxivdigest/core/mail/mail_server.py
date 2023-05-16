@@ -5,10 +5,8 @@ __copyright__ = 'Copyright 2020, The arXivDigest project'
 import smtplib
 from email.mime.text import MIMEText
 
-from jinja2 import Environment
-from jinja2 import PackageLoader
-
 import arxivdigest
+from jinja2 import Environment, PackageLoader
 
 
 def assemble_mail(message, to_address, from_address, subject):

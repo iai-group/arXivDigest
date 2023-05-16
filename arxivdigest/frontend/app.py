@@ -8,24 +8,19 @@ import pathlib
 import shutil
 
 import jwt
-from flask import Flask
-from flask import g
-from flask import request
-from flask_assets import Bundle
-from flask_assets import Environment
+from flask import Flask, g, request
+from flask_assets import Bundle, Environment
 from flask_wtf import CSRFProtect
 
 import arxivdigest
-from arxivdigest.core.config import config_frontend
-from arxivdigest.core.config import jwtKey
-from arxivdigest.core.config import secret_key
-from arxivdigest.core.config import enable_semantic_scholar_suggestion_popup
+from arxivdigest.core.config import (
+    config_frontend,
+    enable_semantic_scholar_suggestion_popup,
+    jwtKey,
+    secret_key,
+)
 from arxivdigest.frontend.database import general as db
-from arxivdigest.frontend.views import admin
-from arxivdigest.frontend.views import articles
-from arxivdigest.frontend.views import evaluation
-from arxivdigest.frontend.views import general
-from arxivdigest.frontend.views import topics
+from arxivdigest.frontend.views import admin, articles, evaluation, general, topics
 from arxivdigest.frontend.views.articles import topic_flag
 
 app = Flask(__name__)
@@ -103,7 +98,7 @@ def before_request():
     """Checks authTokens before requests to check if users are logged in or not"""
     authToken = request.cookies.get("auth")
     try:
-        payload = jwt.decode(authToken, jwtKey)
+        payload = jwt.decode(authToken, jwtKey, algorithms=["HS256"])
         g.user = payload.get('sub', None)
         g.email = payload.get('email', None)
         g.admin = payload.get('admin', False)
