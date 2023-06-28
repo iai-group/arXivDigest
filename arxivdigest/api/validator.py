@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 import re
 
-
-__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
-__copyright__ = 'Copyright 2020, The arXivDigest project'
+__author__ = "Øyvind Jekteberg and Kristian Gingstad"
+__copyright__ = "Copyright 2020, The arXivDigest project"
 
 from functools import wraps
 
 from flask import current_app as app
-from flask import jsonify
-from flask import make_response
-from flask import request
+from flask import jsonify, make_response, request
 
 import arxivdigest.api.database as db
 from arxivdigest.core.config import CONSTANTS
 
 
 def validate_json(validator_func):
-    """Decorator for validating submitted json using supplied validator function.
-       Validator functions should take a json as input argument, and return none
-       if valid, or a (msg,status) tuple if something is invalid."""
+    """Decorator for validating submitted json using supplied validator
+    function. Validator functions should take a json as input argument, and
+    return None if valid, or a (msg,status) tuple if something is invalid.
+    """
 
     def decorator(f):
         @wraps(f)
@@ -27,12 +25,14 @@ def validate_json(validator_func):
             json = request.get_json()
             if not json:
                 return make_response(
-                    jsonify({'success': False, 'error': 'No JSON submitted.'}),
-                    400)
+                    jsonify({"success": False, "error": "No JSON submitted."}),
+                    400,
+                )
             error = validator_func(json)
             if error:
                 return make_response(
-                    jsonify({'success': False, 'error': error[0]}), error[1])
+                    jsonify({"success": False, "error": error[0]}), error[1]
+                )
             return f(*args, **kwargs)
 
         return wrapper
@@ -43,21 +43,26 @@ def validate_json(validator_func):
 def article_recommendation(json):
     """Validator function for json submitted to the recommendation insertion
     endpoint."""
-    json = json.get('recommendations')
+    json = json.get("recommendations")
     if not json:
-        return 'No recommendations submitted.', 400
+        return "No recommendations submitted.", 400
 
-    if len(json) > app.config['max_users_per_recommendation']:
-        return 'Requests must not contain more than %s users.' % app.config[
-            'max_users_per_recommendation'], 400
+    if len(json) > app.config["max_users_per_recommendation"]:
+        return (
+            "Requests must not contain more than %s users."
+            % app.config["max_users_per_recommendation"],
+            400,
+        )
 
-    check_funcs = {nonexistent_users,
-                   # functions that validate different properties of the json
-                   too_many_recommendations,
-                   contains_ineligible_articles,
-                   score_is_not_float,
-                   missing_explanation,
-                   too_long_explanation, }
+    check_funcs = {
+        nonexistent_users,
+        # functions that validate different properties of the json
+        too_many_recommendations,
+        contains_ineligible_articles,
+        score_is_not_float,
+        missing_explanation,
+        too_long_explanation,
+    }
 
     for check_func in check_funcs:
         err = check_func(json)
@@ -69,21 +74,25 @@ def article_recommendation(json):
 def topic_recommendation(json):
     """Validator function for json submitted to the topic recommendation
     endpoint."""
-    json = json.get('recommendations')
+    json = json.get("recommendations")
     if not json:
-        return 'No recommendations submitted.', 400
+        return "No recommendations submitted.", 400
 
-    if len(json) > app.config['max_users_per_recommendation']:
-        return 'Requests must not contain more than %s users.' % app.config[
-            'max_users_per_recommendation'], 400
+    if len(json) > app.config["max_users_per_recommendation"]:
+        return (
+            "Requests must not contain more than %s users."
+            % app.config["max_users_per_recommendation"],
+            400,
+        )
 
     # functions that validate different properties of the json
-    check_funcs = {nonexistent_users,
-                   too_many_recommendations,
-                   contains_ineligible_topics,
-                   score_is_not_float,
-                   duplicate_topic_suggestion,
-                   }
+    check_funcs = {
+        nonexistent_users,
+        too_many_recommendations,
+        contains_ineligible_topics,
+        score_is_not_float,
+        duplicate_topic_suggestion,
+    }
 
     for check_func in check_funcs:
         err = check_func(json)
@@ -91,83 +100,96 @@ def topic_recommendation(json):
             return err
     return None
 
+
 def duplicate_topic_suggestion(json):
     """Returns false if all topics are original suggestions
-    for that user. Returns error message if there are topics 
+    for that user. Returns error message if there are topics
     that have been suggested previously and status code."""
     user_ids = [user_id for user_id in json]
     prev_topics = db.get_user_feedback_topics(user_ids)
-    error_msg = ('Some of the recommended topics have '
-                'already been recommended for users:')
+    error_msg = (
+        "Some of the recommended topics have "
+        "already been recommended for users:"
+    )
     error = False
     for user_id in user_ids:
-        new_topics = set([topic['topic'] for topic in json[user_id]])
-        old_topics = set(prev_topics['user_feedback'][int(user_id)].keys())
+        new_topics = set([topic["topic"] for topic in json[user_id]])
+        old_topics = set(prev_topics["user_feedback"][int(user_id)].keys())
         intersecting_topics = new_topics & old_topics
-        if (intersecting_topics):
+        if intersecting_topics:
             error = True
-            error_msg += ' user_id: '+user_id+', topics: %s.' % (', '
-                         '').join(intersecting_topics)    
+            error_msg += (
+                " user_id: "
+                + user_id
+                + ", topics: %s." % (", " "").join(intersecting_topics)
+            )
     if error:
         return error_msg, 400
     return False
-        
 
 
 def nonexistent_users(json):
     """Returns false if all users exist.
     Returns errormessage and status code if not."""
     user_ids = [user_id for user_id in json]
-    if len(user_ids) is 0:
-        return 'Request must contain at least one user.', 400
+    if len(user_ids) == 0:
+        return "Request must contain at least one user.", 400
     not_found_users = db.checkUsersExists(user_ids)
     if len(not_found_users) > 0:
-        return 'No users with ids: %s.' % ', '.join(not_found_users), 400
+        return "No users with ids: %s." % ", ".join(not_found_users), 400
     return False
 
 
 def too_many_recommendations(json):
     """Returns false if no user got more recommendations then the limit.
     Returns errormessage and status code if not."""
-    err_msg = 'Requests must not contain more than {} recommendations per user.'
-    err_msg = err_msg.format(app.config['max_recommendations_per_user'])
+    err_msg = "Requests must not contain more than {} recommendations per user."
+    err_msg = err_msg.format(app.config["max_recommendations_per_user"])
 
     for recs in json.values():
-        if len(recs) > app.config['max_recommendations_per_user']:
+        if len(recs) > app.config["max_recommendations_per_user"]:
             return err_msg, 400
 
 
 def contains_ineligible_articles(json):
     """Returns false if all articles are eligible for recommendation.
     Returns errormessage and status code if not."""
-    article_ids = [article['article_id'] for user in json.values() for article
-                   in user]
-    if len(article_ids) is 0:
-        return 'No articles submitted.', 400
+    article_ids = [
+        article["article_id"] for user in json.values() for article in user
+    ]
+    if len(article_ids) == 0:
+        return "No articles submitted.", 400
     not_found_articles = db.checkArticlesExists(article_ids)
     if len(not_found_articles) > 0:
-        return 'Could not find articles with ids: %s.' % ', '.join(
-            not_found_articles), 400
+        return (
+            "Could not find articles with ids: %s."
+            % ", ".join(not_found_articles),
+            400,
+        )
 
     eligible_ids = set(db.get_article_ids_past_seven_days())
     ineligible_ids = set(article_ids) - eligible_ids
     if ineligible_ids:
-        return 'These articles are not from the past seven days: {}.' \
-                   .format(', '.join(ineligible_ids)), 400
+        return (
+            "These articles are not from the past seven days: {}.".format(
+                ", ".join(ineligible_ids)
+            ),
+            400,
+        )
     return False
 
 
 def contains_ineligible_topics(json):
     """Returns false if all topics are eligible for recommendation.
     Returns errormessage and status code if not."""
-    topics = [topic['topic'] for user in json.values() for topic in user]
-    if len(topics) is 0:
-        return 'No topics submitted.', 400
+    topics = [topic["topic"] for user in json.values() for topic in user]
+    if len(topics) == 0:
+        return "No topics submitted.", 400
     for topic in topics:
-        if re.search('[^a-zA-Z0-9\- ]', topic):
-            return 'Topics can only contain a..z, 0..9, space and dash.', 400
+        if re.search("[^a-zA-Z0-9\- ]", topic):
+            return "Topics can only contain a..z, 0..9, space and dash.", 400
         if len(topic) > CONSTANTS.max_topic_length:
-            msg = 'Topics must be shorter than {}.'
+            msg = "Topics must be shorter than {}."
             return msg.format(CONSTANTS.max_topic_length), 400
     return False
 
@@ -178,9 +200,9 @@ def score_is_not_float(json):
     for recommendations in json.values():
         for rec in recommendations:
             try:
-                float(rec['score'])
+                float(rec["score"])
             except (ValueError, KeyError):
-                return 'Score must be a float', 400
+                return "Score must be a float", 400
     return False
 
 
@@ -189,8 +211,8 @@ def missing_explanation(json):
     Returns errormessage and status code if not."""
     for recommendations in json.values():
         for rec in recommendations:
-            if 'explanation' not in rec:
-                return 'Recommendations must include explanation.', 400
+            if "explanation" not in rec:
+                return "Recommendations must include explanation.", 400
     return False
 
 
@@ -199,7 +221,10 @@ def too_long_explanation(json):
     Returns errormessage and status code if not."""
     for recommendations in json.values():
         for rec in recommendations:
-            if len(rec['explanation']) > app.config['max_explanation_len']:
-                return 'Explanations must be shorter than %s.' % app.config[
-                    'max_explanation_len'], 400
+            if len(rec["explanation"]) > app.config["max_explanation_len"]:
+                return (
+                    "Explanations must be shorter than %s."
+                    % app.config["max_explanation_len"],
+                    400,
+                )
     return False
