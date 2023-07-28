@@ -36,13 +36,11 @@ def send_digest_mail():
     for offset in range(0, n_users, BATCH_SIZE):
         with closing(MailServer(**config_email)) as server:
             batch = int(offset / BATCH_SIZE) + 1
-            logging.info(
-                "Sending mails for batch {} of {}.".format(batch, n_batches)
-            )
+            logging.info(f"Sending mails for batch {batch} of {n_batches}.")
 
             mail_batch, trace_batch = create_mail_batch(offset, article_data)
             if not mail_batch:
-                logging.info("Batch {} was empty.".format(batch))
+                logging.info(f"Batch {batch} was empty.")
                 continue
 
             # mark all articles as seen in database and send all mails
@@ -51,12 +49,12 @@ def send_digest_mail():
                 try:
                     server.send_mail(**mail)
                 except smtplib.SMTPSenderRefused:
-                    logging.error(f"Failed sending email")
-            logging.info("Batch {} sent.".format(batch))
+                    logging.error("Failed sending email")
+            logging.info(f"Batch {batch} sent.")
 
 
 def create_mail_batch(offset, article_data):
-    """Creates a batch of emails for users starting from 'start_id'.
+    """Creates a batch of emails for users starting from 'offset'.
 
     :param offset: The id to start from.
     :param article_data: Data about all the articles that are recommended.
