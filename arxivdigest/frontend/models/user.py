@@ -1,36 +1,41 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
-__copyright__ = 'Copyright 2020, The arXivDigest project'
+__author__ = "Øyvind Jekteberg and Kristian Gingstad"
+__copyright__ = "Copyright 2020, The arXivDigest project"
 
 import re
 
 from arxivdigest.core.config import CONSTANTS
 from arxivdigest.frontend.models.errors import ValidationError
-from arxivdigest.frontend.models.validate import validEmail
-from arxivdigest.frontend.models.validate import validPassword
-from arxivdigest.frontend.models.validate import validString
+from arxivdigest.frontend.models.validate import (
+    validEmail,
+    validPassword,
+    validString,
+)
 
 
-class User():
+class User:
     """User class containing most user attributes"""
 
     def __init__(self, user, require_password=True):
         self.require_password = require_password
-        self.email = user.get('email')
-        self.password = user.get('password')
-        self.firstname = user.get('firstname')
-        self.lastname = user.get('lastname')
-        self.organization = user.get('organization')
-        self.dblp_profile = user.get('dblp_profile', '')
-        self.google_scholar_profile = user.get('google_scholar_profile', '')
-        self.semantic_scholar_profile = user.get('semantic_scholar_profile', '')
-        self.personal_website = user.get('personal_website', '')
-        self.topics = user.get('topics')
-        self.categories = user.get('categories')
-        self.notification_interval = user.get('notification_interval')
-        self.semantic_scholar_suggestions = user.get('semantic_scholar_suggestions')
-        self.show_semantic_scholar_popup = user.get('show_semantic_scholar_popup')
-
+        self.email = user.get("email")
+        self.password = user.get("password")
+        self.firstname = user.get("firstname")
+        self.lastname = user.get("lastname")
+        self.organization = user.get("organization")
+        self.dblp_profile = user.get("dblp_profile", "")
+        self.google_scholar_profile = user.get("google_scholar_profile", "")
+        self.semantic_scholar_profile = user.get("semantic_scholar_profile", "")
+        self.personal_website = user.get("personal_website", "")
+        self.topics = user.get("topics")
+        self.categories = user.get("categories")
+        self.notification_interval = user.get("notification_interval")
+        self.semantic_scholar_suggestions = user.get(
+            "semantic_scholar_suggestions"
+        )
+        self.show_semantic_scholar_popup = user.get(
+            "show_semantic_scholar_popup"
+        )
 
     @property
     def email(self):
@@ -40,7 +45,7 @@ class User():
     def email(self, email):
         """Checks if email is valid email format"""
         if len(email) > CONSTANTS.max_email_length or not validEmail(email):
-            raise ValidationError('Invalid email.')
+            raise ValidationError("Invalid email.")
         self._email = email
 
     @property
@@ -50,7 +55,7 @@ class User():
     @password.setter
     def password(self, password):
         if self.require_password and not validPassword(password):
-            raise ValidationError('Invalid password format.')
+            raise ValidationError("Invalid password format.")
         self._password = password
 
     @property
@@ -61,7 +66,7 @@ class User():
     def firstname(self, firstname):
         """Checks if firstname seems valid"""
         if not validString(firstname, 1, CONSTANTS.max_human_name_length):
-            raise ValidationError('Invalid firstname format.')
+            raise ValidationError("Invalid firstname format.")
         self._firstname = firstname
 
     @property
@@ -72,7 +77,7 @@ class User():
     def lastname(self, lastname):
         """Checks if lastname seems valid"""
         if not validString(lastname, 1, CONSTANTS.max_human_name_length):
-            raise ValidationError('Invalid  lastname fromat.')
+            raise ValidationError("Invalid  lastname fromat.")
         self._lastname = lastname
 
     @property
@@ -83,7 +88,7 @@ class User():
     def organization(self, organization):
         """Checks if organization name seems valid"""
         if not validString(organization, 1, CONSTANTS.max_organization_length):
-            raise ValidationError('Invalid organization name format.')
+            raise ValidationError("Invalid organization name format.")
         self._organization = organization
 
     @property
@@ -93,20 +98,24 @@ class User():
     @dblp_profile.setter
     def dblp_profile(self, dblp_profile):
         if not dblp_profile:
-            self._dblp_profile = ''
+            self._dblp_profile = ""
             return
 
         min_length = CONSTANTS.min_url_length
         max_length = CONSTANTS.max_url_length
         if not validString(dblp_profile, min_length, max_length):
-            raise ValidationError('Invalid DBLP profile.')
+            raise ValidationError("Invalid DBLP profile.")
 
-        allowed_prefixes = ('https://dblp.org/', 'https://dblp.uni-trier.de/', 
-            'dblp.uni-trier.de/', 'dblp.org/')
+        allowed_prefixes = (
+            "https://dblp.org/",
+            "https://dblp.uni-trier.de/",
+            "dblp.uni-trier.de/",
+            "dblp.org/",
+        )
         if not dblp_profile.startswith(allowed_prefixes):
-            raise ValidationError('DBLP url prefix does not match DBLP links.')
+            raise ValidationError("DBLP url prefix does not match DBLP links.")
 
-        dblp_profile = dblp_profile.replace('dblp.uni-trier.de', 'dblp.org')
+        dblp_profile = dblp_profile.replace("dblp.uni-trier.de", "dblp.org")
         self._dblp_profile = dblp_profile
 
     @property
@@ -116,17 +125,22 @@ class User():
     @google_scholar_profile.setter
     def google_scholar_profile(self, google_scholar_profile):
         if not google_scholar_profile:
-            self._google_scholar_profile = ''
+            self._google_scholar_profile = ""
             return
 
         min_length = CONSTANTS.min_url_length
         max_length = CONSTANTS.max_url_length
         if not validString(google_scholar_profile, min_length, max_length):
-            raise ValidationError('Invalid Google Scholar profile.')
+            raise ValidationError("Invalid Google Scholar profile.")
 
-        allowed_prefixes = ('scholar.google.com/', 'https://scholar.google.com/')
+        allowed_prefixes = (
+            "scholar.google.com/",
+            "https://scholar.google.com/",
+        )
         if not google_scholar_profile.startswith(allowed_prefixes):
-            raise ValidationError('Google Scholar url prefix does not match Google Scholar links.')
+            raise ValidationError(
+                "Google Scholar url prefix does not match Google Scholar links."
+            )
         self._google_scholar_profile = google_scholar_profile
 
     @property
@@ -136,22 +150,26 @@ class User():
     @semantic_scholar_profile.setter
     def semantic_scholar_profile(self, semantic_scholar_profile):
         if not semantic_scholar_profile:
-            self._semantic_scholar_profile = ''
+            self._semantic_scholar_profile = ""
             return
 
         min_length = CONSTANTS.min_url_length
         max_length = CONSTANTS.max_url_length
         if not validString(semantic_scholar_profile, min_length, max_length):
-            raise ValidationError('Invalid Semantic Scholar profile.')
+            raise ValidationError("Invalid Semantic Scholar profile.")
 
-        allowed_prefixes = ('semanticscholar.org/author/',
-                            'https://www.semanticscholar.org/author/',
-                            'www.semanticscholar.org/author/',
-                            'https://semanticscholar.org/author/')
+        allowed_prefixes = (
+            "semanticscholar.org/author/",
+            "https://www.semanticscholar.org/author/",
+            "www.semanticscholar.org/author/",
+            "https://semanticscholar.org/author/",
+        )
         if not semantic_scholar_profile.startswith(allowed_prefixes):
-            raise ValidationError('Semantic Scholar url prefix does not match Semantic Scholar links.')
+            raise ValidationError(
+                "Semantic Scholar url prefix does not match Semantic Scholar links."
+            )
 
-        semantic_scholar_profile = semantic_scholar_profile.replace('www.','')
+        semantic_scholar_profile = semantic_scholar_profile.replace("www.", "")
         self._semantic_scholar_profile = semantic_scholar_profile
 
     @property
@@ -161,12 +179,12 @@ class User():
     @personal_website.setter
     def personal_website(self, personal_website):
         if not personal_website:
-            self._personal_website = ''
+            self._personal_website = ""
             return
         min_length = CONSTANTS.min_url_length
         max_length = CONSTANTS.max_url_length
         if not validString(personal_website, min_length, max_length):
-            raise ValidationError('Invalid personal website.')
+            raise ValidationError("Invalid personal website.")
         self._personal_website = personal_website
 
     @property
@@ -176,7 +194,7 @@ class User():
     @categories.setter
     def categories(self, categories):
         if isinstance(categories, str):
-            categories = [x for x in categories.splitlines() if x is not '']
+            categories = [x for x in categories.splitlines() if x != ""]
         self._categories = categories
 
     @property
@@ -191,17 +209,21 @@ class User():
         if isinstance(topics, str):
             topics = [topic.strip() for topic in topics.lower().splitlines()]
         else:
-            raise ValidationError('Topics must be a newline separated string.')
+            raise ValidationError("Topics must be a newline separated string.")
         if len(topics) < min_topics:
-            raise ValidationError('You need to provide at least {} '
-                                  'topics.'.format(min_topics))
+            raise ValidationError(
+                "You need to provide at least {} " "topics.".format(min_topics)
+            )
 
         for topic in topics:
             if not validString(topic, 1, max_length):
                 raise ValidationError(
-                    'Topics must be shorter than {}.'.format(max_length))
-            if not re.match('^[0-9a-zA-Z\- ]+$',topic):
-                raise ValidationError('Topics must not contain special characters.')
+                    "Topics must be shorter than {}.".format(max_length)
+                )
+            if not re.match("^[0-9a-zA-Z\- ]+$", topic):
+                raise ValidationError(
+                    "Topics must not contain special characters."
+                )
 
         self._topics = topics
 
@@ -212,12 +234,12 @@ class User():
     @notification_interval.setter
     def notification_interval(self, notification_interval):
         """Sets value of notification_interval"""
-        if notification_interval == '7':
+        if notification_interval == "7":
             notification_interval = 7
-        elif notification_interval == '0':
+        elif notification_interval == "0":
             notification_interval = 0
-        elif notification_interval == '1':
+        elif notification_interval == "1":
             notification_interval = 1
         if notification_interval not in [1, 7, 0]:
-            raise ValidationError('Invalid value:Digest Frequency')
+            raise ValidationError("Invalid value:Digest Frequency")
         self._notification_interval = notification_interval
