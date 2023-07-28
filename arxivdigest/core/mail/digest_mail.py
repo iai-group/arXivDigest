@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import logging
 import math
+import smtplib
 
-__author__ = 'Øyvind Jekteberg and Kristian Gingstad'
-__copyright__ = 'Copyright 2020, The arXivDigest project'
+__author__ = "Øyvind Jekteberg and Kristian Gingstad"
+__copyright__ = "Copyright 2020, The arXivDigest project"
 
 import calendar
 from collections import defaultdict
@@ -12,46 +13,48 @@ from datetime import datetime
 from uuid import uuid4
 
 from arxivdigest.core import database
-from arxivdigest.core.config import config_email
-from arxivdigest.core.config import config_interleave
-from arxivdigest.core.config import config_web_address
+from arxivdigest.core.config import (
+    config_email,
+    config_interleave,
+    config_web_address,
+)
 from arxivdigest.core.database import users_db
 from arxivdigest.core.mail.mail_server import MailServer
 
-RECOMMENDATIONS_PER_USER = config_interleave.get('recommendations_per_user')
-SYSTEMS_PER_USER = config_interleave.get('systems_multileaved_per_user')
-BATCH_SIZE = config_interleave.get('users_per_batch')
+RECOMMENDATIONS_PER_USER = config_interleave.get("recommendations_per_user")
+SYSTEMS_PER_USER = config_interleave.get("systems_multileaved_per_user")
+BATCH_SIZE = config_interleave.get("users_per_batch")
 BASE_URL = config_web_address
-ARTICLES_PER_DATE_IN_MAIL = config_interleave.get('articles_per_date_in_email')
+ARTICLES_PER_DATE_IN_MAIL = config_interleave.get("articles_per_date_in_email")
 
 
 def send_digest_mail():
     """Sends emails to users about new recommendations."""
     article_data = get_article_data()
-    server = MailServer(**config_email)
     n_users = users_db.get_number_of_users()
     n_batches = math.ceil(n_users / BATCH_SIZE)
     for offset in range(0, n_users, BATCH_SIZE):
-        batch = int(offset / BATCH_SIZE) + 1
-        logging.info('Sending mails for batch {} of {}.'.format(batch,
-                                                                n_batches))
+        with closing(MailServer(**config_email)) as server:
+            batch = int(offset / BATCH_SIZE) + 1
+            logging.info(f"Sending mails for batch {batch} of {n_batches}.")
 
-        mail_batch, trace_batch = create_mail_batch(offset, article_data)
-        if not mail_batch:
-            logging.info('Batch {} was empty.'.format(batch))
-            continue
+            mail_batch, trace_batch = create_mail_batch(offset, article_data)
+            if not mail_batch:
+                logging.info(f"Batch {batch} was empty.")
+                continue
 
-        # mark all articles as seen in database and send all mails
-        insert_mail_trackers(trace_batch)
-        for mail in mail_batch:
-            server.send_mail(**mail)
-        logging.info('Batch {} sent.'.format(batch))
-
-    server.close()
+            # mark all articles as seen in database and send all mails
+            insert_mail_trackers(trace_batch)
+            for mail in mail_batch:
+                try:
+                    server.send_mail(**mail)
+                except smtplib.SMTPSenderRefused:
+                    logging.error("Failed sending email")
+            logging.info(f"Batch {batch} sent.")
 
 
 def create_mail_batch(offset, article_data):
-    """ Creates a batch of emails for users starting from 'start_id'.
+    """Creates a batch of emails for users starting from 'offset'.
 
     :param offset: The id to start from.
     :param article_data: Data about all the articles that are recommended.
@@ -68,27 +71,32 @@ def create_mail_batch(offset, article_data):
         top_articles = get_top_articles_each_date(recommendations[user_id])
 
         articles = {}
-        if user['notification_interval'] == 1:
+        if user["notification_interval"] == 1:
             weekday = datetime.utcnow().date().weekday()
             articles = {weekday: top_articles.get(weekday, [])}
-        elif user['notification_interval'] == 7:
+        elif user["notification_interval"] == 7:
             if datetime.utcnow().weekday() == 4:
                 articles = top_articles
             else:
-                logging.info('User {}: skipped (notification not scheduled '
-                             'for today).'.format(user_id))
+                logging.info(
+                    "User {}: skipped (notification not scheduled "
+                    "for today).".format(user_id)
+                )
                 continue
-        elif user['notification_interval'] == 0:
+        elif user["notification_interval"] == 0:
             logging.info(
-                'User {}: skipped (user turned off notifications).'.format(
-                    user_id))
+                "User {}: skipped (user turned off notifications).".format(
+                    user_id
+                )
+            )
             continue
 
         if not any(articles.values()):  # No articles to notify user about
             logging.info(
-                'User {}: skipped (no recommendations).'.format(user_id))
+                "User {}: skipped (no recommendations).".format(user_id)
+            )
             continue
-        logging.info('User {}: added to batch.'.format(user_id))
+        logging.info("User {}: added to batch.".format(user_id))
 
         mail, trace = create_mail_content(user_id, user, articles, article_data)
         mail_batch.append(mail)
@@ -105,16 +113,21 @@ def create_mail_content(user_id, user, top_articles, article_data):
     :param article_data: Info about the articles
     :return:
     """
-    if not user['unsubscribe_trace']:
-        user['unsubscribe_trace'] = users_db.assign_unsubscribe_trace(user_id)
+    if not user["unsubscribe_trace"]:
+        user["unsubscribe_trace"] = users_db.assign_unsubscribe_trace(user_id)
 
-    mail_content = {'to_address': user['email'],
-                    'subject': 'arXivDigest article recommendations',
-                    'template': 'weekly',
-                    'data': {'name': user['name'], 'articles': [],
-                             'link': BASE_URL, 'unsubscribe_link': 
-                             '%smail/unsubscribe/%s' % (BASE_URL, 
-                             user['unsubscribe_trace'])}}
+    mail_content = {
+        "to_address": user["email"],
+        "subject": "arXivDigest article recommendations",
+        "template": "weekly",
+        "data": {
+            "name": user["name"],
+            "articles": [],
+            "link": BASE_URL,
+            "unsubscribe_link": "%smail/unsubscribe/%s"
+            % (BASE_URL, user["unsubscribe_trace"]),
+        },
+    }
     mail_trace = []
     for day, daily_articles in sorted(top_articles.items()):
         articles = []
@@ -123,21 +136,29 @@ def create_mail_content(user_id, user, top_articles, article_data):
             click_trace = str(uuid4())
             save_trace = str(uuid4())
 
-            articles.append({'title': article.get('title'),
-                             'explanation': explanation,
-                             'authors': article.get('authors'),
-                             'read_link': '%smail/read/%s/%s/%s' % (
-                                 BASE_URL, user_id, article_id, click_trace),
-                             'save_link': '%smail/save/%s/%s/%s' % (
-                                 BASE_URL, user_id, article_id, save_trace)
-                             })
-            mail_trace.append({'click_trace': click_trace,
-                               'save_trace': save_trace,
-                               'user_id': user_id,
-                               'article_id': article_id})
+            articles.append(
+                {
+                    "title": article.get("title"),
+                    "explanation": explanation,
+                    "authors": article.get("authors"),
+                    "read_link": "%smail/read/%s/%s/%s"
+                    % (BASE_URL, user_id, article_id, click_trace),
+                    "save_link": "%smail/save/%s/%s/%s"
+                    % (BASE_URL, user_id, article_id, save_trace),
+                }
+            )
+            mail_trace.append(
+                {
+                    "click_trace": click_trace,
+                    "save_trace": save_trace,
+                    "user_id": user_id,
+                    "article_id": article_id,
+                }
+            )
 
-        mail_content['data']['articles'].append(
-            (calendar.day_name[day], articles, day))
+        mail_content["data"]["articles"].append(
+            (calendar.day_name[day], articles, day)
+        )
 
     return mail_content, mail_trace
 
@@ -156,10 +177,10 @@ def get_top_articles_each_date(article_recommendations):
     """
     top_articles = {}
     for day, articles in article_recommendations.items():
-        sorted_articles = sorted(articles.items(),
-                                 key=lambda a: a[1]['score'],
-                                 reverse=True)
-        article_list = [(k, v['explanation']) for k, v in sorted_articles]
+        sorted_articles = sorted(
+            articles.items(), key=lambda a: a[1]["score"], reverse=True
+        )
+        article_list = [(k, v["explanation"]) for k, v in sorted_articles]
         top_articles[day.weekday()] = article_list[:ARTICLES_PER_DATE_IN_MAIL]
 
     return top_articles
@@ -173,7 +194,7 @@ def get_multileaved_articles(limit, offset):
     :return: Nested dict in format user_id: date: article_id: recommendation
     """
     with closing(database.get_connection().cursor(dictionary=True)) as cur:
-        sql = '''SELECT user_id, DATE(recommendation_date) as date, 
+        sql = """SELECT user_id, DATE(recommendation_date) as date, 
                  article_id, score, explanation 
                  FROM article_feedback NATURAL JOIN users
                  NATURAL RIGHT JOIN 
@@ -181,38 +202,38 @@ def get_multileaved_articles(limit, offset):
                  LIMIT %s OFFSET %s) limit_u 
                  WHERE DATE(recommendation_date) > 
                  DATE_SUB(UTC_DATE(), INTERVAL 7 DAY) 
-                 AND last_email_date < UTC_DATE()'''
+                 AND last_email_date < UTC_DATE()"""
         cur.execute(sql, (limit, offset))
 
         result = defaultdict(lambda: defaultdict(dict))
         for r in cur.fetchall():
-            result[r.pop('user_id')][r.pop('date')][r.pop('article_id')] = r
+            result[r.pop("user_id")][r.pop("date")][r.pop("article_id")] = r
         return result
 
 
 def get_article_data():
     """Returns a dictionary of article_ids: title and authors."""
     with closing(database.get_connection().cursor()) as cur:
-        sql = '''SELECT article_id,title, 
+        sql = """SELECT article_id,title, 
                  GROUP_CONCAT(concat(firstname,' ',lastname)  SEPARATOR ', ')
                  FROM articles NATURAL LEFT JOIN article_authors
                  WHERE datestamp >=DATE_SUB(UTC_DATE(),INTERVAL 8 DAY)
-                 GROUP BY article_id'''
+                 GROUP BY article_id"""
         cur.execute(sql)
-        return {x[0]: {'title': x[1], 'authors': x[2]} for x in cur.fetchall()}
+        return {x[0]: {"title": x[1], "authors": x[2]} for x in cur.fetchall()}
 
 
 def insert_mail_trackers(article_traces):
     """Inserts mail trackers into the article feedback table."""
     connection = database.get_connection()
     with closing(connection.cursor(dictionary=True)) as cur:
-        sql = '''UPDATE article_feedback af, users u
+        sql = """UPDATE article_feedback af, users u
                  SET af.seen_email = CURRENT_TIMESTAMP,
                  af.trace_click_email = %(click_trace)s,
                  af.trace_save_email= %(save_trace)s,
                  u.last_email_date=UTC_DATE()
                  WHERE af.user_id=%(user_id)s AND af.article_id=%(article_id)s
-                 AND u.user_id = %(user_id)s'''
+                 AND u.user_id = %(user_id)s"""
         cur.executemany(sql, article_traces)
 
     connection.commit()
