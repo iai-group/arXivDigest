@@ -5,6 +5,35 @@ This directory contains three types of scripts:
 * regular scripts meant to be run on weekdays; and
 * manual scripts.
 
+---
+
+## 🚀 NEW: Service Management Scripts
+
+### Quick Start - Service Management
+1. **Start everything**: `./scripts/start_services.sh`
+2. **Check status**: `./scripts/check_services.sh`  
+3. **Stop everything**: `./scripts/stop_services.sh`
+
+### Available Service Scripts
+
+#### `start_services.sh` - Start All Services
+Starts MySQL, Elasticsearch, Frontend (port 8080), and API (port 5000) in correct order.
+
+#### `stop_services.sh` - Stop All Services  
+Gracefully stops all arXivDigest services with option to keep MySQL running.
+
+#### `check_services.sh` - Service Status
+Shows comprehensive status of all services, ports, database connectivity, and system resources.
+
+**Service URLs when running:**
+- Frontend: http://localhost:8080
+- API: http://localhost:5000 
+- Elasticsearch: http://localhost:9200
+
+---
+
+## Original Scripts Documentation
+
 
 ## One-time setup scripts
 

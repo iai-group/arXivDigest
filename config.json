@@ -31,7 +31,7 @@
     },
     "frontend_config": {
         "data_path": "",
-        "dev_port": 80,
+        "dev_port": 8080,
         "max_content_length": 10000000,
         "jwt_key": "mn643745hb6436l,75687kj37hb26vg3wazsefewms5474.,m4nb4q23vqcxwazsmw46n3bvqcawzwab3241vcawqz,6lk4mj3hbavesww",
         "secret_key": "xPGHuUyNAQaFrlIxtupgu8bnGiSLBpMo4v2w4jcoQ8PCb32Y46WWJhMsSbM2iGzsKravX9l92waqp2qjq7BALke443jbB3uVs7WP08v4JCyrORwvufRY4jKB"

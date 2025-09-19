@@ -13,7 +13,7 @@ def isAdmin(id):
     cur.execute('SELECT admin FROM users where user_id=%s', (id,))
     admin = cur.fetchone()[0]
     cur.close()
-    return True if admin is 1 else False
+    return True if admin == 1 else False
 
 
 def getSystems():
