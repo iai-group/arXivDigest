@@ -2,6 +2,11 @@
 
 # arXivDigest Service Startup Script
 # This script starts all required services for arXivDigest in the correct order
+#
+# Required Environment Variables:
+#   ARXIVDIGEST_PROJECT_DIR - Project directory path
+#   ES_JAVA_HOME - Java home for Elasticsearch
+#   ELASTICSEARCH_BIN - Elasticsearch binary path
 
 set -e  # Exit on any error
 
@@ -12,8 +17,8 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration
-PROJECT_DIR="/Users/daud/Desktop/university/DAT620/arXivDigest"
+# Configuration - Use environment variables
+PROJECT_DIR="$ARXIVDIGEST_PROJECT_DIR"
 VENV_PATH="$PROJECT_DIR/.venv"
 ELASTICSEARCH_LOG="/tmp/elasticsearch.log"
 FRONTEND_LOG="/tmp/arxivdigest_frontend.log"
@@ -114,10 +119,10 @@ if check_process "elasticsearch"; then
     print_success "Elasticsearch is already running"
 else
     print_status "Setting up Elasticsearch environment..."
-    export ES_JAVA_HOME=/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
+    # ES_JAVA_HOME is already set as environment variable
     
     print_status "Starting Elasticsearch in background..."
-    nohup /opt/homebrew/opt/elasticsearch-full/bin/elasticsearch > "$ELASTICSEARCH_LOG" 2>&1 &
+    nohup "$ELASTICSEARCH_BIN" > "$ELASTICSEARCH_LOG" 2>&1 &
     
     # Wait for Elasticsearch to start
     if check_service "Elasticsearch" "9200"; then
