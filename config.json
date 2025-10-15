@@ -54,5 +54,8 @@
         "start_date": null,
         "end_date": null
     },
-    "enable_semantic_scholar_suggestion_popup": false
+    "enable_semantic_scholar_suggestion_popup": false,
+    "elasticsearch_config": {
+        "url": "http://localhost:9200"
+    }
 }

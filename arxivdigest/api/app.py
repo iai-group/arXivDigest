@@ -686,6 +686,9 @@ def admin_admins():
 def search():
     """API endpoint for searching articles"""
     from arxivdigest.api.search import search_articles
+    from elasticsearch import Elasticsearch
+    import json
+    import os
     
     if not hasattr(g, 'loggedIn') or not g.loggedIn or not g.user:
         return make_response(jsonify({'error': 'Not authenticated'}), 401)
@@ -698,7 +701,14 @@ def search():
     per_page = request.args.get('per_page', 10, type=int)
     
     try:
-        results = search_articles(query, page, per_page)
+        # Load config and create ES instance
+        config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config.json')
+        with open(config_path) as f:
+            config = json.load(f)
+        es_url = config.get('elasticsearch_config', {}).get('url', 'http://localhost:9200')
+        es = Elasticsearch([es_url])
+        
+        results = search_articles(es, query, page, per_page)
         return make_response(jsonify(results), 200)
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)

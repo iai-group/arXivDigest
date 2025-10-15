@@ -1,11 +1,14 @@
 """Search functionality using Elasticsearch."""
 
-from elasticsearch import Elasticsearch
-
-es = Elasticsearch(['http://localhost:9200'])
-
-def search_articles(query, page=1, per_page=10):
-    """Search articles using Elasticsearch."""
+def search_articles(es, query, page=1, per_page=10):
+    """Search articles using Elasticsearch.
+    
+    Args:
+        es: Elasticsearch instance
+        query: Search query string
+        page: Page number (default: 1)
+        per_page: Results per page (default: 10)
+    """
     from_index = (page - 1) * per_page
     
     result = es.search(
