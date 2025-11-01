@@ -33,7 +33,7 @@ def before_request():
         return
     
     # Handle JWT authentication for user endpoints
-    user_endpoints = ['login', 'signup', 'profile', 'modify', 'logout', 'user_topics', 'user_categories', 'user_recommendations', 'user_saved', 'save_article', 'password_change', 'download_user_data', 'user_systems', 'system_statistics', 'system_feedback', 'register_system', 'search', 'admin_general', 'admin_systems', 'admin_toggle_system', 'admin_admins']
+    user_endpoints = ['login', 'signup', 'profile', 'modify', 'logout', 'user_topics', 'user_categories', 'user_recommendations', 'user_saved', 'save_article', 'password_change', 'download_user_data', 'user_systems', 'system_statistics', 'system_feedback', 'register_system', 'admin_general', 'admin_systems', 'admin_toggle_system', 'admin_admins']
     if request.endpoint in user_endpoints:
         authToken = request.cookies.get("auth")
         try:
@@ -689,9 +689,6 @@ def search():
     from elasticsearch import Elasticsearch
     import json
     import os
-    
-    if not hasattr(g, 'loggedIn') or not g.loggedIn or not g.user:
-        return make_response(jsonify({'error': 'Not authenticated'}), 401)
     
     query = request.args.get('q', '')
     if not query:
