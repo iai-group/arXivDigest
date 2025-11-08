@@ -10,17 +10,20 @@ This document contains instructions on how to install and deploy the arXivDigest
       * [MySQL server](https://www.mysql.com/)
       * [Elasticsearch 9.0+](https://www.elastic.co/downloads/elasticsearch)
   1. Clone this repository to a location of your choice (will be referred to as `REPO_PATH` below).
-  2. Execute all SQL scripts under [db/](db/) in sequential order, starting with [db/database_v1.1.sql](db/database.sql) then v1.1, v2.0, etc.
-  3. Run `pip install .` while inside `REPO_PATH` to install the `arxivdigest` Python package and its dependencies.
+  2. Execute all SQL scripts under [db/](db/) in sequential order, starting with [db/database_v1.0.sql](db/database_v1.0.sql) then v1.1, v2.0, etc.
+  3. Create and activate a Python virtual environment:
+      * `python -m venv .venv`
+      * Activate: `source .venv/bin/activate` (Unix/macOS) or `.venv\Scripts\activate` (Windows)
+  4. Run `pip install .` while inside `REPO_PATH` to install the `arxivdigest` Python package and its dependencies.
       * If installing with the purpose of development, use the command `pip install -e .` instead, to allow editing of the installed package.
       * If running the service under an Apache Web Server, you may need to grant access to the respective user (e.g., www-data on Ubuntu) to the installed package.
-  4. Make sure to put [config.json](/config.json) in any of the below directories and update the settings specific to your system:
+  5. Make sure to put [config.json](/config.json) in any of the below directories and update the settings specific to your system:
       * `~/arxivdigest/config.json`
       * `/etc/arxivdigest/config.json`
       * `%cwd%/config.json`
-  5. Run the `init_topic_list.py` script in the `/scripts/` folder to populate the database with an initial topic list of general topics that the user can select from.
+  6. Run the `init_topic_list.py` script in the `/scripts/` folder to populate the database with an initial topic list of general topics that the user can select from.
       * Under `REPO_PATH`, execute the command: `python scripts/init_topic_list.py`
-  6. Start Elasticsearch and index articles:
+  7. Start Elasticsearch and index articles:
       * Start Elasticsearch: `./elasticsearch-9.0.0/bin/elasticsearch`
       * Index articles: `python scripts/index_articles.py --mode test` (for testing with 10k docs)
       * Or full index: `python scripts/index_articles.py --mode full`

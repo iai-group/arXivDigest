@@ -11,8 +11,16 @@ def search_articles(es, query, page=1, per_page=10):
     """
     from_index = (page - 1) * per_page
     
+    # Get index from config
+    import json
+    import os
+    config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config.json')
+    with open(config_path) as f:
+        config = json.load(f)
+    index = config.get('elasticsearch_config', {}).get('index', 'arxiv')
+    
     result = es.search(
-        index='arxiv',
+        index=index,
         body={
             'from': from_index,
             'size': per_page,

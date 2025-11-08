@@ -56,6 +56,7 @@
     },
     "enable_semantic_scholar_suggestion_popup": false,
     "elasticsearch_config": {
-        "url": "http://localhost:9200"
+        "url": "http://localhost:9200",
+        "index": "arxiv"
     }
 }

@@ -11,7 +11,7 @@ python scripts/index_articles.py
 # Full reindexing (all articles)
 python scripts/index_articles.py --mode full
 
-# Custom index name
+# Custom index name (overrides config.json)
 python scripts/index_articles.py --index my_index
 
 # Custom Elasticsearch URL
@@ -25,7 +25,7 @@ python scripts/index_articles.py --es-url http://localhost:9200
   - `incremental`: Only index articles newer than latest in index
   - `test`: Index limited number of articles for testing
 - `--limit N` - Limit number of articles (default: 10000, used with test mode)
-- `--index INDEX` - Elasticsearch index name (default: arxiv)
+- `--index INDEX` - Elasticsearch index name (overrides config.json)
 - `--es-url URL` - Elasticsearch URL (overrides config.json)
 
 ## Modes

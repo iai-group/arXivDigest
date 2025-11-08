@@ -253,12 +253,14 @@ def create_index_if_not_exists(es, index):
     logger.info(f"Created index: {index}")
 
 
-def index_articles(mode='incremental', index='arxiv', es_url=None, db_config=None, limit=None):
+def index_articles(mode='incremental', index=None, es_url=None, db_config=None, limit=None):
     """Index articles from database to Elasticsearch"""
     config = load_config()
     
     if not es_url:
         es_url = config['elasticsearch_config']['url']
+    if not index:
+        index = config['elasticsearch_config'].get('index', 'arxiv')
     if not db_config:
         db_config = config['sql_config']
     
@@ -322,8 +324,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--index',
-        default='arxiv',
-        help='Elasticsearch index name'
+        help='Elasticsearch index name (overrides config.json)'
     )
     parser.add_argument(
         '--es-url',
