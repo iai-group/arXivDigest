@@ -8,6 +8,7 @@ This document contains instructions on how to install and deploy the arXivDigest
   0. Prerequisites:
       * [Python 3.11+](https://www.python.org/downloads/)
       * [MySQL server](https://www.mysql.com/)
+      * [Elasticsearch 9.0+](https://www.elastic.co/downloads/elasticsearch)
   1. Clone this repository to a location of your choice (will be referred to as `REPO_PATH` below).
   2. Execute all SQL scripts under [db/](db/) in sequential order, starting with [db/database_v1.1.sql](db/database.sql) then v1.1, v2.0, etc.
   3. Run `pip install .` while inside `REPO_PATH` to install the `arxivdigest` Python package and its dependencies.
@@ -19,6 +20,10 @@ This document contains instructions on how to install and deploy the arXivDigest
       * `%cwd%/config.json`
   5. Run the `init_topic_list.py` script in the `/scripts/` folder to populate the database with an initial topic list of general topics that the user can select from.
       * Under `REPO_PATH`, execute the command: `python scripts/init_topic_list.py`
+  6. Start Elasticsearch and index articles:
+      * Start Elasticsearch: `./elasticsearch-9.0.0/bin/elasticsearch`
+      * Index articles: `python scripts/index_articles.py --mode test` (for testing with 10k docs)
+      * Or full index: `python scripts/index_articles.py --mode full`
 
 
 ## Installing updates
@@ -73,6 +78,7 @@ There is a number of recurrent processes that should be automated to run at spec
 The scripts should be run in the following order:
 
   * [Article scraper](scripts/scrape_arxiv.py): Should be run when arXiv releases new articles. The arXiv release schedule can be found [here](https://arxiv.org/help/submit#availability).  Note that articles are not released every day, so this script will not always insert any articles.
+  * [Article indexer](scripts/index_articles.py): Should be run after the Article scraper to index new articles in Elasticsearch. Use `--mode incremental` (default) for new articles only. See [INDEX_ARTICLES.md](scripts/INDEX_ARTICLES.md) for details.
   * [Interleaver](scripts/interleave_articles.py): Should be run after the Article scraper.  Make sure that there is enough time for the recommender systems to generate recommendations between running the two scripts.
   * [Send digest mail](scripts/send_digest_mail.py): Should be run after the Interleaver, the amount of time in between can be varied based on when one wants to send out the digest mails.
 

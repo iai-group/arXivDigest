@@ -12,14 +12,14 @@ def search_articles(es, query, page=1, per_page=10):
     from_index = (page - 1) * per_page
     
     result = es.search(
-        index='arxiv_articles',
+        index='arxiv',
         body={
             'from': from_index,
             'size': per_page,
             'query': {
                 'multi_match': {
                     'query': query,
-                    'fields': ['title^2', 'abstract']
+                    'fields': ['title^2', 'abstract', 'catch_all']
                 }
             }
         }
@@ -28,10 +28,10 @@ def search_articles(es, query, page=1, per_page=10):
     articles = []
     for hit in result['hits']['hits']:
         articles.append({
-            'article_id': hit['_source']['article_id'],
+            'article_id': hit['_id'],
             'title': hit['_source']['title'],
             'abstract': hit['_source']['abstract'],
-            'datestamp': hit['_source']['datestamp'],
+            'datestamp': hit['_source'].get('date'),
             'score': hit['_score']
         })
     
