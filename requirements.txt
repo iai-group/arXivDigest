@@ -1,7 +1,7 @@
 feedparser
 mysql-connector-python
 PyJWT
-Flask==2.2.3
+Flask==2.2.5
 passlib
 nltk
 Flask-Assets==2.0
