@@ -8,17 +8,30 @@ This document contains instructions on how to install and deploy the arXivDigest
   0. Prerequisites:
       * [Python 3.11+](https://www.python.org/downloads/)
       * [MySQL server](https://www.mysql.com/)
+      * [Elasticsearch 9.0+](https://www.elastic.co/downloads/elasticsearch)
   1. Clone this repository to a location of your choice (will be referred to as `REPO_PATH` below).
-  2. Execute all SQL scripts under [db/](db/) in sequential order, starting with [db/database_v1.1.sql](db/database.sql) then v1.1, v2.0, etc.
-  3. Run `pip install .` while inside `REPO_PATH` to install the `arxivdigest` Python package and its dependencies.
+  2. Execute all SQL scripts under [db/](db/) in sequential order, starting with [db/database_v1.0.sql](db/database_v1.0.sql) then v1.1, v2.0, etc.
+  3. Create and activate a Python virtual environment:
+      * `python -m venv .venv`
+      * Activate: `source .venv/bin/activate` (Unix/macOS) or `.venv\Scripts\activate` (Windows)
+  4. Run `pip install .` while inside `REPO_PATH` to install the `arxivdigest` Python package and its dependencies.
       * If installing with the purpose of development, use the command `pip install -e .` instead, to allow editing of the installed package.
       * If running the service under an Apache Web Server, you may need to grant access to the respective user (e.g., www-data on Ubuntu) to the installed package.
-  4. Make sure to put [config.json](/config.json) in any of the below directories and update the settings specific to your system:
-      * `~/arxivdigest/config.json`
-      * `/etc/arxivdigest/config.json`
-      * `%cwd%/config.json`
-  5. Run the `init_topic_list.py` script in the `/scripts/` folder to populate the database with an initial topic list of general topics that the user can select from.
-      * Under `REPO_PATH`, execute the command: `python scripts/init_topic_list.py`
+  5. Copy [config.json](/config.json) to `/etc/arxivdigest/config.json` and update the settings specific to your system:
+      * `sudo mkdir -p /etc/arxivdigest`
+      * `sudo cp config.json /etc/arxivdigest/config.json`
+      * Generate secure keys: `python scripts/generate_keys.py`
+      * Edit `/etc/arxivdigest/config.json` with:
+        - Database credentials (sql_config)
+        - Generated JWT and secret keys (frontend_config)
+        - Email settings (email_config)
+        - Web address
+      * Note: Config can also be placed at `~/arxivdigest/config.json` or current directory for development
+  6. Initialize topics: `python scripts/init_topic_list.py`
+  7. Start Elasticsearch and index articles:
+      * Ensure Elasticsearch is running (as a service or manually)
+      * Index articles: `python scripts/index_articles.py --mode test` (for testing with 10k docs)
+      * Or full index: `python scripts/index_articles.py --mode full`
 
 
 ## Installing updates
@@ -73,6 +86,7 @@ There is a number of recurrent processes that should be automated to run at spec
 The scripts should be run in the following order:
 
   * [Article scraper](scripts/scrape_arxiv.py): Should be run when arXiv releases new articles. The arXiv release schedule can be found [here](https://arxiv.org/help/submit#availability).  Note that articles are not released every day, so this script will not always insert any articles.
+  * [Article indexer](scripts/index_articles.py): Should be run after the Article scraper to index new articles in Elasticsearch. Use `--mode incremental` (default) for new articles only. See [indexing.md](scripts/indexing.md) for details.
   * [Interleaver](scripts/interleave_articles.py): Should be run after the Article scraper.  Make sure that there is enough time for the recommender systems to generate recommendations between running the two scripts.
   * [Send digest mail](scripts/send_digest_mail.py): Should be run after the Interleaver, the amount of time in between can be varied based on when one wants to send out the digest mails.
 

@@ -45,9 +45,12 @@ config_interleave = config.get('interleave_config')
 config_frontend = config.get('frontend_config')
 config_evaluation = config.get('evaluation_config')
 config_arxiv_scraper = config.get('arxiv_scraper_config')
+config_elasticsearch = config.get('elasticsearch_config', {})
 
-jwtKey = config_frontend.get('jwt_key')
-secret_key = config_frontend.get('secret_key')
+elastic_index_name = config_elasticsearch.get('index', 'arxiv')
+
+jwtKey = config_frontend.get('jwt_key') if config_frontend else None
+secret_key = config_frontend.get('secret_key') if config_frontend else None
 
 enable_semantic_scholar_suggestion_popup = config.get('enable_semantic_scholar_suggestion_popup', False)
 

@@ -8,7 +8,7 @@
     },
     "email_config": {
         "from_address": "yourfavouriteapp@gmail.com",
-        "password": "3v4e576b87gnfm8904vcu324r2323r32twgee",
+        "password": "ADD-YOUR-KEY",
         "host": "smtp.gmail.com",
         "port": 587
     },
@@ -33,8 +33,8 @@
         "data_path": "",
         "dev_port": 8080,
         "max_content_length": 10000000,
-        "jwt_key": "mn643745hb6436l,75687kj37hb26vg3wazsefewms5474.,m4nb4q23vqcxwazsmw46n3bvqcawzwab3241vcawqz,6lk4mj3hbavesww",
-        "secret_key": "xPGHuUyNAQaFrlIxtupgu8bnGiSLBpMo4v2w4jcoQ8PCb32Y46WWJhMsSbM2iGzsKravX9l92waqp2qjq7BALke443jbB3uVs7WP08v4JCyrORwvufRY4jKB"
+        "jwt_key": "ADD-YOUR-KEY",
+        "secret_key": "ADD-YOUR-KEY"
     },
     "evaluation_config": {
         "saved_weight": 5,
@@ -54,5 +54,9 @@
         "start_date": null,
         "end_date": null
     },
-    "enable_semantic_scholar_suggestion_popup": false
+    "enable_semantic_scholar_suggestion_popup": false,
+    "elasticsearch_config": {
+        "url": "http://localhost:9200",
+        "index": "arxiv"
+    }
 }

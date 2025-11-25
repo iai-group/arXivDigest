@@ -17,8 +17,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration - Use environment variables
-PROJECT_DIR="$ARXIVDIGEST_PROJECT_DIR"
+# Configuration - Use environment variables or default to parent directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="${ARXIVDIGEST_PROJECT_DIR:-$(dirname "$SCRIPT_DIR")}"
 VENV_PATH="$PROJECT_DIR/.venv"
 ELASTICSEARCH_LOG="/tmp/elasticsearch.log"
 FRONTEND_LOG="/tmp/arxivdigest_frontend.log"
@@ -118,11 +119,17 @@ print_status "Starting Elasticsearch..."
 if check_process "elasticsearch"; then
     print_success "Elasticsearch is already running"
 else
-    print_status "Setting up Elasticsearch environment..."
-    # ES_JAVA_HOME is already set as environment variable
+    # Auto-detect Elasticsearch binary
+    ES_BIN="${ELASTICSEARCH_BIN:-$(dirname "$PROJECT_DIR")/elasticsearch-9.0.0/bin/elasticsearch}"
+    
+    if [ ! -f "$ES_BIN" ]; then
+        print_error "Elasticsearch binary not found at: $ES_BIN"
+        print_error "Please set ELASTICSEARCH_BIN environment variable or install Elasticsearch"
+        exit 1
+    fi
     
     print_status "Starting Elasticsearch in background..."
-    nohup "$ELASTICSEARCH_BIN" > "$ELASTICSEARCH_LOG" 2>&1 &
+    nohup "$ES_BIN" > "$ELASTICSEARCH_LOG" 2>&1 &
     
     # Wait for Elasticsearch to start
     if check_service "Elasticsearch" "9200"; then
@@ -163,12 +170,12 @@ if [ -f "$PROJECT_DIR/arxivdigest/api/app.py" ]; then
         sleep 2
     fi
     
-    print_status "Starting API on port 5000..."
+    print_status "Starting API on port 5002..."
     nohup python -m arxivdigest.api.app > "$API_LOG" 2>&1 &
     API_PID=$!
     
     # Wait for API to start
-    if check_service "API" "5000"; then
+    if check_service "API" "5002"; then
         print_success "API started successfully (PID: $API_PID)"
     else
         print_warning "API failed to start. Check log: $API_LOG"
@@ -188,7 +195,7 @@ echo "  🗄️  MySQL Database: localhost:3306"
 echo "  🔍 Elasticsearch: http://localhost:9200"
 echo "  🌐 Frontend: http://localhost:8080"
 if [ -f "$PROJECT_DIR/arxivdigest/api/app.py" ] && check_process "arxivdigest.api.app"; then
-    echo "  🔧 API: http://localhost:5000"
+    echo "  🔧 API: http://localhost:5002"
 fi
 echo
 echo "Log files:"

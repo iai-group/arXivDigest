@@ -78,7 +78,9 @@ check_database() {
 
 # Function to check Elasticsearch index
 check_elasticsearch_index() {
-    local result=$(curl -s "localhost:9200/_cat/indices/arxiv*?h=docs.count" 2>/dev/null)
+    local es_host="${ES_HOST:-localhost}"
+    local es_port="${ES_PORT:-9200}"
+    local result=$(curl -s "${es_host}:${es_port}/_cat/indices/arxiv*?h=docs.count" 2>/dev/null)
     if [ $? -eq 0 ] && [ -n "$result" ]; then
         echo "$result documents indexed"
         return 0
@@ -111,15 +113,17 @@ fi
 echo
 
 # 2. Elasticsearch
-print_header "🔍 Elasticsearch (Port 9200)"
+ES_HOST="${ES_HOST:-localhost}"
+ES_PORT="${ES_PORT:-9200}"
+print_header "🔍 Elasticsearch (Port ${ES_PORT})"
 if check_process "elasticsearch"; then
     es_info=$(get_process_info "elasticsearch")
     print_success "Elasticsearch is running - $es_info"
     
-    if check_port "9200"; then
+    if check_port "${ES_PORT}"; then
         echo "   └─ HTTP API accessible"
         # Get cluster health
-        health=$(curl -s "localhost:9200/_cluster/health?pretty" 2>/dev/null | grep '"status"' | cut -d'"' -f4)
+        health=$(curl -s "${ES_HOST}:${ES_PORT}/_cluster/health?pretty" 2>/dev/null | grep '"status"' | cut -d'"' -f4)
         if [ -n "$health" ]; then
             case $health in
                 "green") echo -e "   └─ Cluster health: ${GREEN}$health${NC}" ;;
@@ -141,13 +145,15 @@ fi
 echo
 
 # 3. Frontend Service
-print_header "🌐 Frontend Service (Port 8080)"
+FRONTEND_HOST="${FRONTEND_HOST:-localhost}"
+FRONTEND_PORT="${FRONTEND_PORT:-8080}"
+print_header "🌐 Frontend Service (Port ${FRONTEND_PORT})"
 if check_process "arxivdigest.frontend.app"; then
     frontend_info=$(get_process_info "arxivdigest.frontend.app")
     print_success "Frontend is running - $frontend_info"
     
-    if check_port "8080"; then
-        echo "   └─ Web interface accessible at http://localhost:8080"
+    if check_port "${FRONTEND_PORT}"; then
+        echo "   └─ Web interface accessible at http://${FRONTEND_HOST}:${FRONTEND_PORT}"
     else
         print_warning "   └─ Web interface not accessible"
     fi
@@ -157,13 +163,15 @@ fi
 echo
 
 # 4. API Service
-print_header "🔧 API Service (Port 5000)"
+API_HOST="${API_HOST:-localhost}"
+API_PORT="${API_PORT:-5002}"
+print_header "🔧 API Service (Port ${API_PORT})"
 if check_process "arxivdigest.api.app"; then
     api_info=$(get_process_info "arxivdigest.api.app")
     print_success "API is running - $api_info"
     
-    if check_port "5000"; then
-        echo "   └─ API accessible at http://localhost:5000"
+    if check_port "${API_PORT}"; then
+        echo "   └─ API accessible at http://${API_HOST}:${API_PORT}"
     else
         print_warning "   └─ API not accessible"
     fi
@@ -199,7 +207,7 @@ fi
 
 # Port usage
 echo "   └─ Port status:"
-for port in 3306 5000 8080 9200; do
+for port in 3306 ${API_PORT:-5002} ${FRONTEND_PORT:-8080} ${ES_PORT:-9200}; do
     if netstat -an | grep -q ":$port.*LISTEN"; then
         echo -e "      • Port $port: ${GREEN}LISTENING${NC}"
     else
@@ -218,16 +226,16 @@ echo
 # 8. Service URLs (if running)
 running_services=0
 print_header "🌍 Service URLs"
-if check_port "8080"; then
-    echo "   • Frontend: http://localhost:8080"
+if check_port "${FRONTEND_PORT:-8080}"; then
+    echo "   • Frontend: http://${FRONTEND_HOST:-localhost}:${FRONTEND_PORT:-8080}"
     running_services=$((running_services + 1))
 fi
-if check_port "5000"; then
-    echo "   • API: http://localhost:5000"
+if check_port "${API_PORT:-5002}"; then
+    echo "   • API: http://${API_HOST:-localhost}:${API_PORT:-5002}"
     running_services=$((running_services + 1))
 fi
-if check_port "9200"; then
-    echo "   • Elasticsearch: http://localhost:9200"
+if check_port "${ES_PORT:-9200}"; then
+    echo "   • Elasticsearch: http://${ES_HOST:-localhost}:${ES_PORT:-9200}"
     running_services=$((running_services + 1))
 fi
 

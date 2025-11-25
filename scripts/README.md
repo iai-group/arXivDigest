@@ -45,12 +45,14 @@ Shows comprehensive status of all services, ports, database connectivity, and sy
 
 ## One-time setup scripts
 
+* `generate_keys.py`: Generates secure JWT and secret keys for configuration.
 * `init_topic_list.py`: Populates the database with an initial list of topics.
 
 ## Regular scripts
 
 * `interleave_articles.py`: Interleaves article recommendations.
 * `scrape_arxiv.py`: Downloads new articles from arXiv.
+* `index_articles.py`: Indexes articles from database to Elasticsearch. See [indexing.md](indexing.md) for details.
 * `send_digest_mail.py`: Sends out digest email.
 
 ## Manual scripts
