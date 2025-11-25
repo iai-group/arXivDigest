@@ -12,6 +12,7 @@ from flask import jsonify
 from flask import make_response
 from flask import request
 from flask.json import JSONEncoder
+from flask.json.provider import DefaultJSONProvider
 
 import arxivdigest.api.database as db
 from arxivdigest.core.config import config_api
@@ -86,3 +87,20 @@ class CustomJSONEncoder(JSONEncoder):
         else:
             return list(iterable)
         return JSONEncoder.default(self, obj)
+
+
+class CustomJSONProvider(DefaultJSONProvider):
+    """Custom JSON provider for Flask 2.2+ that formats dates in YYYY-MM-dd hh:mm:ss format."""
+
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+        try:
+            iterable = iter(obj)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        return super().default(obj)

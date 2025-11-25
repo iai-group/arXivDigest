@@ -35,6 +35,19 @@ if topic_flag:
     app.register_blueprint(topics.mod)
 
 csrf = CSRFProtect(app)
+
+# Proper CSRF error handling for Flask-WTF 1.1.1
+from flask_wtf.csrf import CSRFError
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    """Handle CSRF errors with more detailed information"""
+    print(f"CSRF Error: {e.description}")
+    # For now, let's temporarily return a more user-friendly message
+    from flask import flash, redirect, url_for
+    flash("Security token expired. Please try again.", "warning")
+    return redirect(url_for("general.loginPage"))
+
 assets = Environment(app)
 if config_frontend.get('data_path', None):
     data_path = config_frontend['data_path']
@@ -98,8 +111,16 @@ def before_request():
     """Checks authTokens before requests to check if users are logged in or not"""
     authToken = request.cookies.get("auth")
     try:
+        # Check if token exists and is a string
+        if authToken is None:
+            raise ValueError("No auth token in cookies")
+        
+        # Ensure token is a string (PyJWT 2.x expects strings)
+        if isinstance(authToken, bytes):
+            authToken = authToken.decode('utf-8')
+        
         payload = jwt.decode(authToken, jwtKey, algorithms=["HS256"])
-        g.user = payload.get('sub', None)
+        g.user = int(payload.get('sub', None))  # Convert subject back to integer
         g.email = payload.get('email', None)
         g.admin = payload.get('admin', False)
         g.inactive = payload.get('inactive', True)

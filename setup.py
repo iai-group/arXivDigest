@@ -8,6 +8,7 @@ with open('requirements.txt') as f:
 setup(
     name='arxivdigest',
     version='1.0',
+    python_requires='>=3.11',
     packages=find_packages(),
     package_data={'arxivdigest.core.mail': ['templates/*.tmpl'],
                   'arxivdigest.frontend': ['templates/*.html',

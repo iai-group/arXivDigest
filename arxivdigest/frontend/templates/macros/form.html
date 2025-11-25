@@ -36,7 +36,9 @@
             <h3 class="panel-title">{{ field.label.text }}</h3>
         </div>
         <div class="panel-body">
-            {% for value, label, _ in field.iter_choices() %}
+            {% for choice in field.iter_choices() %}
+                {% set value = choice[0] %}
+                {% set label = choice[1] %}
                 <label class="{{ class_ }}">
                     <input type="radio" name="{{ field.id }}" id="{{ field.id }}"
                            value="{{ value }}" {{ 'checked' if field.data == value else'' }}>

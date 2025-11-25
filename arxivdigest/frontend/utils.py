@@ -34,12 +34,15 @@ def requiresLogin(f):
 
 def encode_auth_token(id, email):
     """Creates authToken for user with id and email with expire time of 10 days"""
+    is_admin = admin.isAdmin(id)
+    is_user_activated = general.is_activated(id)
+    
     payload = {
         'exp': datetime.datetime.now() + datetime.timedelta(days=10),
-        'sub': id,
-        'admin': admin.isAdmin(id),
+        'sub': str(id),  # Convert user ID to string for PyJWT 2.x compatibility
+        'admin': is_admin,
         'email': email,
-        'inactive': not general.is_activated(id)
+        'inactive': not is_user_activated
     }
     return jwt.encode(payload, jwtKey, algorithm='HS256')
 

@@ -13,7 +13,7 @@ from flask import request
 
 import arxivdigest.api.database as db
 import arxivdigest.api.validator as validation
-from arxivdigest.api.utils import CustomJSONEncoder
+from arxivdigest.api.utils import CustomJSONEncoder, CustomJSONProvider
 from arxivdigest.api.utils import getUserlist
 from arxivdigest.api.utils import validateApiKey
 from arxivdigest.core.config import config_api
@@ -23,7 +23,8 @@ from arxivdigest.core.config import CONSTANTS
 app = Flask(__name__)
 
 app.config.update(**config_api)
-app.json_encoder = CustomJSONEncoder
+# Use modern JSON provider for Flask 2.2+
+app.json_provider_class = CustomJSONProvider
 
 
 @app.route('/user_feedback/articles', methods=['GET'])

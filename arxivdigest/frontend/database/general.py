@@ -203,16 +203,22 @@ def validatePassword(email, password):
     """Checks if users password is correct. Returns userid if correct password, 
     none if user does not exists and false if incorrect password"""
     cur = getDb().cursor()
-    sql = 'SELECT user_id,salted_Hash FROM users WHERE email = %s'
+    sql = 'SELECT user_id,salted_hash FROM users WHERE email = %s'
     cur.execute(sql, (email,))
     user = cur.fetchone()
     cur.close()
 
     if not user:
         return None
-    if pbkdf2_sha256.verify(password.encode('utf-8'), user[1].encode('utf-8')):
-        return user[0]
-    return False
+    
+    try:
+        # Password verification with proper string handling for PyJWT 2.x
+        result = pbkdf2_sha256.verify(password, user[1])
+        if result:
+            return user[0]
+        return False
+    except Exception:
+        return False
 
 
 def userExist(email):
@@ -460,7 +466,7 @@ def is_activated(user_id):
     cur.execute('SELECT inactive FROM users where user_id=%s', (user_id,))
     inactive = cur.fetchone()[0]
     cur.close()
-    return False if inactive is 1 else True
+    return False if inactive == 1 else True
 
 def add_activate_trace(trace, email):
     """Connects the trace from the activation email to the user."""

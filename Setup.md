@@ -6,7 +6,7 @@ This document contains instructions on how to install and deploy the arXivDigest
 ## Initial setup
 
   0. Prerequisites:
-      * [Python 3.6+](https://www.python.org/downloads/)
+      * [Python 3.11+](https://www.python.org/downloads/)
       * [MySQL server](https://www.mysql.com/)
   1. Clone this repository to a location of your choice (will be referred to as `REPO_PATH` below).
   2. Execute all SQL scripts under [db/](db/) in sequential order, starting with [db/database_v1.1.sql](db/database.sql) then v1.1, v2.0, etc.
