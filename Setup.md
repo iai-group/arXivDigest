@@ -20,7 +20,12 @@ This document contains instructions on how to install and deploy the arXivDigest
   5. Copy [config.json](/config.json) to `/etc/arxivdigest/config.json` and update the settings specific to your system:
       * `sudo mkdir -p /etc/arxivdigest`
       * `sudo cp config.json /etc/arxivdigest/config.json`
-      * Edit `/etc/arxivdigest/config.json` with your database credentials and settings
+      * Generate secure keys: `python scripts/generate_keys.py`
+      * Edit `/etc/arxivdigest/config.json` with:
+        - Database credentials (sql_config)
+        - Generated JWT and secret keys (frontend_config)
+        - Email settings (email_config)
+        - Web address
       * Note: Config can also be placed at `~/arxivdigest/config.json` or current directory for development
   6. Initialize topics: `python scripts/init_topic_list.py`
   7. Start Elasticsearch and index articles:

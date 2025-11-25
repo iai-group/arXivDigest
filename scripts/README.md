@@ -45,6 +45,7 @@ Shows comprehensive status of all services, ports, database connectivity, and sy
 
 ## One-time setup scripts
 
+* `generate_keys.py`: Generates secure JWT and secret keys for configuration.
 * `init_topic_list.py`: Populates the database with an initial list of topics.
 
 ## Regular scripts
