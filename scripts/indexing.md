@@ -28,6 +28,39 @@ python scripts/index_articles.py --es-url http://localhost:9200
 - `--index INDEX` - Elasticsearch index name (overrides config.json)
 - `--es-url URL` - Elasticsearch URL (overrides config.json)
 
+## Configuration
+
+The script reads configuration from `config.json` located at:
+1. `/etc/arxivdigest/config.json` (production)
+2. `~/arxivdigest/config.json` (user-specific)
+3. `./config.json` (development)
+
+Required config settings:
+```json
+{
+  "elasticsearch_config": {
+    "url": "http://localhost:9200",
+    "index": "arxiv"
+  },
+  "sql_config": {
+    "user": "root",
+    "password": "root",
+    "host": "localhost",
+    "database": "arxivdigest"
+  }
+}
+```
+
+### Index Settings
+
+Elasticsearch index mappings and settings are defined in `config/index_settings.json`. This file contains:
+- Index settings (shards, replicas)
+- Field mappings (title, abstract, authors, categories, etc.)
+- Analyzers and term vectors
+
+Modify this file to customize the index structure.
+- `--es-url URL` - Elasticsearch URL (overrides config.json)
+
 ## Modes
 
 **Incremental Mode**: Queries Elasticsearch for the latest article date and only indexes articles with newer dates. Falls back to full indexing if index is empty.
@@ -83,3 +116,5 @@ Enable: `systemctl enable --now index-articles.timer`
 - MySQL database with arXivDigest schema
 - Elasticsearch instance running
 - Python packages: `mysql-connector-python`, `elasticsearch`
+- Config file at `/etc/arxivdigest/config.json` (or `~/arxivdigest/config.json` or `./config.json`)
+- Index settings at `config/index_settings.json`

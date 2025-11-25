@@ -21,11 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def load_config():
-    """Load configuration from config.json"""
-    config_path = Path(__file__).parent.parent / 'config.json'
-    with open(config_path) as f:
-        return json.load(f)
+
 
 
 def get_latest_article_date(es, index):
@@ -200,54 +196,10 @@ def create_index_if_not_exists(es, index):
     if es.indices.exists(index=index):
         return
     
-    index_settings = {
-        'settings': {
-            'index': {
-                'number_of_shards': 1,
-                'number_of_replicas': 0
-            }
-        },
-        'mappings': {
-            'properties': {
-                'title': {
-                    'type': 'text',
-                    'term_vector': 'with_positions',
-                    'analyzer': 'english'
-                },
-                'abstract': {
-                    'type': 'text',
-                    'term_vector': 'with_positions',
-                    'analyzer': 'english'
-                },
-                'authors': {
-                    'type': 'nested',
-                    'properties': {
-                        'firstname': {'type': 'keyword'},
-                        'lastname': {'type': 'keyword'},
-                        'affiliations': {'type': 'keyword'}
-                    }
-                },
-                'categories': {'type': 'keyword'},
-                'comments': {
-                    'type': 'text',
-                    'term_vector': 'with_positions',
-                    'analyzer': 'english'
-                },
-                'doi': {'type': 'keyword'},
-                'journal': {'type': 'keyword'},
-                'license': {'type': 'keyword'},
-                'date': {
-                    'type': 'date',
-                    'format': 'date'
-                },
-                'catch_all': {
-                    'type': 'text',
-                    'term_vector': 'with_positions',
-                    'analyzer': 'english'
-                }
-            }
-        }
-    }
+    # Load index settings from config file
+    settings_path = Path(__file__).parent.parent / 'config' / 'index_settings.json'
+    with open(settings_path) as f:
+        index_settings = json.load(f)
     
     es.indices.create(index=index, body=index_settings)
     logger.info(f"Created index: {index}")
@@ -255,14 +207,14 @@ def create_index_if_not_exists(es, index):
 
 def index_articles(mode='incremental', index=None, es_url=None, db_config=None, limit=None):
     """Index articles from database to Elasticsearch"""
-    config = load_config()
+    from arxivdigest.core.config import config_elasticsearch, config_sql, elastic_index_name
     
     if not es_url:
-        es_url = config['elasticsearch_config']['url']
+        es_url = config_elasticsearch.get('url', 'http://localhost:9200')
     if not index:
-        index = config['elasticsearch_config'].get('index', 'arxiv')
+        index = elastic_index_name
     if not db_config:
-        db_config = config['sql_config']
+        db_config = config_sql
     
     es = Elasticsearch(hosts=[es_url])
     

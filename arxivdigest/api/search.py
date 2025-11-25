@@ -9,18 +9,12 @@ def search_articles(es, query, page=1, per_page=10):
         page: Page number (default: 1)
         per_page: Results per page (default: 10)
     """
+    from arxivdigest.core.config import elastic_index_name
+    
     from_index = (page - 1) * per_page
     
-    # Get index from config
-    import json
-    import os
-    config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config.json')
-    with open(config_path) as f:
-        config = json.load(f)
-    index = config.get('elasticsearch_config', {}).get('index', 'arxiv')
-    
     result = es.search(
-        index=index,
+        index=elastic_index_name,
         body={
             'from': from_index,
             'size': per_page,

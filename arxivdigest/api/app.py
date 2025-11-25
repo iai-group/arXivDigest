@@ -687,7 +687,7 @@ def search():
     """API endpoint for searching articles"""
     from arxivdigest.api.search import search_articles
     from elasticsearch import Elasticsearch
-    from arxivdigest.core.config import config
+    from arxivdigest.core.config import config_elasticsearch
     
     query = request.args.get('q', '')
     if not query:
@@ -697,7 +697,7 @@ def search():
     per_page = request.args.get('per_page', 10, type=int)
     
     try:
-        es_url = config.get('elasticsearch_config', {}).get('url', 'http://localhost:9200')
+        es_url = config_elasticsearch.get('url', 'http://localhost:9200')
         es = Elasticsearch([es_url])
         
         results = search_articles(es, query, page, per_page)

@@ -51,6 +51,7 @@ Shows comprehensive status of all services, ports, database connectivity, and sy
 
 * `interleave_articles.py`: Interleaves article recommendations.
 * `scrape_arxiv.py`: Downloads new articles from arXiv.
+* `index_articles.py`: Indexes articles from database to Elasticsearch. See [indexing.md](indexing.md) for details.
 * `send_digest_mail.py`: Sends out digest email.
 
 ## Manual scripts
