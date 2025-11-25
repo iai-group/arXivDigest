@@ -22,10 +22,9 @@ This document contains instructions on how to install and deploy the arXivDigest
       * `sudo cp config.json /etc/arxivdigest/config.json`
       * Edit `/etc/arxivdigest/config.json` with your database credentials and settings
       * Note: Config can also be placed at `~/arxivdigest/config.json` or current directory for development
-  6. Run the `init_topic_list.py` script in the `/scripts/` folder to populate the database with an initial topic list of general topics that the user can select from.
-      * Under `REPO_PATH`, execute the command: `python scripts/init_topic_list.py`
+  6. Initialize topics: `python scripts/init_topic_list.py`
   7. Start Elasticsearch and index articles:
-      * Start Elasticsearch: `./elasticsearch-9.0.0/bin/elasticsearch`
+      * Ensure Elasticsearch is running (as a service or manually)
       * Index articles: `python scripts/index_articles.py --mode test` (for testing with 10k docs)
       * Or full index: `python scripts/index_articles.py --mode full`
 
