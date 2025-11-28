@@ -101,16 +101,51 @@ source "$VENV_PATH/bin/activate"
 
 # 1. Start MySQL (if not already running)
 print_status "Starting MySQL database..."
-if brew services list | grep mysql | grep -q "started"; then
-    print_success "MySQL is already running"
-else
-    brew services start mysql
-    sleep 5
+
+# Detect OS and use appropriate service manager
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS - use brew
     if brew services list | grep mysql | grep -q "started"; then
-        print_success "MySQL started successfully"
+        print_success "MySQL is already running"
     else
-        print_error "Failed to start MySQL"
-        exit 1
+        brew services start mysql
+        sleep 5
+        if brew services list | grep mysql | grep -q "started"; then
+            print_success "MySQL started successfully"
+        else
+            print_error "Failed to start MySQL"
+            exit 1
+        fi
+    fi
+else
+    # Linux - use systemctl
+    if systemctl is-active --quiet mysql 2>/dev/null || systemctl is-active --quiet mariadb 2>/dev/null; then
+        print_success "MySQL/MariaDB is already running"
+    else
+        # Try to start mysql or mariadb
+        if systemctl list-unit-files | grep -q "^mysql.service"; then
+            sudo systemctl start mysql
+            sleep 3
+            if systemctl is-active --quiet mysql; then
+                print_success "MySQL started successfully"
+            else
+                print_error "Failed to start MySQL"
+                exit 1
+            fi
+        elif systemctl list-unit-files | grep -q "^mariadb.service"; then
+            sudo systemctl start mariadb
+            sleep 3
+            if systemctl is-active --quiet mariadb; then
+                print_success "MariaDB started successfully"
+            else
+                print_error "Failed to start MariaDB"
+                exit 1
+            fi
+        else
+            print_error "Neither MySQL nor MariaDB service found"
+            print_error "Please install MySQL or MariaDB first"
+            exit 1
+        fi
     fi
 fi
 

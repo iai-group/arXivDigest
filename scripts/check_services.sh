@@ -64,9 +64,39 @@ get_process_info() {
     fi
 }
 
+# Configuration file path
+CONFIG_FILE="${ARXIVDIGEST_CONFIG:-/etc/arxivdigest/config.json}"
+
+# Function to read config values using Python (more reliable for JSON parsing)
+get_config_value() {
+    local key_path=$1
+    python3 -c "
+import json
+with open('$CONFIG_FILE') as f:
+    config = json.load(f)
+keys = '$key_path'.split('.')
+val = config
+for k in keys:
+    val = val[k]
+print(val)
+" 2>/dev/null
+}
+
 # Function to check database connectivity
 check_database() {
-    local result=$(mysql -u root -proot -e "SELECT COUNT(*) as count FROM arxivdigest.articles;" 2>/dev/null | tail -1)
+    # Read credentials from config file
+    local db_user=$(get_config_value "sql_config.user")
+    local db_pass=$(get_config_value "sql_config.password")
+    local db_host=$(get_config_value "sql_config.host")
+    local db_name=$(get_config_value "sql_config.database")
+    
+    # Fallback to defaults if config reading fails
+    db_user="${db_user:-root}"
+    db_pass="${db_pass:-root}"
+    db_host="${db_host:-localhost}"
+    db_name="${db_name:-arxivdigest}"
+    
+    local result=$(mysql -u "$db_user" -p"$db_pass" -h "$db_host" -e "SELECT COUNT(*) as count FROM ${db_name}.articles;" 2>/dev/null | tail -1)
     if [ $? -eq 0 ] && [ -n "$result" ] && [ "$result" != "count" ]; then
         echo "$result articles in database"
         return 0
@@ -99,7 +129,22 @@ echo
 
 # 1. MySQL Database
 print_header "🗄️  MySQL Database (Port 3306)"
-if brew services list | grep mysql | grep -q "started"; then
+
+# Detect OS and check MySQL status accordingly
+mysql_running=false
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS - use brew
+    if brew services list | grep mysql | grep -q "started"; then
+        mysql_running=true
+    fi
+else
+    # Linux - use systemctl
+    if systemctl is-active --quiet mysql 2>/dev/null || systemctl is-active --quiet mariadb 2>/dev/null; then
+        mysql_running=true
+    fi
+fi
+
+if $mysql_running; then
     print_success "MySQL service is running"
     db_info=$(check_database)
     if [ $? -eq 0 ]; then
@@ -208,7 +253,14 @@ fi
 # Port usage
 echo "   └─ Port status:"
 for port in 3306 ${API_PORT:-5002} ${FRONTEND_PORT:-8080} ${ES_PORT:-9200}; do
-    if netstat -an | grep -q ":$port.*LISTEN"; then
+    # Use ss on Linux (netstat replacement), fall back to netstat on macOS
+    if command -v ss &> /dev/null; then
+        port_listening=$(ss -tuln | grep -q ":$port " && echo "yes" || echo "no")
+    else
+        port_listening=$(netstat -an | grep -q ":$port.*LISTEN" && echo "yes" || echo "no")
+    fi
+    
+    if [ "$port_listening" = "yes" ]; then
         echo -e "      • Port $port: ${GREEN}LISTENING${NC}"
     else
         echo -e "      • Port $port: ${RED}NOT IN USE${NC}"

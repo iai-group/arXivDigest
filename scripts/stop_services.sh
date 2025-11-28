@@ -74,18 +74,29 @@ stop_process() {
     fi
 }
 
-# Function to stop Homebrew service
-stop_brew_service() {
+# Function to stop a system service (cross-platform)
+stop_system_service() {
     local service_name=$1
     local display_name=$2
     
     print_status "Stopping $display_name..."
     
-    if brew services list | grep "$service_name" | grep -q "started"; then
-        brew services stop "$service_name"
-        print_success "$display_name stopped"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS - use brew
+        if brew services list | grep "$service_name" | grep -q "started"; then
+            brew services stop "$service_name"
+            print_success "$display_name stopped"
+        else
+            print_success "$display_name is not running"
+        fi
     else
-        print_success "$display_name is not running"
+        # Linux - use systemctl
+        if systemctl is-active --quiet "$service_name" 2>/dev/null; then
+            sudo systemctl stop "$service_name"
+            print_success "$display_name stopped"
+        else
+            print_success "$display_name is not running"
+        fi
     fi
 }
 
@@ -110,9 +121,15 @@ stop_process "python.*arxivdigest" "Other arXivDigest processes"
 print_status "Stopping Elasticsearch..."
 stop_process "elasticsearch" "Elasticsearch"
 
-# Also try to stop via Homebrew service (in case it was started that way)
-if brew services list | grep elasticsearch-full | grep -q "started"; then
-    brew services stop elasticsearch-full
+# Also try to stop via system service (in case it was started that way)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    if brew services list | grep elasticsearch-full | grep -q "started" 2>/dev/null; then
+        brew services stop elasticsearch-full
+    fi
+else
+    if systemctl is-active --quiet elasticsearch 2>/dev/null; then
+        sudo systemctl stop elasticsearch
+    fi
 fi
 
 # 5. Optionally stop MySQL (ask user first)
@@ -120,7 +137,18 @@ echo
 read -p "Do you want to stop MySQL database? (y/N): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    stop_brew_service "mysql" "MySQL Database"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        stop_system_service "mysql" "MySQL Database"
+    else
+        # Try mysql first, then mariadb on Linux
+        if systemctl is-active --quiet mysql 2>/dev/null; then
+            stop_system_service "mysql" "MySQL Database"
+        elif systemctl is-active --quiet mariadb 2>/dev/null; then
+            stop_system_service "mariadb" "MariaDB Database"
+        else
+            print_success "MySQL/MariaDB is not running"
+        fi
+    fi
 else
     print_status "Keeping MySQL running as requested"
 fi
@@ -164,10 +192,18 @@ else
 fi
 
 # Check MySQL
-if brew services list | grep mysql | grep -q "started"; then
-    print_status "MySQL is still running (as requested or by choice)"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    if brew services list | grep mysql | grep -q "started" 2>/dev/null; then
+        print_status "MySQL is still running (as requested or by choice)"
+    else
+        print_success "MySQL stopped"
+    fi
 else
-    print_success "MySQL stopped"
+    if systemctl is-active --quiet mysql 2>/dev/null || systemctl is-active --quiet mariadb 2>/dev/null; then
+        print_status "MySQL/MariaDB is still running (as requested or by choice)"
+    else
+        print_success "MySQL/MariaDB stopped"
+    fi
 fi
 
 echo
