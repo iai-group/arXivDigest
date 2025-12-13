@@ -82,18 +82,23 @@ stop_system_service() {
     print_status "Stopping $display_name..."
     
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS - use brew
-        if brew services list | grep "$service_name" | grep -q "started"; then
-            brew services stop "$service_name"
+        # macOS - use brew or mysql.server
+        if command -v brew &> /dev/null && brew services list 2>/dev/null | grep "$service_name" | grep -q "started"; then
+            brew services stop "$service_name" 2>/dev/null
+            print_success "$display_name stopped"
+        elif command -v mysql.server &> /dev/null && [ "$service_name" = "mysql" ]; then
+            mysql.server stop 2>/dev/null
             print_success "$display_name stopped"
         else
             print_success "$display_name is not running"
         fi
     else
-        # Linux - use systemctl
-        if systemctl is-active --quiet "$service_name" 2>/dev/null; then
-            sudo systemctl stop "$service_name"
+        # Linux - use systemctl or service command
+        if command -v systemctl &> /dev/null && systemctl is-active --quiet "$service_name" 2>/dev/null; then
+            sudo systemctl stop "$service_name" 2>/dev/null
             print_success "$display_name stopped"
+        elif command -v service &> /dev/null; then
+            sudo service "$service_name" stop 2>/dev/null && print_success "$display_name stopped" || print_success "$display_name is not running"
         else
             print_success "$display_name is not running"
         fi
@@ -123,12 +128,14 @@ stop_process "elasticsearch" "Elasticsearch"
 
 # Also try to stop via system service (in case it was started that way)
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    if brew services list | grep elasticsearch-full | grep -q "started" 2>/dev/null; then
-        brew services stop elasticsearch-full
+    if command -v brew &> /dev/null && brew services list 2>/dev/null | grep elasticsearch-full | grep -q "started"; then
+        brew services stop elasticsearch-full 2>/dev/null
     fi
 else
-    if systemctl is-active --quiet elasticsearch 2>/dev/null; then
-        sudo systemctl stop elasticsearch
+    if command -v systemctl &> /dev/null && systemctl is-active --quiet elasticsearch 2>/dev/null; then
+        sudo systemctl stop elasticsearch 2>/dev/null
+    elif command -v service &> /dev/null; then
+        sudo service elasticsearch stop 2>/dev/null || true
     fi
 fi
 
@@ -141,12 +148,17 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         stop_system_service "mysql" "MySQL Database"
     else
         # Try mysql first, then mariadb on Linux
-        if systemctl is-active --quiet mysql 2>/dev/null; then
-            stop_system_service "mysql" "MySQL Database"
-        elif systemctl is-active --quiet mariadb 2>/dev/null; then
-            stop_system_service "mariadb" "MariaDB Database"
+        if command -v systemctl &> /dev/null; then
+            if systemctl is-active --quiet mysql 2>/dev/null; then
+                stop_system_service "mysql" "MySQL Database"
+            elif systemctl is-active --quiet mariadb 2>/dev/null; then
+                stop_system_service "mariadb" "MariaDB Database"
+            else
+                print_success "MySQL/MariaDB is not running"
+            fi
         else
-            print_success "MySQL/MariaDB is not running"
+            # Fallback for systems without systemctl
+            sudo service mysql stop 2>/dev/null || sudo service mariadb stop 2>/dev/null || print_success "MySQL/MariaDB is not running"
         fi
     fi
 else
@@ -176,10 +188,10 @@ echo
 # Show final status
 print_status "Final service status:"
 
-# Check arXivDigest processes
-if pgrep -f "arxivdigest" > /dev/null; then
+# Check arXivDigest processes (exclude SSH and grep)
+if pgrep -f "python.*arxivdigest" > /dev/null; then
     print_warning "Some arXivDigest processes may still be running:"
-    ps aux | grep arxivdigest | grep -v grep || true
+    ps aux | grep "python.*arxivdigest" | grep -v grep || true
 else
     print_success "All arXivDigest processes stopped"
 fi
@@ -191,19 +203,19 @@ else
     print_success "Elasticsearch stopped"
 fi
 
-# Check MySQL
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    if brew services list | grep mysql | grep -q "started" 2>/dev/null; then
-        print_status "MySQL is still running (as requested or by choice)"
-    else
-        print_success "MySQL stopped"
-    fi
+# Check MySQL - use port check for reliability
+if command -v nc &> /dev/null; then
+    mysql_running=$(nc -z localhost 3306 2>/dev/null && echo "yes" || echo "no")
+elif command -v timeout &> /dev/null; then
+    mysql_running=$(timeout 1 bash -c "</dev/tcp/localhost/3306" 2>/dev/null && echo "yes" || echo "no")
 else
-    if systemctl is-active --quiet mysql 2>/dev/null || systemctl is-active --quiet mariadb 2>/dev/null; then
-        print_status "MySQL/MariaDB is still running (as requested or by choice)"
-    else
-        print_success "MySQL/MariaDB stopped"
-    fi
+    mysql_running=$(bash -c "</dev/tcp/localhost/3306" 2>/dev/null && echo "yes" || echo "no")
+fi
+
+if [ "$mysql_running" = "yes" ]; then
+    print_status "MySQL/MariaDB is still running (as requested or by choice)"
+else
+    print_success "MySQL/MariaDB stopped"
 fi
 
 echo
