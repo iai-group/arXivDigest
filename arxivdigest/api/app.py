@@ -33,7 +33,7 @@ def before_request():
         return
     
     # Handle JWT authentication for user endpoints
-    user_endpoints = ['login', 'signup', 'profile', 'modify', 'logout', 'user_topics', 'user_categories', 'user_recommendations', 'user_saved', 'save_article', 'password_change', 'download_user_data', 'user_systems', 'system_statistics', 'system_feedback', 'register_system', 'admin_general', 'admin_systems', 'admin_toggle_system', 'admin_admins']
+    user_endpoints = ['login', 'signup', 'profile', 'modify', 'logout', 'user_recommendations', 'user_saved', 'save_article', 'password_change', 'download_user_data', 'user_systems', 'system_statistics', 'system_feedback', 'register_system', 'admin_general', 'admin_systems', 'admin_toggle_system', 'admin_admins']
     if request.endpoint in user_endpoints:
         authToken = request.cookies.get("auth")
         try:
@@ -63,8 +63,8 @@ def before_request():
 @app.after_request
 def after_request(response):
     origin = request.headers.get('Origin')
-    # Allow all localhost origins for development
-    if origin and ('localhost' in origin or '127.0.0.1' in origin):
+    # Allow the requesting origin for CORS (required for credentials)
+    if origin:
         response.headers['Access-Control-Allow-Origin'] = origin
     else:
         response.headers['Access-Control-Allow-Origin'] = '*'
@@ -247,6 +247,7 @@ def login():
         max_age=60 * 60 * 24 * 10,
         httponly=False,
         secure=False,
+        samesite=None,
         path='/'
     )
     return resp
@@ -264,20 +265,14 @@ def profile():
 
 @app.route('/user/topics', methods=['GET'])
 def user_topics():
-    """API endpoint for authenticated users to get all topics"""
-    if not hasattr(g, 'loggedIn') or not g.loggedIn:
-        return make_response(jsonify({'error': 'Not authenticated'}), 401)
-    
+    """API endpoint for getting all topics (public endpoint)"""
     topics = db.get_topics()
     return make_response(jsonify({'topics': topics}), 200)
 
 @app.route('/user/categories', methods=['GET'])
 def user_categories():
-    """API endpoint for authenticated users to get all categories"""
+    """API endpoint for getting all categories (public endpoint)"""
     from arxivdigest.frontend.database import general as frontend_db
-    
-    if not hasattr(g, 'loggedIn') or not g.loggedIn:
-        return make_response(jsonify({'error': 'Not authenticated'}), 401)
     
     categories = frontend_db.getCategoryNames()
     return make_response(jsonify({'categories': categories}), 200)
@@ -292,6 +287,18 @@ def signup():
     
     data = request.form.to_dict()
     
+    # Convert comma-separated topics to newline-separated format
+    topics_str = data.get('topics', '')
+    topics_list = [t.strip() for t in topics_str.split(',') if t.strip()]
+    if topics_list:
+        data['topics'] = '\n'.join(topics_list)
+    
+    # Convert comma-separated categories to newline-separated format
+    categories_str = data.get('categories', '')
+    categories_list = [c.strip() for c in categories_str.split(',') if c.strip()]
+    if categories_list:
+        data['categories'] = '\n'.join(categories_list)
+    
     try:
         user = User(data)
     except ValidationError as e:
@@ -301,7 +308,13 @@ def signup():
         return make_response(jsonify({'error': 'Email already used by another account'}), 400)
     
     user_id = frontend_db.insertUser(user)
-    send_confirmation_email(user.email)
+    
+    # Try to send confirmation email, but don't fail if it doesn't work
+    try:
+        send_confirmation_email(user.email)
+    except Exception as e:
+        # Log the error but continue - user is already created
+        print(f"Warning: Failed to send confirmation email to {user.email}: {e}")
     
     auth_token = encode_auth_token(user_id, user.email)
     resp = make_response(jsonify({'success': True, 'user_id': user_id}))
@@ -311,6 +324,7 @@ def signup():
         max_age=60 * 60 * 24 * 10,
         httponly=False,
         secure=False,
+        samesite=None,
         path='/'
     )
     return resp
@@ -732,4 +746,4 @@ def teardownDb(exception):
 
 
 if __name__ == '__main__':
-    app.run(port=5002, debug=True)
+    app.run(host="0.0.0.0", port=5002, debug=True)

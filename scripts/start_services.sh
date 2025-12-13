@@ -74,6 +74,19 @@ check_process() {
     fi
 }
 
+# Function to check if a port is open (portable across macOS and Linux)
+check_port() {
+    local port=$1
+    if command -v nc &> /dev/null; then
+        nc -z localhost "$port" 2>/dev/null
+    elif command -v timeout &> /dev/null; then
+        timeout 1 bash -c "</dev/tcp/localhost/$port" 2>/dev/null
+    else
+        bash -c "</dev/tcp/localhost/$port" 2>/dev/null
+    fi
+    return $?
+}
+
 echo "======================================"
 echo "  arXivDigest Service Startup"
 echo "======================================"
@@ -100,78 +113,81 @@ print_status "Activating Python virtual environment..."
 source "$VENV_PATH/bin/activate"
 
 # 1. Start MySQL (if not already running)
-print_status "Starting MySQL database..."
+print_status "Checking MySQL database..."
 
-# Detect OS and use appropriate service manager
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS - use brew
-    if brew services list | grep mysql | grep -q "started"; then
-        print_success "MySQL is already running"
-    else
-        brew services start mysql
-        sleep 5
-        if brew services list | grep mysql | grep -q "started"; then
-            print_success "MySQL started successfully"
+# Check if MySQL is already running by testing port 3306
+if check_port 3306; then
+    print_success "MySQL is already running"
+else
+    print_status "Starting MySQL database..."
+    # Detect OS and use appropriate service manager
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS - try brew services first, then mysql.server
+        if command -v brew &> /dev/null; then
+            brew services start mysql 2>/dev/null || mysql.server start 2>/dev/null
         else
-            print_error "Failed to start MySQL"
-            exit 1
+            mysql.server start 2>/dev/null
+        fi
+        sleep 5
+    else
+        # Linux - use systemctl
+        if command -v systemctl &> /dev/null; then
+            if systemctl list-unit-files 2>/dev/null | grep -q "^mysql.service"; then
+                sudo systemctl start mysql 2>/dev/null || true
+            elif systemctl list-unit-files 2>/dev/null | grep -q "^mariadb.service"; then
+                sudo systemctl start mariadb 2>/dev/null || true
+            else
+                print_error "Neither MySQL nor MariaDB service found"
+                exit 1
+            fi
+            sleep 3
+        else
+            # Try service command as fallback
+            sudo service mysql start 2>/dev/null || sudo service mariadb start 2>/dev/null || true
+            sleep 3
         fi
     fi
-else
-    # Linux - use systemctl
-    if systemctl is-active --quiet mysql 2>/dev/null || systemctl is-active --quiet mariadb 2>/dev/null; then
-        print_success "MySQL/MariaDB is already running"
+    
+    # Verify MySQL started successfully
+    if check_port 3306; then
+        print_success "MySQL started successfully"
     else
-        # Try to start mysql or mariadb
-        if systemctl list-unit-files | grep -q "^mysql.service"; then
-            sudo systemctl start mysql
-            sleep 3
-            if systemctl is-active --quiet mysql; then
-                print_success "MySQL started successfully"
-            else
-                print_error "Failed to start MySQL"
-                exit 1
-            fi
-        elif systemctl list-unit-files | grep -q "^mariadb.service"; then
-            sudo systemctl start mariadb
-            sleep 3
-            if systemctl is-active --quiet mariadb; then
-                print_success "MariaDB started successfully"
-            else
-                print_error "Failed to start MariaDB"
-                exit 1
-            fi
-        else
-            print_error "Neither MySQL nor MariaDB service found"
-            print_error "Please install MySQL or MariaDB first"
-            exit 1
-        fi
+        print_error "Failed to start MySQL"
+        exit 1
     fi
 fi
 
-# 2. Start Elasticsearch
-print_status "Starting Elasticsearch..."
-if check_process "elasticsearch"; then
-    print_success "Elasticsearch is already running"
+# 2. Start Elasticsearch (optional - skip if SKIP_ELASTICSEARCH=1)
+if [ "${SKIP_ELASTICSEARCH:-0}" = "1" ]; then
+    print_warning "Skipping Elasticsearch (SKIP_ELASTICSEARCH=1)"
+    ELASTICSEARCH_RUNNING=false
 else
-    # Auto-detect Elasticsearch binary
-    ES_BIN="${ELASTICSEARCH_BIN:-$(dirname "$PROJECT_DIR")/elasticsearch-9.0.0/bin/elasticsearch}"
-    
-    if [ ! -f "$ES_BIN" ]; then
-        print_error "Elasticsearch binary not found at: $ES_BIN"
-        print_error "Please set ELASTICSEARCH_BIN environment variable or install Elasticsearch"
-        exit 1
-    fi
-    
-    print_status "Starting Elasticsearch in background..."
-    nohup "$ES_BIN" > "$ELASTICSEARCH_LOG" 2>&1 &
-    
-    # Wait for Elasticsearch to start
-    if check_service "Elasticsearch" "9200"; then
-        print_success "Elasticsearch started successfully"
+    print_status "Starting Elasticsearch..."
+    if check_process "elasticsearch"; then
+        print_success "Elasticsearch is already running"
+        ELASTICSEARCH_RUNNING=true
     else
-        print_error "Failed to start Elasticsearch. Check log: $ELASTICSEARCH_LOG"
-        exit 1
+        # Auto-detect Elasticsearch binary
+        ES_BIN="${ELASTICSEARCH_BIN:-$(dirname "$PROJECT_DIR")/elasticsearch-9.0.0/bin/elasticsearch}"
+        
+        if [ ! -f "$ES_BIN" ]; then
+            print_warning "Elasticsearch binary not found at: $ES_BIN"
+            print_warning "Continuing without Elasticsearch (search functionality will be unavailable)"
+            ELASTICSEARCH_RUNNING=false
+        else
+            print_status "Starting Elasticsearch in background..."
+            nohup "$ES_BIN" > "$ELASTICSEARCH_LOG" 2>&1 &
+            
+            # Wait for Elasticsearch to start
+            if check_service "Elasticsearch" "9200"; then
+                print_success "Elasticsearch started successfully"
+                ELASTICSEARCH_RUNNING=true
+            else
+                print_warning "Failed to start Elasticsearch. Check log: $ELASTICSEARCH_LOG"
+                print_warning "Continuing without Elasticsearch (search functionality will be unavailable)"
+                ELASTICSEARCH_RUNNING=false
+            fi
+        fi
     fi
 fi
 
@@ -225,9 +241,13 @@ echo "======================================"
 echo "  Service Startup Complete!"
 echo "======================================"
 echo
-print_success "All services are now running:"
+print_success "Services are now running:"
 echo "  🗄️  MySQL Database: localhost:3306"
-echo "  🔍 Elasticsearch: http://localhost:9200"
+if [ "$ELASTICSEARCH_RUNNING" = "true" ]; then
+    echo "  🔍 Elasticsearch: http://localhost:9200"
+else
+    echo "  ⚠️  Elasticsearch: NOT RUNNING (search disabled)"
+fi
 echo "  🌐 Frontend: http://localhost:8080"
 if [ -f "$PROJECT_DIR/arxivdigest/api/app.py" ] && check_process "arxivdigest.api.app"; then
     echo "  🔧 API: http://localhost:5002"
