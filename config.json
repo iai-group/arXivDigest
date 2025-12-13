@@ -1,5 +1,5 @@
 {
-    "web_address": "http://127.0.0.1/",
+    "web_address": "http://127.0.0.1:8080/",
     "sql_config": {
         "user": "root",
         "password": "root",
