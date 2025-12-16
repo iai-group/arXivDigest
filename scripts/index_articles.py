@@ -45,8 +45,15 @@ def get_latest_article_date(es, index):
     return None
 
 
-def fetch_articles(db_config, since_date=None, limit=None):
-    """Fetch articles from database, optionally filtering by date"""
+def fetch_articles(db_config, since_date=None, limit=None, offset=None):
+    """Fetch articles from database, optionally filtering by date
+    
+    Args:
+        db_config: Database configuration dict
+        since_date: Only fetch articles after this date (for incremental indexing)
+        limit: Maximum number of articles to fetch
+        offset: Number of articles to skip (for batch processing)
+    """
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
     
@@ -68,6 +75,10 @@ def fetch_articles(db_config, since_date=None, limit=None):
     if limit:
         query += " LIMIT %s"
         params.append(limit)
+    
+    if offset:
+        query += " OFFSET %s"
+        params.append(offset)
     
     cursor.execute(query, params)
     articles = cursor.fetchall()
@@ -205,9 +216,31 @@ def create_index_if_not_exists(es, index):
     logger.info(f"Created index: {index}")
 
 
-def index_articles(mode='incremental', index=None, es_url=None, db_config=None, limit=None):
-    """Index articles from database to Elasticsearch"""
+def index_articles(mode='incremental', index=None, es_url=None, db_config=None, limit=None, offset=None, progress_file=None):
+    """Index articles from database to Elasticsearch
+    
+    Args:
+        mode: 'full', 'incremental', or 'test'
+        index: Elasticsearch index name
+        es_url: Elasticsearch URL
+        db_config: Database configuration dict
+        limit: Maximum number of articles to index (batch size)
+        offset: Number of articles to skip (for batch processing)
+        progress_file: File to write progress updates to
+    """
     from arxivdigest.core.config import config_elasticsearch, config_sql, elastic_index_name
+    
+    def update_progress(message, current=None, total=None):
+        """Update progress to both logger and progress file"""
+        if current is not None and total is not None:
+            pct = (current / total * 100) if total > 0 else 0
+            full_msg = f"{message} [{current}/{total}] ({pct:.1f}%)"
+        else:
+            full_msg = message
+        logger.info(full_msg)
+        if progress_file:
+            with open(progress_file, 'w') as f:
+                f.write(full_msg + '\n')
     
     if not es_url:
         es_url = config_elasticsearch.get('url', 'http://localhost:9200')
@@ -219,6 +252,7 @@ def index_articles(mode='incremental', index=None, es_url=None, db_config=None, 
     es = Elasticsearch(hosts=[es_url])
     
     # Create index if needed
+    update_progress("Creating index if needed...")
     create_index_if_not_exists(es, index)
     
     # Determine date filter
@@ -226,35 +260,64 @@ def index_articles(mode='incremental', index=None, es_url=None, db_config=None, 
     if mode == 'incremental':
         since_date = get_latest_article_date(es, index)
         if since_date:
-            logger.info(f"Incremental mode: indexing articles after {since_date}")
+            update_progress(f"Incremental mode: indexing articles after {since_date}")
         else:
-            logger.info("No existing articles found, performing full index")
+            update_progress("No existing articles found, performing full index")
     elif mode == 'test':
-        logger.info(f"Test mode: indexing up to {limit} articles")
+        update_progress(f"Test mode: indexing up to {limit} articles")
     else:
-        logger.info("Full reindex mode: indexing all articles")
+        if offset and limit:
+            update_progress(f"Batch mode: indexing articles {offset} to {offset + limit}")
+        elif offset:
+            update_progress(f"Full reindex mode: starting from offset {offset}")
+        elif limit:
+            update_progress(f"Full reindex mode: indexing up to {limit} articles")
+        else:
+            update_progress("Full reindex mode: indexing all articles")
     
     # Fetch articles
-    articles = fetch_articles(db_config, since_date, limit)
+    update_progress("Fetching articles from database...")
+    articles = fetch_articles(db_config, since_date, limit, offset)
     
     if not articles:
-        logger.info("No new articles to index")
+        update_progress("No new articles to index. Done!")
         return
     
-    logger.info(f"Found {len(articles)} articles to index")
+    total_articles = len(articles)
+    update_progress(f"Found {total_articles} articles to index")
     
     # Fetch related data
+    update_progress("Fetching authors...")
     article_ids = [a['article_id'] for a in articles]
     authors = fetch_article_authors(db_config, article_ids)
+    
+    update_progress("Fetching categories...")
     categories = fetch_article_categories(db_config, article_ids)
     
-    # Bulk index
-    actions = generate_bulk_actions(articles, authors, categories, index)
-    success, failed = bulk(es, actions, chunk_size=500, raise_on_error=False)
+    # Bulk index with progress tracking
+    update_progress("Starting bulk indexing...", 0, total_articles)
     
-    logger.info(f"Indexed {success} articles successfully")
-    if failed:
-        logger.warning(f"Failed to index {len(failed)} articles")
+    indexed_count = 0
+    failed_count = 0
+    chunk_size = 500
+    
+    # Process in chunks to show progress
+    for i in range(0, len(articles), chunk_size):
+        chunk = articles[i:i + chunk_size]
+        chunk_ids = [a['article_id'] for a in chunk]
+        chunk_authors = {k: v for k, v in authors.items() if k in chunk_ids}
+        chunk_categories = {k: v for k, v in categories.items() if k in chunk_ids}
+        
+        actions = list(generate_bulk_actions(chunk, chunk_authors, chunk_categories, index))
+        success, failed = bulk(es, actions, chunk_size=chunk_size, raise_on_error=False)
+        
+        indexed_count += success
+        if failed:
+            failed_count += len(failed)
+        
+        update_progress("Indexing articles", indexed_count, total_articles)
+    
+    update_progress(f"COMPLETE: Indexed {indexed_count} articles successfully. Failed: {failed_count}")
 
 
 if __name__ == '__main__':
@@ -271,8 +334,21 @@ if __name__ == '__main__':
     parser.add_argument(
         '--limit',
         type=int,
-        default=10000,
-        help='Limit number of articles (used with test mode)'
+        default=None,
+        help='Maximum number of articles to index (batch size). Required for test mode.'
+    )
+    parser.add_argument(
+        '--offset',
+        type=int,
+        default=None,
+        help='Number of articles to skip (for batch processing). Use with --limit for manual batching.'
+    )
+    parser.add_argument(
+        '--batch-size',
+        type=int,
+        default=None,
+        dest='batch_size',
+        help='Alias for --limit (batch size for processing)'
     )
     parser.add_argument(
         '--index',
@@ -282,14 +358,26 @@ if __name__ == '__main__':
         '--es-url',
         help='Elasticsearch URL (overrides config.json)'
     )
+    parser.add_argument(
+        '--progress-file',
+        default='/tmp/index_progress.txt',
+        help='File to write progress updates to (for background monitoring)'
+    )
     
     args = parser.parse_args()
     
-    limit = args.limit if args.mode == 'test' else None
+    # Determine limit: use batch_size if provided, otherwise use limit
+    limit = args.batch_size or args.limit
+    
+    # For test mode, default to 10000 if no limit specified
+    if args.mode == 'test' and limit is None:
+        limit = 10000
     
     index_articles(
         mode=args.mode,
         index=args.index,
         es_url=args.es_url,
-        limit=limit
+        limit=limit,
+        offset=args.offset,
+        progress_file=args.progress_file
     )
